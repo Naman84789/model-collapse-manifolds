@@ -435,7 +435,8 @@ Figure~\ref{fig:trap} separates the roles exactly as \eqref{eq:varode} dictates:
 sampler's own noise (the $+1$) is load-bearing for the floor's \emph{existence}:
 switching it off sends $V\to0$ (point collapse, the deterministic horn), while the
 finite ceiling $\kb$ makes the floor \emph{larger than} $\sigsq$ (the stochastic horn).
-The two horns bracket the target from both sides; no setting of the noise knob reaches it.
+The two branches bracket the target from both sides; no choice of the sampler noise
+magnitude attains it.
 
 \paragraph{Zero-fit confrontation with a real network (\emph{we observe}).} For our
 standard pipeline the measured slope profile tracks $\kappa(t)$ faithfully at benign
@@ -661,8 +662,14 @@ confirming this at scale is the clearest next step and is left as future work.
 Every claim maps to a script, an append-only result log, and a figure in the released
 code (ring, ablation, MNIST, floor law, law identification; $\sim$2 CPU-hours total).
 The four result figures regenerate from logged data in seconds. A README lists the
-run order, the twelve load-bearing scripts, and the headline numbers a reproduction
-must match.
+run order, the load-bearing scripts, and the headline numbers a reproduction
+must match. The released code also includes an adversarial verification script for
+Theorem~\ref{thm:floor}: it re-derives the band crossing symbolically (independent of the
+manuscript's derivation), integrates the limit ODE with an independent solver, confirms
+the limiting cases $\rho\to0$, $\rho\to1^-$, $\kb\to\infty$, and $\lambda\to1$, verifies
+that the boundary layer contracts at the predicted quadratic rate, and attacks the
+comparison bound with 200 randomized slope profiles including overshooting ones; all
+checks pass.
 
 \subsubsection*{Acknowledgments}
 Numerical experiments, figure preparation, and portions of the derivations were carried

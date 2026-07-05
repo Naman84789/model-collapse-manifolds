@@ -24,6 +24,7 @@ context — they are not part of this repository.
 - **CPU-only** (all runs were done on 12 threads, no GPU needed).
 - Python 3.11+, with `numpy`, `torch` (CPU build), `matplotlib`. `torchvision` is only
   needed once to build the MNIST cache (a prebuilt `mnist8x8.npz` is already included).
+  `falsify_floor.py` additionally needs `scipy` (and uses `sympy` if installed).
 - Each script sets `os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"` before importing torch and
   calls `torch.set_num_threads(12)` — no shell setup required.
 - Every long run is **append-only resumable**: results stream to a `*.jsonl`; re-running a
@@ -55,6 +56,7 @@ step 12 below.
 | 10 | `jump_dscaling.py` | `jump_dscaling.jsonl` (12) | Supporting: raw floor blows up ~linearly in ambient d; matched floor **saturates** (~d^0.1); no compounding to d=128. | — | ~20 min |
 | 11 | `test_axmatch.py` | stdout | Unit test of the pixel-space local matcher (no crash when pool>ref; off-manifold 3.02→1.55). | — | ~1 min |
 | 12 | `make_figures.py` | `figures/fig1–4.png` | Regenerates all four paper figures from the jsonl above. | all | seconds |
+| 13 | `falsify_floor.py` | stdout (14 checks) | **Adversarial verification of Theorem 2.** Independent RK45 integration vs both closed forms; sympy symbolic re-derivation of the band crossing; limits ρ→0, ρ→1⁻, κ̄→∞, λ→1; boundary-layer contraction at the predicted quadratic rate; 200-profile Monte Carlo attack on the comparison bound (incl. overshoot). 14/14 pass. | — | ~1 min |
 
 ### Regenerate the four figures
 ```
