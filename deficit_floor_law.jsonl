@@ -1,0 +1,18 @@
+{"test": "mono", "kbar": 2, "phi": 0.035329, "rel": 14.1317}
+{"test": "mono", "kbar": 3, "phi": 0.015706, "rel": 6.2823}
+{"test": "mono", "kbar": 3.9, "phi": 0.009537, "rel": 3.8147}
+{"test": "mono", "kbar": 5, "phi": 0.006103, "rel": 2.4412}
+{"test": "mono", "kbar": 7, "phi": 0.003577, "rel": 1.4306}
+{"test": "mono", "kbar": 10, "phi": 0.002501, "rel": 1.0005}
+{"test": "mono", "kbar": 15, "phi": 0.002501, "rel": 1.0004}
+{"test": "universal", "rho": 0.2, "rel": [13.636, 14.132, 17.008]}
+{"test": "universal", "rho": 0.3, "rel": [6.201, 6.282, 6.708]}
+{"test": "universal", "rho": 0.4, "rel": [3.62, 3.64, 3.766]}
+{"test": "universal", "rho": 0.5, "rel": [2.436, 2.441, 2.491]}
+{"test": "universal", "rho": 0.6, "rel": [1.802, 1.803, 1.827]}
+{"test": "universal", "rho": 0.7, "rel": [1.431, 1.431, 1.443]}
+{"test": "asymptote", "kbar": 1.5, "phi_kbar2": 0.14569}
+{"test": "asymptote", "kbar": 2, "phi_kbar2": 0.14122}
+{"test": "asymptote", "kbar": 2.5, "phi_kbar2": 0.14045}
+{"test": "asymptote", "kbar": 3, "phi_kbar2": 0.14126}
+{"test": "predict_measured", "kbar": 3.9, "phi": 0.00954, "measured": "~0.0095-0.010"}

@@ -1,0 +1,876 @@
+\documentclass[11pt]{article}
+
+% ---------------------------------------------------------------- packages
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+
+% ---------------------------------------------------------------- theorem envs
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{proposition}{Proposition}
+\newtheorem{assumption}{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+% ---------------------------------------------------------------- macros
+\newcommand{\kb}{\bar\kappa}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\epshat}{\hat\varepsilon}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\dist}{\mathrm{dist}}
+\newcommand{\Phidet}{\Phi_{\mathrm{det}}}
+\newcommand{\sigsq}{\sigma^2}
+
+\title{\bf Model Collapse on Manifolds:\\ a Closed-Form Capacity Floor and a Data-Anchoring Fix}
+\author{Naman Chandwani\\ \small Independent Researcher\\ \small \texttt{namanchandwani.10@gmail.com}}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+% ================================================================ abstract
+\begin{abstract}
+Generative models are increasingly trained on data that includes their own past outputs,
+and for diffusion models this \emph{self-consuming} loop is known to degrade quality from
+one generation to the next. The sharpest existing theory \citep{khelifa2026recursive}
+shows that a carefully annealed early-stopping schedule repairs the loop---but only when the
+data density is smooth, explicitly leaving open the case that matters most in practice,
+where data concentrate on a thin low-dimensional manifold. We settle this case, in two
+parts. \emph{Negatively}, we prove a \emph{capacity floor}: near a manifold of width
+$\sigma$ the score a diffusion model must represent is steep only inside a short, finite
+window of noise levels, so any network whose slope is capped below that peak bakes in a
+fixed amount of excess width on every pass that later denoising cannot remove. In the
+singular limit the floor is \emph{closed form}---$1/(8\kb^2)$ in the network's slope cap
+$\kb$, with no dependence on the sampling schedule---so a fixed model collapses without
+bound as the manifold thins, and staying bounded requires capacity growing like $\sqrt{J}$
+in the Fisher information $J$. Empirically the trap is two-horned: the stochastic sampler
+sticks $\sim\!11\times$ too wide, while the deterministic one collapses to a point; neither
+reaches the data. \emph{Constructively}, we prove that periodically re-matching the model's
+output to a small, \emph{fixed} pool of real examples---matching their \emph{local width},
+not re-inserting the examples themselves---makes the loop \emph{memoryless}, so error stops
+compounding for every positive fraction of real data. Over a 20-generation head-to-head the
+prior state of the art plateaus at $9.8\sigma^2$ while anchoring holds $1.01\sigma^2$, and
+on pixel-space MNIST anchoring removes $\sim$81\% of the off-manifold collapse. All
+experiments run on CPU and are reproducible from released scripts.
+\end{abstract}
+
+% ================================================================ 1 intro
+\section{Introduction}\label{sec:intro}
+
+Web-scale corpora already contain machine-generated data, and synthetic data is used
+deliberately in modern training pipelines. When a generative model is repeatedly
+retrained on a pool containing its own previous outputs, quality degrades across
+generations---\emph{model collapse}
+\citep{shumailov2024nature,alemohammad2024mad,bertrand2024stability,dohmatob2024tale}.
+For diffusion models, \citet{khelifa2026recursive} give the sharpest analysis to date:
+with a fraction $\lambda$ of fresh real data per generation and an annealed truncation
+schedule $t_0(g)\to0$, the recursion converges back to the data distribution---%
+\emph{provided the data has finite Fisher information} (their Case~1). They explicitly
+leave open their Case~2: data supported on, or concentrated near, a low-dimensional
+manifold, where the Fisher information $J\asymp(d-k)/\sigsq$ diverges as the noise width
+$\sigma\to0$. Essentially all natural data---images, audio, molecular conformations---is
+of this second kind \citep{fefferman2016testing,pidstrigach2022manifold}.
+
+This paper answers Case~2.
+
+\paragraph{The idea in one paragraph.} When a model repeatedly learns from its own samples,
+the hardest property to preserve is the data's \emph{thinness}---the exact width of a pen
+stroke, the sharp edge of a shape. We show that a finite-capacity denoiser can reproduce
+that thinness only inside a brief window of noise levels, so a small, fixed amount of blur
+is baked in every generation and accumulates. Two things follow. The blur has an \emph{exact
+floor} set by a single number---the steepest slope the network can represent---and \emph{no}
+training or sampling schedule can lower it. And the accumulation can be cancelled by
+periodically re-matching the model's output to a small, unchanging set of real examples: not
+by copying the examples back into training, but by rescaling to \emph{their local width}.
+The rest of this section makes both statements precise---the first is our \emph{negative}
+result (a capacity floor), the second our \emph{constructive} one (a data-anchoring fix).
+
+\textbf{The negative half} is a \emph{capacity floor} (Section~\ref{sec:floor}). The
+score that a diffusion model must represent near a $\sigma$-thin manifold has normal
+slope $\kappa(t)=s(t)/\gamma^2(t)$ which is \emph{non-monotone} in diffusion time: it
+peaks at $\kappa_{\max}=1/(2\sigma)$ near $t\approx\sigsq$ and falls back toward zero as
+$t\to0$ (Figure~\ref{fig:mechanism}a). A network whose normal slope is bounded by $\kb$
+therefore under-contracts on a \emph{finite band} of diffusion times; the excess variance
+frozen in while crossing that band can never be removed afterwards, because too few
+contraction e-folds remain below the band. We prove that in the singular limit the
+resulting floor is a universal function of the single ratio $\rho=\kb/\kappa_{\max}$ and
+admits \emph{closed forms}: under no assumption beyond the slope bound, the floor is
+exactly $\sigsq/(2\rho^2)=1/(8\kb^2)$---so a fixed network collapses relatively without
+bound as $\sigma\to0$, and bounded collapse requires $\kb=\Omega(1/\sigma)=\Omega(\sqrt J)$.
+No truncation schedule enters these statements: annealing targets a term the schedule can
+kill, while the floor lives in a term it cannot touch. Empirically the trap is
+\emph{two-horned} (Figure~\ref{fig:trap}): keeping the reverse-SDE noise, the sampler
+sticks $\sim\!11\times$ too wide; removing it, the recursion collapses to a single point.
+Neither branch reaches the data.
+
+\textbf{The constructive half} is an anchoring operator (Section~\ref{sec:fix}). A
+bidirectional, per-axis, local moment match of the training pool (and sampler output) to
+a small \emph{stale} reference of real data---2{,}000 samples drawn once at generation
+zero---pins the normal variance at the reference value each generation. We prove this
+makes the recursion \emph{memoryless}: the fixed-point equation loses its dependence on
+the previous generation, the critical fraction disappears, and the dynamics of
+\citet{khelifa2026recursive}'s Theorem~4.1 are restored in the singular regime. In a
+20-generation head-to-head against their annealed-truncation remedy
+(Figure~\ref{fig:headtohead}), the annealed arm plateaus at $9.8\sigma^2$ while the
+anchored arms hold $1.01\sigma^2$, flat, on both samplers we test; on real pixels
+(MNIST), anchoring closes $\sim$81\% of the collapse gap (Figure~\ref{fig:mnist}).
+
+\paragraph{Contributions.}
+\begin{enumerate}\itemsep2pt
+\item \textbf{A law of collapse} (Theorem~\ref{thm:law}): under a measured
+  one-dimensional concave response law, the variance recursion has a unique plateau for
+  $\lambda>\lambda^*=c_\infty/(1+c_\infty)$ and no plateau below; truncation enters only
+  additively, which makes precise why annealing schedules cannot help singular data.
+\item \textbf{A closed-form capacity floor} (Theorem~\ref{thm:floor},
+  Corollary~\ref{cor:capacity}): any reverse-SDE sampler with normal score slope
+  $\le\kb$ is floored; in the singular limit the floor is $1/(8\kb^2)$ unconditionally
+  and $\big((1+3e^{-4})/8\big)\kb^{-2}$ for the empirically observed no-overshoot class---%
+  two constants that differ by only $5.5\%$. Bounded relative collapse as $\sigma\to0$
+  requires $\kb\ge 1/(2\sigma\sqrt{2C})$.
+\item \textbf{A memorylessness theorem for anchoring} (Theorem~\ref{thm:fix}): matching
+  pool and output normal variance to a stale real reference removes the recursion's
+  memory, for every $\lambda>0$, with an error bound independent of the ambient dimension.
+\item \textbf{Falsifiable empirics}: a zero-fit prediction of the measured sampling floor
+  from one measured network property; a two-horned ablation separating the floor's
+  existence (sampler noise) from its size (slope ceiling); a 20-generation, 5-seed
+  head-to-head win over the state-of-the-art remedy; and a pixel-space MNIST recursion.
+\end{enumerate}
+
+Throughout we keep the epistemic status of each claim explicit: \emph{we prove}
+(mathematics, given stated assumptions), \emph{we observe} (multi-seed experiments), or
+\emph{we model} (measured structural laws that we do not derive). Section~\ref{sec:limits}
+collects everything in the third category.
+
+% ================================================================ 2 related
+\section{Related work}\label{sec:related}
+
+\textbf{Model collapse.} Collapse under recursive training is documented and analyzed
+across model families
+\citep{shumailov2024nature,alemohammad2024mad,dohmatob2024tale,bertrand2024stability,gerstgrasser2024collapse};
+accumulation (rather than replacement) of data and sufficient fresh-data fractions
+mitigate it in the absolutely continuous setting. \citet{khelifa2026quantifying} bound
+error propagation in recursively trained diffusions via a discounted accumulation
+argument, but their assumptions require absolutely continuous data---structurally
+excluding manifolds---with fixed truncation and upper bounds rather than laws.
+\citet{khelifa2026recursive} characterize the limiting collapse distribution spectrally
+and prove annealed truncation converges for finite-Fisher data (their Case~1), stating
+manifold-supported data (Case~2) as open. We give the Case~2 answer: a floor theorem for
+their sampler class, and an operator restoring their Case~1 dynamics.
+
+\textbf{Diffusion on manifold data.} That diffusion models detect and concentrate on
+data manifolds is established \citep{pidstrigach2022manifold,debortoli2022convergence}.
+The singular ($\sigma\to0$) score is the object of a growing one-shot literature: optimal
+denoising under low regularity \citep{beyler2025optimal}, provable learning under the
+manifold hypothesis \citep{huang2026provable}, and mitigation of the score singularity
+\citep{liu2025euclidean}. These works are one-generation; our subject is the
+\emph{recursion}, where a per-generation floor compounds into a permanently displaced
+plateau. We use the Tweedie/posterior-mean jump \citep{efron2011tweedie,beyler2025optimal}
+as a raw-error reducer inside the loop and are explicit that it does not, by itself,
+break the floor (Section~\ref{sec:fix}).
+
+\textbf{Local geometry estimation.} Our anchoring operator estimates local tangent
+frames by $k$NN-PCA; its error analysis imports standard local-PCA perturbation rates
+\citep{aamari2019nonasymptotic,singer2012vector}. The operator needs only \emph{shared}
+frames between pool and reference, not correct ones, which is why these rates enter
+only at second order (Lemma~\ref{lem:frames}).
+
+% ================================================================ 3 setup
+\section{Setup}\label{sec:setup}
+
+\paragraph{Data model ($\sigma$-tube).} Let $M\subset\R^d$ be a compact smooth
+$k$-dimensional manifold with reach $\tau>0$. Data are
+$X_0=\varphi(U)+\sigma N_\perp$, with $U$ uniform on $M$ and $N_\perp$ standard normal in
+the $(d-k)$-dimensional normal space; $\sigma>0$ is the tube width. The singular regime
+is $\sigma\to0$; the Fisher information of the marginal scales as
+$J\asymp(d-k)/\sigsq\to\infty$ (Case~2 of \citealp{khelifa2026recursive}).
+
+\paragraph{Forward process and the normal coordinate.} We use the
+variance-preserving OU forward process $X_t=a(t)X_0+s(t)Z$ with $a(t)=e^{-t/2}$,
+$s^2(t)=1-e^{-t}$ \citep{ho2020ddpm,song2021sde}. Fix a point of $M$ and work in a
+normal coordinate $x\in\R$, treating the fiber marginal as Gaussian and decoupled from
+tangential position (\emph{flat-tube idealization}; curvature enters at $O(s^2/\tau)$
+and is tracked where it matters). Then
+$X_0\sim\mathcal N(0,\sigsq)$, $X_t\sim\mathcal N(0,\gamma^2(t))$ with
+$\gamma^2=a^2\sigsq+s^2$, and the denoising target is linear:
+\begin{equation}
+\eps^*(x,t)=\kappa(t)\,x,\qquad
+\kappa(t)=\frac{s(t)}{\gamma^2(t)},\qquad
+\nabla\log p_t(x)=-\frac{x}{\gamma^2(t)} .
+\label{eq:kappa}
+\end{equation}
+$\kappa$ is the normal slope the score network must represent. It satisfies
+$\kappa\approx1/s$ for $s^2\gg\sigsq$, peaks at $\kappa_{\max}=1/(2\sigma)$ near
+$t\approx\sigsq$, and falls back to $0$ as $t\to0$ (Figure~\ref{fig:mechanism}a). In the
+singular limit the \emph{peak} slope diverges---the precise sense in which infinite
+Fisher information bites the estimator.
+
+\paragraph{Samplers.} $S_{\mathrm{trunc}}(t_0)$ integrates the learned reverse SDE
+from $T$ down to $t_0>0$ (Euler--Maruyama,
+$x\leftarrow x+(-\tfrac12x+\epshat/s)\,dt+\sqrt{|dt|}\,\xi$) and outputs $x_{t_0}$; all
+prior remedies, including the annealed schedules of \citet{khelifa2026recursive}, are of
+this class. $S_{\mathrm{jump}}(\hat t)$ integrates only to a moderate $\hat t$ and then
+outputs the Tweedie posterior-mean jump
+$\hat x_0=(x_{\hat t}-s(\hat t)\,\epshat)/a(\hat t)$
+\citep{efron2011tweedie,beyler2025optimal}.
+
+\paragraph{The recursion.} For a distribution $p$ on $\R^d$ define the per-direction
+normal second moment $v(p)=\E_p[\dist(X,M)^2]/(d-k)$; true data has $v=\sigsq$.
+Generation $g$ trains $\epshat_g$ by denoising score matching on
+$\mathrm{pool}_g=\lambda\,(\text{fresh real})+(1-\lambda)\,(\text{generation }g\!-\!1)$
+and samples; $v_g$ is the output value. Since $v$ is linear in the measure,
+$w_g:=v(\mathrm{pool}_g)=\lambda\sigsq+(1-\lambda)v_{g-1}$ exactly.
+
+\paragraph{Modeling assumptions (\emph{we model}).} Our law rests on two assumptions
+about the trained pipeline that we \emph{measure and cross-validate} but do not derive.
+
+\begin{assumption}[scalar reduction]\label{ass:a0}
+The per-generation map factors through the pool width: $v_g=F_g(w_g)$.
+\emph{Why a scalar:} the collapse observable is a \emph{variance} along the normal
+fibre---one number per normal axis by construction---so this is an order-parameter
+statement (the width closes on itself), not a claim that the network is scalar, in the same
+way an order parameter closes a mean-field recursion without the microscopic state being
+low-dimensional.
+\emph{Validation:} fixed points measured in one experiment type predict those of an
+independent type within $1$--$13\%$ across six $(t_0,\lambda)$ cells
+(Section~\ref{sec:experiments}).
+\end{assumption}
+
+\begin{assumption}[concave response]\label{ass:a2}
+$F_g(w)=a^2(t_0(g))\,w+s^2(t_0(g))+e^2(w)$, where the sampling excess
+$e^2:[0,\infty)\to(0,\infty)$ is nondecreasing and concave with $e^2(0)=e_0^2>0$.
+\emph{Validation:} the measured local slope of $e^2$ runs from $+0.6$ (fat pools) to
+$\approx0$ (thin pools)---concave and saturating; its small magnitude is itself a
+measured near-cancellation of two $O(0.7)$ channels (Section~\ref{sec:experiments}).
+\end{assumption}
+
+% ================================================================ 4 law
+\section{The law of collapse}\label{sec:law}
+
+Under Assumptions~\ref{ass:a0}--\ref{ass:a2} the recursion is one-dimensional:
+\begin{equation}
+v_g=T(v_{g-1})+s^2_g,\qquad
+T(v)=\lambda\sigsq+(1-\lambda)v+e^2\!\big(\lambda\sigsq+(1-\lambda)v\big),
+\label{eq:recursion}
+\end{equation}
+with $s^2_g:=s^2(t_0(g))$ the truncation remainder. Let
+$c_\infty:=\lim_{w\to\infty}e^{2\prime}(w)$ (exists by concavity) and define the
+\emph{critical real-data fraction} $\lambda^*:=c_\infty/(1+c_\infty)$.
+
+\begin{theorem}[law of the collapse; \emph{we prove}]\label{thm:law}
+Fix $\lambda\in(0,1]$.
+\textbf{(i)} If $\lambda>\lambda^*$, $T$ has a unique fixed point $v_\infty>0$ solving
+$v=\lambda\sigsq+(1-\lambda)v+e^2(\lambda\sigsq+(1-\lambda)v)$, and for every $v_0\ge0$
+and every truncation schedule with $s_g^2\to0$ the iterates converge, $v_g\to v_\infty$,
+with local rate $\rho_{\mathrm{loc}}=(1-\lambda)\big(1+e^{2\prime}(w_\infty)\big)$.
+\textbf{(ii)} If $(1-\lambda)(1+c_\infty)>1$, then $T(v)-v\ge T(0)>0$ for all $v$ and
+$v_g\to\infty$: no plateau, for any schedule.
+\textbf{(iii)} In the affine special case $e^2(w)=e_0^2+cw$:
+$\lambda^*=c/(1+c)$, $\rho_{\mathrm{loc}}=(1+c)(1-\lambda)$, and
+$v_\infty=\big((1+c)\lambda\sigsq+e_0^2\big)/\big(\lambda(1+c)-c\big)$.
+\end{theorem}
+
+\begin{proof}
+Appendix~\ref{app:law}. Elementary but complete: concavity gives a unique downcrossing
+of $T(v)-v$; contraction above the fixed point plus a monotone barrier below give
+convergence under vanishing perturbations.
+\end{proof}
+
+\begin{remark}[why annealing cannot help singular data]\label{rem:annealing}
+Truncation enters \eqref{eq:recursion} only through the additive, schedule-killable
+$s^2_g$. The plateau $v_\infty$ is determined by $e^2$ alone, which no schedule touches.
+The remedy of \citet{khelifa2026recursive} is the special case $e^2\equiv0$ (their
+Case~1 assumptions make the estimation term schedule-dominated), where indeed
+$v_\infty=\sigsq$. Case~2 is precisely the regime where $e^2$ has a floor---the subject
+of the next section.
+\end{remark}
+
+% ================================================================ 5 floor
+\section{The capacity floor}\label{sec:floor}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/fig0_mechanism.png}
+\caption{\textbf{The mechanism and the law.} (a) The required normal slope
+$\kappa(t)=s/\gamma^2$ is non-monotone: it peaks at $\kappa_{\max}=1/(2\sigma)$ near
+$t\approx\sigsq$ and falls back to zero. A network with ceiling $\kb<\kappa_{\max}$
+under-contracts only on a \emph{finite band} (shaded); variance frozen in the band
+cannot be removed below it (too few contraction e-folds remain). (b) The resulting floor
+in units of $\sigsq$ as a function of $\rho=2\sigma\kb$: closed-form no-overshoot law
+$g(\rho)$ (blue, Theorem~\ref{thm:floor}), exact unconditional law $1/(2\rho^2)$
+(orange), finite-$\sigma$ ODE values converging to the limit (green markers at
+$\rho=0.2$).}
+\label{fig:mechanism}
+\end{figure}
+
+We now prove that for manifold data the sampling excess $e^2$ of any truncated
+reverse-SDE sampler is floored by network capacity. Write the trained
+$\eps$-predictor's affine part as $\epshat(x,t)=\hat\kappa(t)x+b(t)+\delta(x,t)$, where
+$(\hat\kappa,b)$ is the affine $L^2(p_t)$ fit of the estimator itself and $\delta$ the
+orthogonal residual. Two structural facts (proofs in Appendix~\ref{app:ode}):
+
+\begin{lemma}[variance ODE; \emph{we prove}]\label{lem:ode}
+Under the reverse Euler scheme with affine estimator, the ensemble normal variance obeys,
+in the small-step limit,
+\begin{equation}
+-\frac{dV}{dt}=\Big(1-\frac{2\hat\kappa(t)}{s(t)}\Big)V+1 .
+\label{eq:varode}
+\end{equation}
+With the exact slope $\hat\kappa=\kappa$, $V(t)=\gamma^2(t)$ solves \eqref{eq:varode}
+exactly. The forcing $+1$ is the sampler's own injected noise.
+\end{lemma}
+
+\begin{lemma}[orthogonality shield; \emph{we prove}, unconditional]\label{lem:shield}
+For any estimator, the residual $\delta$ satisfies $\E_{p_t}[\delta]=\E_{p_t}[x\delta]=0$
+(normal equations), hence has no first-order effect on \eqref{eq:varode}: at first order
+the residual can only \emph{add} variance. Thinning can enter only through the affine
+part.
+\end{lemma}
+
+By Lemma~\ref{lem:shield}, lower bounds derived from \eqref{eq:varode} with the affine
+part alone bound the full estimator. This is the precise sense in which the floor is
+\emph{not} an artifact of linearizing the score: a real score network is highly nonlinear,
+but its nonlinearity is carried entirely by the orthogonal residual $\delta$, which by the
+normal equations has zero first-order effect on the variance and can only \emph{raise} it,
+so the affine lower bound is a lower bound for the fully nonlinear network. The crux is the
+geometry of the required slope:
+
+\begin{lemma}[finite band; \emph{we prove}]\label{lem:band}
+$\kappa(t)$ rises from $0$, peaks at $\kappa_{\max}=1/(2\sigma)$ at $t\approx\sigsq$,
+and falls back to $0$ as $t\to0$. Hence for any ceiling $\kb<\kappa_{\max}$ the deficit
+set $\{t:\kappa(t)>\kb\}$ is a finite band; below it the exact slope is representable
+again, but only $2\log(1+\rho^2/4)\le\rho^2/2$ contraction e-folds remain
+($\rho:=2\sigma\kb$), so variance frozen in the band persists to $t_0\to0$.
+\end{lemma}
+
+In the singular limit the whole flow collapses onto a one-parameter family
+(Appendix~\ref{app:floor} for proofs and error terms):
+
+\begin{lemma}[singular-limit ODE; \emph{we prove}]\label{lem:limitode}
+Rescale $t=\sigsq u$, $V=\sigsq W$, and write the slope envelope as
+$\hat\kappa(t)=(1/\sigma)m(u)$ with $m(u)=\rho/2$ (unconditional envelope) or
+$m(u)=\min\{\sqrt u/(1+u),\rho/2\}$ (no-overshoot envelope). Then \eqref{eq:varode}
+becomes, as $\sigma\to0$ at fixed $\rho$,
+\begin{equation}
+-\frac{dW}{du}=1-\frac{2m(u)}{\sqrt u}\,W ,
+\label{eq:limitode}
+\end{equation}
+a $\sigma$-free equation; the uncapped equation has exact solution $W=1+u$
+(the rescaled true marginal), and deviations contract quadratically under downward
+integration. Consequently $\lim_{t_0\to0}V(t_0)/\sigsq=g_{\mathrm{class}}(\rho)+O(\sigsq/\rho^2)$:
+\textbf{universality in $\rho$ is a theorem}.
+\end{lemma}
+
+\begin{theorem}[closed-form capacity floor; \emph{we prove}]\label{thm:floor}
+Let the trained score's normal slope satisfy $\hat\kappa(t)\le\kb<\infty$
+(finite normal Lipschitz constant---automatic for any finite network), and set
+$\rho=2\sigma\kb$. Then for every truncation time $t_0>0$ and every schedule:
+
+\textbf{(U) Unconditional.} With no further assumption (arbitrary overshoot permitted),
+\begin{equation}
+V(t_0)\;\ge\;\sigsq\,\frac{1}{2\rho^2}\,(1+o(1))
+\;=\;\frac{1}{8\kb^2}\,(1+o(1)) \qquad(\sigma\to0),
+\label{eq:uncond}
+\end{equation}
+where $1/(2\rho^2)$ is the \emph{exact} value of \eqref{eq:limitode} with $m\equiv\rho/2$:
+$\;W(0^+)=\int_0^\infty e^{-2\rho\sqrt u}\,du=1/(2\rho^2)$. The floor exceeds $\sigsq$
+whenever $\rho<1/\sqrt2$, i.e.\ $\kb<\kappa_{\max}/\sqrt2$.
+
+\textbf{(N) No-overshoot.} If additionally $\hat\kappa(t)\le\kappa(t)$ (the empirically
+observed profile; the network never over-contracts), the tighter floor
+$V(t_0)\ge\sigsq\,g(\rho)(1+o(1))$ holds with the explicit closed form: writing
+$q=\sqrt{1-\rho^2}$, $x_\mp=(1\mp q)/\rho$, $u_\mp=x_\mp^2$,
+\begin{equation}
+W_{\mathrm{exit}}=(1+u_+)e^{-4q}+\frac{(3-2q)-(3+2q)e^{-4q}}{2\rho^2},
+\qquad
+g(\rho)=1+\frac{W_{\mathrm{exit}}-(1+u_-)}{(1+u_-)^2} .
+\label{eq:closedform}
+\end{equation}
+$g(\rho)>1$ for every $\rho\in(0,1)$ with $g\to1$ only as $\rho\to1^-$, and
+$g(\rho)=C_0/\rho^2+O(1)$ as $\rho\to0$ with $C_0=(1+3e^{-4})/2=0.5275$, i.e.
+$\Phidet\to\big((1+3e^{-4})/8\big)\kb^{-2}=0.1319\,\kb^{-2}$.
+
+The two asymptotic constants, $1/8$ and $(1+3e^{-4})/8$, differ by $5.5\%$: the class
+distinction is quantitatively minor. The closed forms match direct integration of
+\eqref{eq:limitode} to $\le2.4\times10^{-5}$ across $\rho\in[0.1,1]$, and the
+finite-$\sigma$ ODE converges to them from above at the stated $O(\sigsq/\rho^2)$ rate.
+\end{theorem}
+
+\begin{corollary}[$\sigma\to0$: the answer to Case 2; \emph{we prove}]\label{cor:capacity}
+Hold $\kb$ fixed and let $\sigma\to0$ ($J\to\infty$). Then unconditionally
+$V/\sigsq\ge(1+o(1))/(8\kb^2\sigsq)\to\infty$: a fixed-capacity truncated sampler
+collapses \emph{relatively} without bound, for every annealing schedule. Conversely,
+bounded relative collapse $V/\sigsq\le C$ requires
+\begin{equation}
+\kb\;\ge\;\frac{1}{2\sigma\sqrt{2C}}\;=\;\Omega(1/\sigma)\;=\;\Omega(\sqrt J).
+\end{equation}
+Truncated sampling of singular data demands capacity growing with the singularity;
+no fixed architecture provides it.
+\end{corollary}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.72\linewidth]{figs/fig2_two_horned_trap.png}
+\caption{\textbf{The two-horned trap (\emph{we observe}).} Self-consuming recursions at
+fixed $t_0=10^{-4}$, no anchor, 3 seeds. With the reverse-SDE noise on, the recursion
+sticks fat at $10.8$--$13.2\,\sigsq$ (red). With the noise zeroed (deterministic
+sampler), it collapses to a \emph{single point} within one generation (orange; verified
+loss of all 2-D spread, no numerical overflow). Neither branch reaches the tube
+($\sigsq$, dotted); the anchored recursion (blue, Section~\ref{sec:fix}) holds it.}
+\label{fig:trap}
+\end{figure}
+
+\paragraph{What each ingredient does (\emph{we observe}).} The ablation of
+Figure~\ref{fig:trap} separates the roles exactly as \eqref{eq:varode} dictates: the
+sampler's own noise (the $+1$) is load-bearing for the floor's \emph{existence}---%
+switching it off sends $V\to0$ (point collapse, the deterministic horn)---while the
+finite ceiling $\kb$ makes the floor \emph{larger than} $\sigsq$ (the stochastic horn).
+The two horns bracket the target from both sides; no setting of the noise knob reaches it.
+
+\paragraph{Zero-fit confrontation with a real network (\emph{we observe}).} For our
+standard pipeline the measured slope profile tracks $\kappa(t)$ faithfully at benign
+times ($\hat\kappa/\kappa=0.95$--$0.97$ for $t\ge0.1$) and then saturates at
+$\kb\approx3.9$ while $\kappa$ continues to $\sim\!10$---an optimization ceiling,
+independent of sample size. Feeding $\kb=3.9$ ($\rho=0.39$) into the floor law predicts
+$\Phidet=3.8\,\sigsq$ at $\sigma=0.05$, matching the same network's measured $t_0\to0$
+sampling floor with \emph{no free parameter} (Figure~\ref{fig:floorlaw}); integrating
+\eqref{eq:varode} with the full measured profile $\hat\kappa(t)$ reproduces
+$69$--$75\%$ of the measured floor at each of three truncation times, with the exact-score
+control reproducing $\gamma^2(t_0)$ to all displayed digits. The remaining
+$\sim\!30\%$ is the residual-field channel of Lemma~\ref{lem:shield}, which we bound in
+a block-correlation model (\emph{we model}; Appendix~\ref{app:residual}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.7\linewidth]{figs/fig4_capacity_floor.png}
+\caption{\textbf{The capacity floor, predicted and measured.} Blue: finite-$\sigma$
+variance-ODE floor at $\sigma=0.05$ (no fit). Dashed: the exact $\sigma\to0$ law
+$\big((1+3e^{-4})/8\big)\kb^{-2}$ of Theorem~\ref{thm:floor}. Star: the measured network
+ceiling $\kb=3.9$ predicts the measured sampling floor $3.8\sigsq$ with zero free
+parameters.}
+\label{fig:floorlaw}
+\end{figure}
+
+\paragraph{An honest gap (\emph{we model}).} Iterating the floor through the recursion
+(every generation's pool is at least as wide as $\lambda\sigsq+(1-\lambda)\Phidet$)
+gives a deterministic fixed point $v^*_{\mathrm{det}}=4.5\,\sigsq$ at our parameters.
+The measured recursion floor is $\approx11\,\sigsq$---a factor $2.4$ above. Our theorem
+claims only a \emph{lower bound} on the recursion (respected), and we attribute the
+excess to per-generation compounding: a network trained on self-generated, fattened data
+has a worse slope profile than one trained on a clean tube of the same width, a channel
+the single-pass analysis deliberately omits. We leave the exact recursion constant open.
+
+% ================================================================ 6 fix
+\section{The anchoring fix}\label{sec:fix}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{figs/fig5_pipeline.png}
+\caption{\textbf{Where the anchor sits.} Each generation, the pool (and, for the jump
+pipeline, the sampler output) is passed through a bidirectional per-axis local moment
+match against a \emph{stale} reference of $m=2{,}000$ real samples drawn once at $g=0$.
+No provenance labels are needed; the reference is never refreshed.}
+\label{fig:pipeline}
+\end{figure}
+
+Corollary~\ref{cor:capacity} says the singular regime cannot be won by scaling the
+model or tuning the schedule. It can be won by \emph{anchoring the recursion to data}.
+
+\paragraph{The operator.} For each point, find its $k$ nearest neighbors in the
+reference; take the local PCA frame (top-$k_{\dim}$ directions tangent, remainder
+normal); rescale the point's normal coordinates so that the pool's local normal
+second moments equal the \emph{reference's} local normal second moments in the
+\emph{same estimated frames}. The match is \emph{bidirectional}---it contracts fat
+directions and inflates thin ones---and \emph{per-axis}. Both properties are forced by
+the theory: the sampler's error is signed (fat from injection, thin from posterior-mean
+sharpening; Proposition~\ref{prop:sharpening} in Appendix~\ref{app:sharpening}) and
+anisotropic whenever the normal spectrum straddles $s^2(\hat t)$, so any scalar or
+one-sided matcher mis-corrects some directions (\emph{we observe}: a scalar matcher
+leaves MNIST-latent thin ratios at $0.62$; the per-axis matcher achieves
+$|\text{thin}-1|\le0.012$).
+
+\begin{lemma}[shared-frame cancellation; \emph{we prove} to first order]\label{lem:frames}
+Let both reference and pool normal energies be measured in the same $k$NN-PCA frames
+estimated from the reference. Then the matched pool satisfies, per normal direction,
+$v(\mathrm{matched})=\hat\sigma^2_{\mathrm{ref}}+O_p(m^{-1/2})+\Delta_{\mathrm{leak}}$,
+where the frame-error leakage $\Delta_{\mathrm{leak}}$ afflicts pool and reference
+\emph{identically} at first order in the frame perturbation and cancels; standard
+local-PCA rates \citep{aamari2019nonasymptotic,singer2012vector} enter only at second
+order. Every quantity in the bound is intrinsic ($k,\tau,\sigma,m$); the ambient
+dimension $d$ appears nowhere.
+\end{lemma}
+
+\begin{theorem}[anchoring makes the recursion memoryless; \emph{we prove} given
+Lemma~\ref{lem:frames} and Assumption~\ref{ass:a0}]\label{thm:fix}
+Insert the matcher after pooling (and after sampling, for the jump pipeline). Then the
+training input has normal variance $\hat\sigma^2_{\mathrm{ref}}+O(\mathrm{err})$
+\emph{regardless of $v_{g-1}$}: the map \eqref{eq:recursion} loses its $v$-argument,
+\[
+v_g=F_g\big(\hat\sigma^2_{\mathrm{ref}}+O(\mathrm{err})\big),
+\]
+a constant sequence up to non-compounding $O(\mathrm{err})$. Consequently: no fixed-point
+equation, \textbf{no critical fraction---stability for every $\lambda>0$}; and with
+$S_{\mathrm{trunc}}$ the dynamics reduce to truncation-only, restoring the hypotheses
+and conclusion of \citet{khelifa2026recursive}'s Theorem~4.1 in the singular regime.
+\end{theorem}
+
+\paragraph{Why this is not a replay buffer.} Replay, data-accumulation, and data-refresh
+remedies \citep{gerstgrasser2024collapse,bertrand2024stability} fight collapse by
+\emph{re-inserting real examples} into the pool: they preserve \emph{samples}. The anchor
+preserves something weaker and more portable---the \emph{local normal moments} (per-axis
+widths) of a small stale reference---and imposes them on \emph{whatever the model currently
+generates}. It never adds a reference point to the training pool, uses no provenance labels,
+and reuses the same $m{=}2{,}000$ points for every generation. The distinction is not
+cosmetic. A replay buffer of size $m$ still lets the $(1-\lambda)$ synthetic majority set the
+pool's fine-scale statistics, so the floor of Section~\ref{sec:floor} still governs that
+majority; anchoring instead \emph{overwrites} the fine-scale statistics of the majority
+itself, which is why it removes the floor rather than diluting it. In the language of the law
+(Theorem~\ref{thm:law}): replay changes $\lambda$; anchoring changes the response map $F_g$.
+
+\paragraph{Attribution, stated plainly.} In our pipeline the \emph{matcher} is the
+floor-breaker; the Tweedie jump is a \emph{raw-error reducer}. The jump's raw output is
+itself fat ($7$--$20\times\sigsq$ across settings); its value is a $\approx2\times$
+smaller one-shot raw error and $\approx3\times$ smaller unanchored plateau
+($0.052$ vs $0.17$ at $\lambda=\tfrac12$, itself predicted by Theorem~\ref{thm:law} as
+$e^2_{\mathrm{jump}}/\lambda$), plus smaller post-match tails. Post-anchor, the standard
+and jump samplers converge to the same variance; we report both.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.78\linewidth]{figs/fig1_head_to_head.png}
+\caption{\textbf{Head-to-head vs.\ the state-of-the-art remedy (\emph{we observe}).}
+Ring manifold, $\sigma=0.05$, $\lambda=\tfrac12$, 20 generations, 5 seeds
+(mean $\pm$ s.d.). Red: annealed truncation $t_0\!:0.05\to10^{-4}$, no anchor
+\citep{khelifa2026recursive}---rises to $47\sigsq$, then thins only to
+$9.8\sigsq\pm1.7$. Blue/green: the same recursion with the anchor (standard and jump
+samplers): $1.01\sigsq\pm0.02$, flat for 20 generations.}
+\label{fig:headtohead}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.72\linewidth]{figs/fig3_pixel_mnist.png}
+\caption{\textbf{Real pixels (\emph{we observe}).} Self-consuming recursion on
+$8\times8$ MNIST (64-dimensional pixel space), $\lambda=\tfrac12$, 8 generations,
+3 seeds. Off-manifold distance = mean nearest-neighbor distance to a held-out real test
+set. Unanchored drifts to $3.06$ ($2.3\times$ the true-data baseline $1.34$); anchored
+holds $1.66$ ($1.24\times$), closing $\sim$81\% of the gap. The mild upward creep of the
+anchored arm reflects the local-chart approximation on a genuinely curved manifold.}
+\label{fig:mnist}
+\end{figure}
+
+\paragraph{Dimension scaling (\emph{we observe}).} Lemma~\ref{lem:frames}'s
+$d$-independence is a postdiction: across ambient $d=8\to128$ (curved 2-manifolds,
+fixed tube), the \emph{raw} one-shot floors grow near-linearly ($\sim d^{0.76}$
+standard, $\sim d^{0.95}$ jump---the collapse itself), while the \emph{matched} floors
+are flat ($\sim d^{0.1}$), and anchored recursions are flat for 8 generations at both
+$d=8$ and $d=128$.
+
+% ================================================================ 7 experiments
+\section{Experiments}\label{sec:experiments}
+
+All experiments are CPU-only ($\le12$ threads), use small MLPs
+(3 hidden layers, width 256, SiLU, sinusoidal time embedding), denoising score matching,
+and geometric reverse-time grids; every long run streams to an append-only log and is
+exactly resumable. Full protocols, seeds, and a script-to-claim map are in the released
+code (Section~\ref{sec:repro}).
+
+\textbf{Protocols.} \emph{Ring}: radius $2.5$, $\sigma=0.05$ ($\sigsq=0.0025$), $4{,}000$
+samples/generation, $2{,}000$ training steps. \emph{Head-to-head}
+(Figure~\ref{fig:headtohead}): $G=20$, $\lambda=\tfrac12$, 5 seeds; arm A anneals
+$t_0\!:0.05\to10^{-4}$ geometrically (the remedy of \citealp{khelifa2026recursive});
+arms B/C add the anchor to the standard/jump samplers. \emph{Two-horned ablation}
+(Figure~\ref{fig:trap}): fixed $t_0=10^{-4}$, noise on/zeroed, $G=15$, 3 seeds.
+\emph{Pixel MNIST} (Figure~\ref{fig:mnist}): $8\times8$ pixels, $G=8$, 3 seeds,
+local matcher with $k=96$, $k_{\dim}=12$. \emph{Law identification}: fixed-$t_0$
+recursions at $t_0\in\{0.02,0.05\}$, $\lambda\in\{0.25,0.5,0.75\}$; the affine law
+fitted at one $t_0$ predicts fixed points at the other within $1$--$13\%$
+(Assumption~\ref{ass:a0} validation), and the measured excess-response slope runs
+$+0.6\to\approx0$ across pool widths (Assumption~\ref{ass:a2} validation), the net of a
+measured deficit channel $-0.68$ and injection channel $+0.73$.
+
+\begin{table}[t]
+\centering\small
+\caption{Headline numbers (mean $\pm$ s.d.\ over seeds; variance in units of $\sigsq$
+except MNIST, which reports off-manifold distance).}
+\label{tab:headline}
+\begin{tabular}{llll}
+\toprule
+Experiment & Arm & Final value & Seeds \\
+\midrule
+Head-to-head, $G{=}20$ & annealed truncation \citep{khelifa2026recursive} & $9.84\pm1.7$ & 5 \\
+ & standard sampler $+$ anchor & $1.01\pm0.02$ & 5 \\
+ & jump sampler $+$ anchor & $1.01\pm0.02$ & 5 \\
+\midrule
+Ablation, fixed $t_0{=}10^{-4}$ & stochastic (noise on) & $10.8$--$13.2$ & 3 \\
+ & deterministic (noise zeroed) & $0$ (point collapse) & 3 \\
+\midrule
+Pixel MNIST, $G{=}8$ & unanchored & $3.06$ & 3 \\
+ & anchored & $1.66$ & 3 \\
+ & true-data baseline & $1.34$ & --- \\
+\midrule
+Floor prediction & measured $\kb{=}3.9\Rightarrow\Phidet$ & $3.8$ (zero fit) & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ================================================================ 8 limitations
+\section{Limitations and scope}\label{sec:limits}
+
+Everything in the \emph{we model} tier is collected here.
+(1)~Assumptions~\ref{ass:a0}--\ref{ass:a2} are measured, cross-validated laws about the
+trained pipeline, not derived facts; we present them as such, in the spirit of measured
+critical exponents.
+(2)~The recursion floor constant is open: our closed forms are exact for a single pass,
+and lower bounds for the recursion; the measured recursion floor sits a factor $2.4$
+above the iterated single-pass bound (per-generation compounding, not modeled).
+(3)~The residual-field ($\sim30\%$ single-pass) channel is bounded in a
+block-correlation model (Appendix~\ref{app:residual}); negative association across
+blocks is the one direction that could weaken that particular bound (the closed-form
+floor of Theorem~\ref{thm:floor} does not depend on it).
+(4)~Curvature is carried at order $O(s^2/\tau)$ in the flat-tube idealization; sphere
+experiments bound the resulting bias empirically (non-compounding), but we do not
+compute the constants.
+(5)~The anchor controls normal \emph{second moments}; tails and tangential statistics
+improve but are not anchored---on strongly curved data the anchored recursion shows a
+mild residual creep (Figure~\ref{fig:mnist}).
+(6)~A parameter-free one-step prediction of MNIST-latent thin ratios fails
+quantitatively (it predicts the direction and the regime boundary, not the number); we
+flag it rather than fit it.
+(7)~Our evidence is deliberately small-scale and fully instrumented: a ring, curved
+2-manifolds swept across ambient dimension $d=8\to128$, six $(t_0,\lambda)$
+law-identification cells, the two-horned ablation, and pixel-space MNIST---chosen so that
+every quantity the theory names is directly measurable. We do not test CIFAR-scale or
+latent-diffusion pipelines. The theory predicts the mechanism transfers, because the floor
+depends only on the \emph{local} normal slope and not on the ambient dimension
+(Lemma~\ref{lem:frames}, and the measured $d$-independence of the matched floors);
+confirming this at scale is the clearest next step and is left as future work.
+
+\section{Reproducibility}\label{sec:repro}
+
+Every claim maps to a script, an append-only result log, and a figure in the released
+code (ring, ablation, MNIST, floor law, law identification; $\sim$2 CPU-hours total).
+The four result figures regenerate from logged data in seconds. A README lists the
+run order, the twelve load-bearing scripts, and the headline numbers a reproduction
+must match.
+
+\subsubsection*{Acknowledgments}
+Numerical experiments, figure preparation, and portions of the derivations were carried
+out with the assistance of an AI system (Claude, Anthropic), used as a research tool
+under the author's direction; the author reviewed all mathematics and takes full
+responsibility for every claim.
+
+\bibliographystyle{unsrtnat}
+\bibliography{refs}
+
+\clearpage
+\appendix
+
+% ================================================================ A proofs law
+\section{Proof of Theorem~\ref{thm:law}}\label{app:law}
+
+Write $g(v):=T(v)-v$ with $T$ as in \eqref{eq:recursion}; $g$ is concave (composition of
+an affine map with the concave nondecreasing $w\mapsto w+e^2(w)$, minus a linear term),
+with $g(0)=T(0)=\lambda\sigsq+e^2(\lambda\sigsq)>0$ and one-sided derivative
+$g'(v)=(1-\lambda)\big(1+e^{2\prime}(w(v))\big)-1$, nonincreasing in $v$ with limit
+$(1-\lambda)(1+c_\infty)-1<0$ when $\lambda>\lambda^*$.
+
+\textbf{(i) Existence, uniqueness.} A concave function positive at $0$ whose derivative
+is eventually $\le-\delta<0$ tends to $-\infty$, so $g$ has a zero; concavity plus
+$g(0)>0$ forbids two downcrossings, so the zero $v_\infty$ is unique, with $T(v)>v$ for
+$v<v_\infty$ and $T(v)<v$ for $v>v_\infty$.
+
+\textbf{Contraction above.} For $v\ge v_\infty$, monotonicity and concavity give
+$0\le T(v)-v_\infty\le\rho_{\mathrm{loc}}(v-v_\infty)$ with
+$\rho_{\mathrm{loc}}=T'(v_\infty^+)<1$.
+
+\textbf{Convergence under vanishing perturbations.} Let $v_g=T(v_{g-1})+s^2_g$,
+$s^2_g\to0$. While iterates stay $\ge v_\infty$,
+$x_g:=v_g-v_\infty\le\rho_{\mathrm{loc}}x_{g-1}+s^2_g\to0$ by the standard perturbed
+contraction argument (split $\sum_j\rho^{g-j}s^2_j$ at $j=g/2$). If an iterate drops
+below $v_\infty$: define the unperturbed comparison $u_g=T(u_{g-1})$ started there; then
+$u_g\uparrow v_\infty$ (monotone, bounded, $T(v)>v$ below $v_\infty$) and $v_g\ge u_g$ by
+induction ($s^2_g\ge0$, $T$ monotone), so $\liminf v_g\ge v_\infty$, while
+$v_g<v_\infty+s^2_g$ gives $\limsup v_g\le v_\infty$. Alternating regimes inherit both
+barriers. Linearizing $T$ at $v_\infty$ gives the local rate.
+
+\textbf{(ii) Divergence.} If $(1-\lambda)(1+c_\infty)>1$ then, since $e^{2\prime}\ge
+c_\infty$ everywhere (the concave derivative decreases \emph{to} its limit), $g'\ge
+(1-\lambda)(1+c_\infty)-1>0$, so $g$ is nondecreasing and $g(v)\ge g(0)>0$ for all $v$:
+$v_g\ge v_0+g\cdot T(0)\to\infty$, regardless of the schedule ($s^2_g\ge0$ only helps).
+
+\textbf{(iii)} Substituting $e^2(w)=e_0^2+cw$ makes $T$ affine with slope
+$(1+c)(1-\lambda)$; solve the fixed point. \qed
+
+% ================================================================ B ode + shield
+\section{The variance ODE and the orthogonality shield}\label{app:ode}
+
+\textbf{Lemma~\ref{lem:ode}.} One Euler step
+$x'=\big(1+(\tfrac12-\hat\kappa/s)\,dt\big)x-(b/s)\,dt+\sqrt{dt}\,\xi$ is affine in $x$
+plus independent noise, so
+$\Var(x')=\big(1+(\tfrac12-\hat\kappa/s)dt\big)^2V+dt
+=V+\big[(1-2\hat\kappa/s)V+1\big]dt+O(dt^2)$;
+let $dt\to0$. With $\hat\kappa=\kappa=s/\gamma^2$: $\kappa/s=1/\gamma^2$ and
+$V=\gamma^2$ solves the equation exactly (direct check), confirming the bookkeeping. The
+intercept $b$ moves only the mean. \qed
+
+\textbf{Lemma~\ref{lem:shield}.} Define $(\hat\kappa,b)$ as the affine $L^2(p_t)$
+projection of the estimator itself; the residual $\delta=\epshat-\hat\kappa x-b$
+satisfies the normal equations $\E_{p_t}[\delta]=\E_{p_t}[x\delta]=0$ by definition. The
+first variation of the variance flow under drift perturbation $\eta\,\delta/s$ is
+$(2/s)\E_{p_t}[x\delta]\,dt=0$ at $\eta=0$: no first-order thinning. The leading effect
+is the accumulated squared displacement $\E[u^2]\ge0$ of the integrated kicks
+$\delta/s$---injection. (Along the reverse path the ensemble deviates from $p_t$; the
+cross term is then $O(\|\hat p_t-p_t\|\,r(t))$, second order in the total perturbation.)
+\qed
+
+% ================================================================ C floor proofs
+\section{Floor lemmas and closed forms}\label{app:floor}
+
+\textbf{Lemma~\ref{lem:band}.} From \eqref{eq:kappa}, $\kappa(t)=s/(a^2\sigsq+s^2)$
+with $s^2=1-e^{-t}$: $\kappa\to0$ as $t\to0$ ($s\to0$, $\gamma^2\to\sigsq$),
+$\kappa\approx1/s$ for $s^2\gg\sigsq$, and maximizing over $s$ gives
+$\kappa_{\max}=1/(2\sigma)$ at $s=\sigma$ (i.e.\ $t\approx\sigsq$), to leading order in
+$\sigsq$. Below the band the remaining e-folds are
+$\int_{t_0}^{t_-}2\kappa/s\,dt=\int 2\,dt/\gamma^2=2\log\frac{\sigsq+t_-}{\sigsq+t_0}
+\le2\log(1+\rho^2/4)\le\rho^2/2$, using $t_-\approx\kb^2\sigma^4$. \qed
+
+\textbf{Lemma~\ref{lem:limitode}.} Substitute $t=\sigsq u$, $V=\sigsq W$:
+$s^2=\sigsq u(1+O(\sigsq u))$, $\gamma^2=\sigsq(1+u)(1+O(\sigsq u))$, so
+$\kappa=(1/\sigma)\frac{\sqrt u}{1+u}(1+O(\sigsq u))$ and
+$2\hat\kappa/s=(2m(u)/\sqrt u)/\sigsq$; the ODE becomes
+$-dW/du=1-(2m/\sqrt u)W+\sigsq W(1+o(1))$. On $u\in[0,U]$ the perturbing terms are
+$O(\sigsq U)$; the band occupies $u\le u_+=O(1/\rho^2)$, giving the stated
+$O(\sigsq/\rho^2)$. For the boundary: the uncapped equation
+$-dW/du=1-2W/(1+u)$ has general solution $W=(1+u)+A(1+u)^2$ (direct check), so
+deviations from the slave solution $W=1+u$ contract as $\big((1+u)/(1+u')\big)^2$ under
+downward integration from $u'$ to $u$; the influence of the $t\gtrsim1$ boundary layer
+at band entry is suppressed by this quadratic factor and is absorbed in the same error
+term. \emph{Numerical check:} the slave solution is invariant to $3\times10^{-15}$ under
+the integrator; finite-$\sigma$ floors converge to the limit values from above
+(e.g.\ $\rho=0.39$: $3.953/3.812/3.775$ at $\sigma=0.10/0.05/0.02$ vs.\ limit $3.769$).
+\qed
+
+\textbf{Theorem~\ref{thm:floor}(U).} By the scalar comparison principle
+(equal forcing and data; smaller $\hat\kappa$ means larger $V$), any profile with
+$\hat\kappa\le\kb$ has $V\ge V_{\hat\kappa\equiv\kb}$, one-sided---no lower bound on
+$\hat\kappa$ is used. For the constant envelope, \eqref{eq:limitode} with
+$m\equiv\rho/2$ has integrating factor $e^{-2\rho\sqrt u}$:
+$\frac{d}{du}\big[We^{-2\rho\sqrt u}\big]=-e^{-2\rho\sqrt u}$, so for data of
+sub-quadratic growth at $u=\infty$,
+$W(0^+)=\int_0^\infty e^{-2\rho\sqrt u}du=2\int_0^\infty xe^{-2\rho x}dx=\frac1{2\rho^2}$,
+exactly, for every $\rho>0$. $1/(2\rho^2)>1\iff\rho<1/\sqrt2$.
+
+\textbf{Theorem~\ref{thm:floor}(N).} The band edges solve $\sqrt u/(1+u)=\rho/2$, a
+quadratic in $x=\sqrt u$: $\rho x^2-2x+\rho=0$, $x_\mp=(1\mp q)/\rho$, $q=\sqrt{1-\rho^2}$
+(nonempty iff $\rho<1$). Above the band the solution is the exact slave $W=1+u$; it
+enters the band with $W(u_+)=1+u_+$. Across the band ($m=\rho/2$), the same integrating
+factor with antiderivative $F(u)=-(2\rho\sqrt u+1)e^{-2\rho\sqrt u}/(2\rho^2)$ gives
+\[
+W(u_-)=(1+u_+)e^{-2\rho(x_+-x_-)}
++\frac{(2\rho x_-+1)-(2\rho x_++1)e^{-2\rho(x_+-x_-)}}{2\rho^2},
+\]
+and $2\rho x_\mp=2(1\mp q)$, $2\rho(x_+-x_-)=4q$ yield the displayed $W_{\mathrm{exit}}$.
+Below the band the equation is uncapped with exact general solution $(1+u)+A(1+u)^2$;
+matching at $u_-$ gives $A=\big(W(u_-)-(1+u_-)\big)/(1+u_-)^2$ and
+$g(\rho)=W(0^+)=1+A$, which is \eqref{eq:closedform}. Limits: as $\rho\to1^-$ ($q\to0$),
+$u_\pm\to1$ and $g\to1$; as $\rho\to0$ ($q\to1$), $u_+\approx4/\rho^2$,
+$u_-\approx\rho^2/4$, and expanding,
+$g=\big[8e^{-4}+1-5e^{-4}\big]/(2\rho^2)+O(1)=(1+3e^{-4})/(2\rho^2)+O(1)$, giving
+$C_0=(1+3e^{-4})/2$. Positivity $g>1$ on $(0,1)$ follows from $W(u_-)>1+u_-$ (the band
+under-contracts relative to the slave). \emph{Numerical check:} \eqref{eq:closedform}
+and the exact $1/(2\rho^2)$ match direct integration of \eqref{eq:limitode} to
+$\le2.4\times10^{-5}$ over $\rho\in[0.1,1]$ (pure Euler residual).
+
+Finally, Lemma~\ref{lem:shield} extends both bounds from the affine part to the full
+estimator (the residual only adds variance), and Lemma~\ref{lem:limitode} transfers the
+limit values to finite $\sigma$ with the stated error. \qed
+
+\textbf{Corollary~\ref{cor:capacity}} is Theorem~\ref{thm:floor}(U) read at fixed
+$\kb$ with $\sigma\to0$; the capacity bound inverts $1/(2\rho^2)\le C$. \qed
+
+% ================================================================ D sharpening
+\section{Posterior-mean sharpening and per-axis necessity}\label{app:sharpening}
+
+\begin{proposition}[Tweedie sharpening; \emph{we prove}]\label{prop:sharpening}
+In the Gaussian normal coordinate with axis variance $\sigma^2_{\mathrm{ax}}$, the jump
+with the exact predictor outputs the posterior mean, with
+\[
+\Var(\hat x_0)=\frac{a^2\sigma^4_{\mathrm{ax}}}{\gamma^2_{\mathrm{ax}}(\hat t)},\qquad
+\frac{\Var(\hat x_0)}{\sigma^2_{\mathrm{ax}}}
+=\frac{a^2\sigma^2_{\mathrm{ax}}}{a^2\sigma^2_{\mathrm{ax}}+s^2(\hat t)}<1 ,
+\]
+and with a trained predictor $\epshat=\eps^*-\tilde\delta$,
+$v_{\mathrm{jump,ax}}=a^2\sigma^4_{\mathrm{ax}}/\gamma^2_{\mathrm{ax}}
++(s^2/a^2)\E[\tilde\delta^2]+2(s/a)\,\mathrm{Cov}+O(s^4/\tau^2)$.
+\end{proposition}
+
+\begin{proof}
+$\hat x_0=(x-s\eps^*)/a=x(1-s^2/\gamma^2)/a=(a\sigma^2_{\mathrm{ax}}/\gamma^2)x$, so
+$\Var=a^2\sigma^4_{\mathrm{ax}}/\gamma^2$; Tweedie's formula identifies this with
+$\E[X_0\,|\,X_{\hat t}]$ \citep{efron2011tweedie}. The error term is the jump map
+applied to $\eps^*-\tilde\delta$; the curvature term is the posterior-mean chord bias.
+\end{proof}
+
+Consequences: strongly singular axes ($\sigma_{\mathrm{ax}}\ll s$) are collapsed onto
+the manifold (the matcher must top up); fat axes ($\sigma_{\mathrm{ax}}\gg s$) are
+untouched while injection fattens them (the matcher must contract); axes with
+$\sigma_{\mathrm{ax}}\sim s$ sharpen by an axis-dependent factor strictly inside
+$(0,1)$. Hence the required correction is signed and anisotropic: any correct matcher
+must be bidirectional and per-axis. (\emph{We observe:} scalar matching leaves
+thin ratios at $0.62$--$0.65$ on MNIST latents; per-axis matching achieves
+$|\text{thin}-1|\le0.012$.)
+
+% ================================================================ E residual
+\section{The residual channel (\emph{we model})}\label{app:residual}
+
+The orthogonal residual $\delta$ has measured band risk
+$r^2_{\mathrm{res}}(t)\approx0.02$--$0.05$, flat in $t$ and in sample size, with
+path-coherence time $\approx\nu t$, $\nu\approx0.75$. Under a block-correlation model
+(coherent within blocks of length $\nu t$, independent across blocks, no systematic
+over-contraction), the injected variance obeys
+$\Phi_0(t_0)\ge c\,\nu\rho_0(\sigsq+t_0)$: decreasing in $t_0$ until $t_0\sim\sigsq$,
+then saturating---the same shape as the measured excess (knee at $t_0\approx\sigsq$,
+$n$-flat), with the single constant effective to within a factor $\sim2$. In this paper
+the channel plays a supporting role only: it is the measured $\sim30\%$ single-pass
+remainder on top of the closed-form floor, which does not depend on it.
+
+% ================================================================ F protocols
+\section{Experimental details}\label{app:details}
+
+\textbf{Networks and training.} 3-layer MLPs, width 256, SiLU, 32-dim sinusoidal time
+embedding; Adam, learning rate $2\times10^{-3}$; batch 512 (ring) / 256 (MNIST);
+denoising score matching with $t\sim U(10^{-3},8)$; fresh network each generation.
+
+\textbf{Sampling.} Reverse Euler--Maruyama on a 200-point geometric grid from $T=8$;
+the ablation zeroes the $\sqrt{|dt|}\,\xi$ term only. Jump: $\hat t=0.05$.
+
+\textbf{Anchor.} Ring: radial (normal) bidirectional match of the pool's radial
+variance to the stale reference's, contract-by-scaling / top-up-by-noise. MNIST:
+per-point $k$NN-PCA ($k=96$, $k_{\dim}=12$) charts from the reference; normal
+coordinates rescaled to the reference's local normal eigenvalues in the same frames.
+Reference: $m=2{,}000$ real samples drawn once at $g=0$, never refreshed
+(provenance-free: the matcher is applied to the whole pool without labels).
+
+\textbf{Measured network profile.} The fitted slope $\hat\kappa(t)$ is extracted by
+affine regression of $\epshat$ against $x$ on fiber lines at each $t$; it tracks
+$\kappa(t)$ ($0.95$--$0.97$ for $t\ge0.1$), saturates at $\kb\approx3.9$ inside the
+band, and never exceeds $\kappa$ ($n$-independent across $1$k--$16$k). The decomposition
+identity $(\kappa-\hat\kappa)^2\gamma^2+r^2_{\mathrm{res}}=r^2_{\mathrm{tot}}$ checks
+numerically along the path.
+
+\textbf{Two-channel anatomy of $c$.} Training single-width tubes at
+$w\in\{0.0009,\dots,0.0169\}$ and measuring $dv/dw-1$ gives net
+$c\in\{0.00,0.05,0.13,0.10,0.05\}$---small, positive, concave---as the sum of a
+deficit response $\approx-0.68$ (a fatter pool needs a smaller peak slope) and an
+injection response $\approx+0.73$ (a fatter pool damps injected variance less).
+
+\end{document}

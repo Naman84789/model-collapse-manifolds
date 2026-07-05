@@ -1,0 +1,12 @@
+{"key": "D8_s0", "d": 8, "seed": 0, "true": 0.057, "std_raw": 0.5406, "std_mat": 0.1683, "jmp_raw": 0.2802, "jmp_mat": 0.1545}
+{"key": "D8_s1", "d": 8, "seed": 1, "true": 0.0574, "std_raw": 0.5377, "std_mat": 0.1718, "jmp_raw": 0.269, "jmp_mat": 0.1536}
+{"key": "D16_s0", "d": 16, "seed": 0, "true": 0.0581, "std_raw": 0.8324, "std_mat": 0.1842, "jmp_raw": 0.3887, "jmp_mat": 0.1747}
+{"key": "D16_s1", "d": 16, "seed": 1, "true": 0.058, "std_raw": 0.8209, "std_mat": 0.1828, "jmp_raw": 0.373, "jmp_mat": 0.1737}
+{"key": "D32_s0", "d": 32, "seed": 0, "true": 0.0583, "std_raw": 1.28, "std_mat": 0.189, "jmp_raw": 0.7002, "jmp_mat": 0.1849}
+{"key": "D32_s1", "d": 32, "seed": 1, "true": 0.0584, "std_raw": 1.2521, "std_mat": 0.1924, "jmp_raw": 0.6451, "jmp_mat": 0.1862}
+{"key": "D64_s0", "d": 64, "seed": 0, "true": 0.0586, "std_raw": 2.3271, "std_mat": 0.2198, "jmp_raw": 1.8401, "jmp_mat": 0.2209}
+{"key": "D64_s1", "d": 64, "seed": 1, "true": 0.0584, "std_raw": 2.3939, "std_mat": 0.2188, "jmp_raw": 1.9082, "jmp_mat": 0.2235}
+{"key": "D128_s0", "d": 128, "seed": 0, "true": 0.0586, "std_raw": 4.4072, "std_mat": 0.2032, "jmp_raw": 3.8206, "jmp_mat": 0.204}
+{"key": "D128_s1", "d": 128, "seed": 1, "true": 0.0586, "std_raw": 4.3932, "std_mat": 0.2166, "jmp_raw": 3.821, "jmp_mat": 0.2171}
+{"key": "REC_d8_s0", "d": 8, "seed": 0, "traj": [0.1492, 0.1594, 0.172, 0.1842, 0.1722, 0.1772, 0.1717, 0.1576]}
+{"key": "REC_d128_s0", "d": 128, "seed": 0, "traj": [0.2219, 0.2235, 0.2194, 0.2204, 0.2215, 0.2248, 0.216, 0.2249]}

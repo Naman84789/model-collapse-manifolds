@@ -1,0 +1,10 @@
+{"key": "RISK_t0.5", "t": 0.5, "kappa_flat": 1.5881, "kappa_star": 1.4686, "kappa_hat": 1.3884, "ratio": 0.9454, "r2_res": 0.02663, "r2_true": 0.01792, "gam2": 0.39499}
+{"key": "RISK_t0.2", "t": 0.2, "kappa_flat": 2.3225, "kappa_star": 2.2772, "kappa_hat": 2.1685, "ratio": 0.9523, "r2_res": 0.03826, "r2_true": 0.0442, "gam2": 0.18332}
+{"key": "RISK_t0.1", "t": 0.1, "kappa_flat": 3.1664, "kappa_star": 3.1385, "kappa_hat": 3.0486, "ratio": 0.9713, "r2_res": 0.03466, "r2_true": 0.03627, "gam2": 0.09742}
+{"key": "RISK_t0.05", "t": 0.05, "kappa_flat": 4.3176, "kappa_star": 4.2996, "kappa_hat": 3.5596, "ratio": 0.8279, "r2_res": 0.05102, "r2_true": 0.08104, "gam2": 0.05115}
+{"key": "RISK_t0.02", "t": 0.02, "kappa_flat": 6.3238, "kappa_star": 6.3137, "kappa_hat": 3.8274, "ratio": 0.6062, "r2_res": 0.0194, "r2_true": 0.15478, "gam2": 0.02225}
+{"key": "RISK_t0.01", "t": 0.01, "kappa_flat": 8.028, "kappa_star": 8.0216, "kappa_hat": 3.846, "ratio": 0.4795, "r2_res": 0.02839, "r2_true": 0.24844, "gam2": 0.01243}
+{"key": "RISK_t0.005", "t": 0.005, "kappa_flat": 9.4477, "kappa_star": 9.4438, "kappa_hat": 3.944, "ratio": 0.4176, "r2_res": 0.03508, "r2_true": 0.27135, "gam2": 0.00748}
+{"key": "RISK_t0.002", "t": 0.002, "kappa_flat": 9.9486, "kappa_star": 9.9464, "kappa_hat": 3.8848, "ratio": 0.3906, "r2_res": 0.03665, "r2_true": 0.20628, "gam2": 0.00449}
+{"key": "RISK_t0.001", "t": 0.001, "kappa_flat": 9.0406, "kappa_star": 9.039, "kappa_hat": 3.9746, "ratio": 0.4397, "r2_res": 0.0366, "r2_true": 0.13122, "gam2": 0.0035}
+{"key": "NU_probe", "nus": {"0.1": 0.7799, "0.05": 0.7176, "0.02": null, "0.01": null, "0.005": null}}
