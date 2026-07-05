@@ -13,7 +13,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 
-OUT = r"C:\Users\naman\Downloads\metric-audit\paper\figs"
+OUT = r"paper\figs"
 import os
 os.makedirs(OUT, exist_ok=True)
 
@@ -123,7 +123,7 @@ print("fig5 OK")
 
 # copy the four result figures into paper/figs
 import shutil
-SRC = r"C:\Users\naman\Downloads\metric-audit\figures"
+SRC = r"figures"
 for f in os.listdir(SRC):
     shutil.copy(os.path.join(SRC, f), os.path.join(OUT, f))
 print("figs copied:", sorted(os.listdir(OUT)))

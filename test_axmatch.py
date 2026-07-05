@@ -8,13 +8,13 @@ import numpy as np
 import importlib.util
 
 spec = importlib.util.spec_from_file_location(
-    "pmr", r"C:\Users\naman\Downloads\metric-audit\pixel_mnist_recursion.py")
+    "pmr", r"pixel_mnist_recursion.py")
 # import the module WITHOUT running the recursion loop: load funcs only by reading
 # the functions we need via a light exec of just the definitions is messy; instead
 # rely on the cache being present so module import is cheap up to the heavy loop.
 # Simplest: re-implement the tiny bits we need by importing numpy funcs from source.
 
-z = np.load(r"C:\Users\naman\Downloads\metric-audit\mnist8x8.npz")
+z = np.load(r"mnist8x8.npz")
 TRAIN, TEST = z["train"], z["test"]
 rng = np.random.default_rng(0)
 

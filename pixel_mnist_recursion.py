@@ -17,8 +17,8 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 import numpy as np, torch, torch.nn as nn, json, time
 
 torch.set_num_threads(12)
-OUT = r"C:\Users\naman\Downloads\metric-audit\pixel_mnist_recursion.jsonl"
-CACHE = r"C:\Users\naman\Downloads\metric-audit\mnist8x8.npz"
+OUT = r"pixel_mnist_recursion.jsonl"
+CACHE = r"mnist8x8.npz"
 T_MAX, STEPS, BATCH, G, LAM, NSAMP = 8.0, 1500, 256, 8, 0.5, 3000
 D = 64
 SEEDS = [0, 1, 2]
@@ -29,7 +29,7 @@ def load_mnist8():
     from torchvision import datasets, transforms
     import torch.nn.functional as F
     def grab(train):
-        ds = datasets.MNIST(root=r"C:\Users\naman\Downloads\metric-audit\_mnist",
+        ds = datasets.MNIST(root=r"_mnist",
                             train=train, download=True)
         X = ds.data.float() / 255.0                      # (N,28,28)
         X = F.adaptive_avg_pool2d(X.unsqueeze(1), (8, 8)).squeeze(1)  # (N,8,8)

@@ -18,7 +18,7 @@ Pure numerics (no torch); deterministic; re-runnable in seconds.
 import numpy as np
 import json
 
-OUT = r"C:\Users\naman\Downloads\metric-audit\deficit_floor_law.jsonl"
+OUT = r"deficit_floor_law.jsonl"
 
 
 def integrate(t0, kbar, sigma, cap_mode="min", K=600000, tstart=8.0):

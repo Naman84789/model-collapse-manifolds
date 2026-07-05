@@ -10,7 +10,7 @@ Prints a summary table + writes figure-ready arrays to head_to_head_figure.json.
 """
 import numpy as np, json, os
 
-J = r"C:\Users\naman\Downloads\metric-audit\head_to_head.jsonl"
+J = r"head_to_head.jsonl"
 SIGMA, LAM = 0.05, 0.5
 SIG2 = SIGMA ** 2
 
@@ -59,5 +59,5 @@ if "A" in rows:
           f"v*_det = {vstar:.5f} = {vstar/SIG2:.2f} sigma^2")
     print("Arm A should saturate AT or slightly ABOVE this (injection adds ~30%).")
 
-json.dump(fig, open(r"C:\Users\naman\Downloads\metric-audit\head_to_head_figure.json", "w"), indent=1)
+json.dump(fig, open(r"head_to_head_figure.json", "w"), indent=1)
 print("\nwrote head_to_head_figure.json")

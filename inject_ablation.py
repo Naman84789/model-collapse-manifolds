@@ -17,7 +17,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 import numpy as np, torch, torch.nn as nn, json, time
 
 torch.set_num_threads(12)
-OUT = r"C:\Users\naman\Downloads\metric-audit\inject_ablation.jsonl"
+OUT = r"inject_ablation.jsonl"
 R, SIGMA, T_MAX = 2.5, 0.05, 8.0
 NSAMP, STEPS, BATCH, G, LAM, T0 = 4000, 1500, 512, 15, 0.5, 1e-4
 SEEDS = [0, 1, 2]

@@ -11,6 +11,12 @@ tiered there as **proved** (theorems / lower bounds), **experimentally validated
 (the runs below), and **partially modeled** (empirical mechanisms). This README is the
 run-order map; it does not restate the math.
 
+This repository is a curated subset of a larger private research directory: it contains
+everything needed to reproduce the paper's claims (scripts, logs, the paper itself), but
+two sections below (*Supporting / earlier-phase evidence*, *Not load-bearing*) describe
+earlier or superseded scripts that live only in that private directory, kept here for
+context — they are not part of this repository.
+
 ---
 
 ## Environment
@@ -30,7 +36,9 @@ Run anything with `python <script>.py`.
 ## Core pipeline (this is the paper)
 
 Ordered as the argument is built. "Establishes" ties each run to a claim; "→ figure" ties
-it to a panel in `figures/`.
+it to a panel in [`paper/figs/`](paper/figs) (the committed, final figures). Running
+`make_figures.py` yourself regenerates them into a local `figures/` first, exactly as in
+step 12 below.
 
 | # | Script | Output | Establishes | → figure | ~time |
 |---|--------|--------|-------------|----------|-------|
@@ -69,18 +77,18 @@ All inputs are already present, so this runs in seconds without redoing any trai
 
 ---
 
-## Supporting / earlier-phase evidence (the law + the fix)
+## Supporting / earlier-phase evidence (not included in this repo)
 
-These established Theorem II′ (the collapse law) and the fix in the 2026-07-02 solution
-phase; they underpin the pipeline above but are not the item-1–6 figures. Notes in
-`SOLUTION_NOTE.md`, `THEORY_NOTE.md`, `PLAN.md`.
-
-- `solution_law_test.py` → `solution_law_test.jsonl` — the estimation-fixed-point law, λ-sweep.
-- `solution_validation.py` (+ `_analysis`) → `solution_validation.jsonl` — blind local-PCA fix, curvature zoo (ellipse/sphere).
-- `scale_experiment.py`, `scale_variants.py` → `scale_experiment.jsonl` — d-scaling of the fix; MNIST latents.
-- `jump_solution_test.py` → `jump_solution_test.jsonl` — Tweedie-jump + matcher.
-- `grand_harness.py` → `grand_harness.jsonl` — LAW_a/LAW_b, CRIT (phase transition erased), MN (anisotropic matcher).
-- `manifold_fix_test.py`, `manifold_fix_test2.py` — early fix validation.
+Theorem II′ (the collapse law) and the fix were first established in an earlier,
+2026-07-02 solution phase, ahead of the polished pipeline above. Those scripts
+(`solution_law_test.py`, `solution_validation.py`, `scale_experiment.py`,
+`scale_variants.py`, `jump_solution_test.py`, `grand_harness.py`,
+`manifold_fix_test.py`/`_test2.py`) underpin the results narratively but are superseded by
+the core pipeline's cleaner re-derivation and are **not part of this repository** — they
+live only in the author's private research directory. `SOLUTION_NOTE.md` and
+`THEORY_NOTE.md` (included here) narrate that phase and carry in-place correction banners
+where later results superseded earlier claims; the corrected, citable statements are in
+`PROOFS.md`.
 
 **Doc hygiene (challenge #11) — DONE 2026-07-04:** the superseded "jump breaks the floor" /
 "jump sits 6× below Φ(0+)" lines in `SOLUTION_NOTE.md §4c` and `THEORY_NOTE.md` now carry

@@ -1,5 +1,7 @@
 __pycache__/
 *.pyc
+/figures/
+/_mnist/
 *.aux
 *.out
 *.bbl

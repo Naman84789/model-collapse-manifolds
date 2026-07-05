@@ -14,7 +14,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 import numpy as np, torch, torch.nn as nn, json, time
 torch.set_num_threads(12)
 
-OUT = r"C:\Users\naman\Downloads\metric-audit\jump_dscaling.jsonl"
+OUT = r"jump_dscaling.jsonl"
 R_SPH, T_MAX, SIGMA = 2.5, 8.0, 0.05
 NSAMP, STEPS, BATCH, THAT = 4000, 2000, 512, 0.02
 

@@ -20,7 +20,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 import numpy as np, torch, torch.nn as nn, json, time
 
 torch.set_num_threads(12)
-OUT = r"C:\Users\naman\Downloads\metric-audit\head_to_head.jsonl"
+OUT = r"head_to_head.jsonl"
 R, SIGMA, T_MAX = 2.5, 0.05, 8.0
 NSAMP, STEPS, BATCH, G, LAM = 4000, 2000, 512, 20, 0.5
 SEEDS = [0, 1, 2, 3, 4]

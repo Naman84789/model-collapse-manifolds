@@ -12,7 +12,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-D = r"C:\Users\naman\Downloads\metric-audit"
+D = r"."
 OUTD = os.path.join(D, "figures"); os.makedirs(OUTD, exist_ok=True)
 SIG2 = 0.05 ** 2
 

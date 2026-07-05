@@ -17,8 +17,8 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 import numpy as np, torch, torch.nn as nn, json, time
 
 torch.set_num_threads(12)
-OUT = r"C:\Users\naman\Downloads\metric-audit\rprime_probe25.jsonl"
-NET = r"C:\Users\naman\Downloads\metric-audit\rprime_probe_net25.pt"
+OUT = r"rprime_probe25.jsonl"
+NET = r"rprime_probe_net25.pt"
 R, SIGMA, N, T_MAX, STEPS, BATCH = 2.5, 0.05, 4000, 8.0, 2000, 512
 
 done = set()

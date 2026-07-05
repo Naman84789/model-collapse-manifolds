@@ -20,7 +20,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 import numpy as np, torch, torch.nn as nn, json, time
 
 torch.set_num_threads(12)
-OUT = r"C:\Users\naman\Downloads\metric-audit\poolwidth_probe.jsonl"
+OUT = r"poolwidth_probe.jsonl"
 R, T_MAX, STEPS, BATCH, N = 2.5, 8.0, 2000, 512, 6000
 
 done = set()
