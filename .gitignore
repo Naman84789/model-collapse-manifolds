@@ -6,6 +6,11 @@ __pycache__/
 *.out
 *.bbl
 *.log
+!cifar_run_offman.log
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+/cifar32.npz
+/cifar_state/
+/_cifar_parquet/
+/cifar_grids/

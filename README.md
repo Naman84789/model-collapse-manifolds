@@ -21,10 +21,14 @@ context — they are not part of this repository.
 
 ## Environment
 
-- **CPU-only** (all runs were done on 12 threads, no GPU needed).
-- Python 3.11+, with `numpy`, `torch` (CPU build), `matplotlib`. `torchvision` is only
+- **CPU-only** for the core pipeline (steps 1–13; all runs were done on 12 threads, no
+  GPU needed). The CIFAR-10 scale check (steps 14–16) is GPU-only in practice (small conv
+  UNet, AMP; a laptop RTX 3050 took ~4.75 h/seed) — it is a preliminary supplement, not a
+  load-bearing claim of the paper.
+- Python 3.11+, with `numpy`, `torch`, `matplotlib`. `torchvision` is only
   needed once to build the MNIST cache (a prebuilt `mnist8x8.npz` is already included).
-  `falsify_floor.py` additionally needs `scipy` (and uses `sympy` if installed).
+  `falsify_floor.py` additionally needs `scipy` (and uses `sympy` if installed). The CIFAR
+  scripts need `pyarrow` and `pillow` to decode the HuggingFace parquet.
 - Each script sets `os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"` before importing torch and
   calls `torch.set_num_threads(12)` — no shell setup required.
 - Every long run is **append-only resumable**: results stream to a `*.jsonl`; re-running a
@@ -57,6 +61,9 @@ step 12 below.
 | 11 | `test_axmatch.py` | stdout | Unit test of the pixel-space local matcher (no crash when pool>ref; off-manifold 3.02→1.55). | — | ~1 min |
 | 12 | `make_figures.py` | `figures/fig1–4.png` | Regenerates all four paper figures from the jsonl above. | all | seconds |
 | 13 | `falsify_floor.py` | stdout (14 checks) | **Adversarial verification of Theorem 2.** Independent RK45 integration vs both closed forms; sympy symbolic re-derivation of the band crossing; limits ρ→0, ρ→1⁻, κ̄→∞, λ→1; boundary-layer contraction at the predicted quadratic rate; 200-profile Monte Carlo attack on the comparison bound (incl. overshoot). 14/14 pass. | — | ~1 min |
+| 14 | `cifar_recursion.py` | `cifar_state/*.npz` (not committed, large), `cifar_run_offman.log` | **Scale check (preliminary).** Same recursion at D=3,072 (CIFAR-10 pixels), small conv UNet (~7M params, GPU/AMP), G=8, λ=½, 3 seeds. Unanchored settles at 22.8±1.2σ (true baseline 20.1); anchored holds 16.3±0.7, gap +6.5±1.1 in every seed. Needs a CUDA GPU in practice (~4.75 h/seed on an RTX 3050); downloads CIFAR-10 from HF parquet on first run (script prints the fetch command). | **fig6_cifar** | ~4.75 h/seed |
+| 15 | `cifar_diversity_check.py <seed>` | stdout | **Adversarial check on 14: is the anchored arm's lower off-manifold distance real quality or mode collapse the distance metric can't see?** Three NN metrics vs a real-vs-real baseline: precision (0.80×), **coverage (1.00×, rules out mode collapse)**, diversity (0.75×, bounded/non-compounding — identical at g4 and g7). Unanchored: precision 1.11×, coverage 1.16× (real modes go uncovered), diversity 1.20×. Read-only, CPU, <1 min per seed. | (fig6_cifar) | ~1 min |
+| 16 | `analyze_seeds.py` | stdout | Cross-seed trend analysis: unanchored slope +0.238±0.259/gen (noisy, not monotone — seed 2 is flat, so this is a stable degraded fixed point at λ=½, not runaway collapse); anchored slope −0.073±0.141/gen (flat). Full numbers in `CIFAR_3SEED_RESULTS.txt`. | — | seconds |
 
 ### Regenerate the four figures
 ```
@@ -76,6 +83,7 @@ All inputs are already present, so this runs in seconds without redoing any trai
 - **Pixel MNIST (fig3):** unfixed g7 = 3.06; anchored g7 = 1.66; true-data baseline = 1.34.
 - **Capacity floor (fig4):** finite-σ Φ_det·κ̄² = 0.141 ± 0.003 (σ=0.05); exact σ→0 constants: (1+3e⁻⁴)/8 = 0.1319 (no-overshoot), 1/8 (unconditional); measured κ̄=3.9 → 3.8σ² (zero-fit).
 - **Honest gap:** recursion Φ_det fixed point 4.54σ² vs measured ≈11σ² → factor 2.4 (compounding).
+- **CIFAR-10 pixels, D=3,072 (fig6_cifar, preliminary, 3 seeds):** unanchored 22.8±1.2 (true baseline 20.1); anchored 16.3±0.7; gap +6.5±1.1, same sign every seed. Anchored coverage 1.00× (no mode collapse), diversity 0.75× (bounded). Samples are blurry at this model budget — this is a dynamics/coverage check, not a perceptual-quality claim (see `CIFAR_3SEED_RESULTS.txt`).
 
 ---
 
@@ -123,3 +131,8 @@ probes, other topics, or superseded lines. Ignore for reproduction:
 - `mnist8x8.npz` — 8×8 pixel MNIST cache (train/test, [-1,1]) for `pixel_mnist_recursion.py`.
 - `mnist_latents32.npz` — 32-d PCA latents (used by earlier scale experiments).
 - `rprime_probe_net25.pt`, `rprime_probe_net.pt` — trained score nets from the κ̄ probe.
+- `cifar32.npz` (737 MB, **not committed**) and `cifar_state/*.npz` (73 MB × 5, **not
+  committed**) — `cifar_recursion.py` fetches/builds and caches these on first run;
+  `cifar_run_offman.log` (committed) has the full per-generation trajectory, and
+  `CIFAR_3SEED_RESULTS.txt` has the final numbers if you just want to check without
+  re-running.

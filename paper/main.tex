@@ -60,12 +60,27 @@ re-matching the model's output to a small, \emph{fixed} pool of real examples ma
 The match rescales the output to the \emph{local width} of the reference; it does not
 re-insert the reference examples into training. Over a 20-generation head-to-head the
 prior state of the art plateaus at $9.8\sigma^2$ while anchoring holds $1.01\sigma^2$, and
-on pixel-space MNIST anchoring removes $\sim$81\% of the off-manifold collapse. All
-experiments run on CPU and are reproducible from released scripts.
+on pixel-space MNIST anchoring removes $\sim$81\% of the off-manifold collapse. A
+preliminary scale-up to CIFAR-10 in raw pixel space ($3{,}072$ dimensions), across three
+seeds, reproduces the separation and, by three independent nearest-neighbor metrics, shows
+the anchor keeps full coverage of the real data, ruling out mode collapse. The core
+experiments run on CPU and all are reproducible from released scripts.
 \end{abstract}
 
 % ================================================================ 1 intro
 \section{Introduction}\label{sec:intro}
+
+\paragraph{In plain terms.} Train an image generator, use it to make pictures, then train
+the next generator partly on those pictures, and repeat. Each round the model drifts a
+little further from real data, the way a photocopy of a photocopy loses detail. This is
+\emph{model collapse}. Recent theory shows the drift can be repaired when the data is
+``smooth,'' but leaves open the case that actually describes images, audio, and most real
+data: points that lie on a thin surface (a \emph{manifold}) inside a much larger space.
+This paper handles that case. We prove there is a hard floor on how faithful a
+fixed-size model can stay, set by a single number, how sharp an edge the network can
+represent, that no amount of tuning removes. Then we give a cheap fix: each round, gently
+rescale the model's output so its fine-scale spread matches a small, fixed sample of real
+data. The fix stops the drift from compounding, for any positive amount of fresh real data.
 
 Web-scale corpora already contain machine-generated data, and synthetic data is used
 deliberately in modern training pipelines. When a generative model is repeatedly
@@ -124,7 +139,9 @@ the previous generation, the critical fraction disappears, and the dynamics of
 20-generation head-to-head against their annealed-truncation remedy
 (Figure~\ref{fig:headtohead}), the annealed arm plateaus at $9.8\sigma^2$ while the
 anchored arms hold $1.01\sigma^2$, flat, on both samplers we test; on real pixels
-(MNIST), anchoring closes $\sim$81\% of the collapse gap (Figure~\ref{fig:mnist}).
+(MNIST), anchoring closes $\sim$81\% of the collapse gap (Figure~\ref{fig:mnist}); and a
+preliminary CIFAR-10 pixel recursion ($3{,}072$ dimensions, three seeds) shows the same
+separation with full mode coverage (Figure~\ref{fig:cifar}).
 
 \paragraph{Contributions.}
 \begin{enumerate}\itemsep2pt
@@ -144,7 +161,9 @@ anchored arms hold $1.01\sigma^2$, flat, on both samplers we test; on real pixel
 \item \textbf{Falsifiable empirics}: a zero-fit prediction of the measured sampling floor
   from one measured network property; a two-horned ablation separating the floor's
   existence (sampler noise) from its size (slope ceiling); a 20-generation, 5-seed
-  head-to-head win over the state-of-the-art remedy; and a pixel-space MNIST recursion.
+  head-to-head win over the state-of-the-art remedy; a pixel-space MNIST recursion; and a
+  preliminary CIFAR-10 pixel-space recursion (three seeds) that rules out mode collapse by
+  three independent nearest-neighbor metrics.
 \end{enumerate}
 
 Throughout we keep the epistemic status of each claim explicit: \emph{we prove}
@@ -600,10 +619,44 @@ fitted at one $t_0$ predicts fixed points at the other within $1$ to $13\%$
 $+0.6\to\approx0$ across pool widths (Assumption~\ref{ass:a2} validation), the net of a
 measured deficit channel $-0.68$ and injection channel $+0.73$.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/fig6_cifar.png}
+\caption{\textbf{CIFAR-10 pixel recursion (\emph{we observe}).} (a) Off-manifold distance
+(mean nearest-neighbor distance to held-out real CIFAR-10) across 8 self-consuming
+generations, 3 seeds (mean $\pm$ s.d.). The anchor holds a stable plateau well below the
+unanchored arm, which settles into a worse, noisier state; the separation holds in every
+seed. (b) Three nearest-neighbor metrics relative to a real-vs-real baseline (dotted). The
+anchor keeps \emph{coverage} of the real data at $1.00\times$ (no real modes dropped,
+ruling out mode collapse); its $0.75\times$ diversity is a bounded, non-compounding
+contraction cost (identical at generations 4 and 7).}
+\label{fig:cifar}
+\end{figure}
+
+\paragraph{Scaling to CIFAR-10 pixels (\emph{we observe}).} To test whether the mechanism
+survives at realistic dimension, we ran the same self-consuming recursion in raw CIFAR-10
+pixel space ($32\times32\times3=3{,}072$ dimensions) with a small convolutional denoiser
+($\sim$7M parameters, mixed precision), $\lambda=\tfrac12$, $G=8$, three seeds
+(Figure~\ref{fig:cifar}a). The unanchored recursion settles into a worse, noisier state
+(off-manifold distance $22.8\pm1.2$ vs.\ the true-data baseline $20.1$) while the anchor
+holds a stable plateau ($16.3\pm0.7$); the gap has the same sign in every seed
+($+6.5\pm1.1$). Because a low off-manifold distance could in principle hide mode collapse
+(a few good samples repeated), we check three independent nearest-neighbor metrics against
+a real-vs-real baseline (Figure~\ref{fig:cifar}b): the anchored arm keeps \emph{coverage} of
+the real data at $1.00\times$ (the unanchored arm loses coverage, $1.16\times$), so no real
+modes are dropped, and its reduced intra-set diversity ($0.75\times$) is a bounded,
+non-compounding cost of the match. We are careful about what this shows. At this model
+budget the samples are blurry; this is a check on the collapse \emph{dynamics} and a
+ruling-out of mode collapse, not a demonstration of high perceptual quality, and the
+sub-baseline off-manifold distance reflects mild contraction toward the manifold rather than
+superiority to real data. The unanchored arm reaches a stable displaced fixed point rather
+than runaway collapse, exactly as Theorem~\ref{thm:law} predicts at $\lambda=\tfrac12$,
+where fresh-data injection pins a finite plateau.
+
 \begin{table}[t]
 \centering\small
 \caption{Headline numbers (mean $\pm$ s.d.\ over seeds; variance in units of $\sigsq$
-except MNIST, which reports off-manifold distance).}
+except MNIST and CIFAR-10, which report off-manifold distance).}
 \label{tab:headline}
 \begin{tabular}{llll}
 \toprule
@@ -619,6 +672,11 @@ Ablation, fixed $t_0{=}10^{-4}$ & stochastic (noise on) & $10.8$ to $13.2$ & 3 \
 Pixel MNIST, $G{=}8$ & unanchored & $3.06$ & 3 \\
  & anchored & $1.66$ & 3 \\
  & true-data baseline & $1.34$ & n/a \\
+\midrule
+Pixel CIFAR-10, $G{=}8$ & unanchored & $22.8\pm1.2$ & 3 \\
+ & anchored & $16.3\pm0.7$ & 3 \\
+ & true-data baseline & $20.1$ & n/a \\
+ & anchored coverage / diversity & $1.00\times$ / $0.75\times$ & 3 \\
 \midrule
 Floor prediction & measured $\kb{=}3.9\Rightarrow\Phidet$ & $3.8$ (zero fit) & n/a \\
 \bottomrule
@@ -648,14 +706,17 @@ mild residual creep (Figure~\ref{fig:mnist}).
 (6)~A parameter-free one-step prediction of MNIST-latent thin ratios fails
 quantitatively (it predicts the direction and the regime boundary, not the number); we
 flag it rather than fit it.
-(7)~Our evidence is deliberately small-scale and fully instrumented: a ring, curved
-2-manifolds swept across ambient dimension $d=8\to128$, six $(t_0,\lambda)$
-law-identification cells, the two-horned ablation, and pixel-space MNIST, all chosen so that
-every quantity the theory names is directly measurable. We do not test CIFAR-scale or
-latent-diffusion pipelines. The theory predicts the mechanism transfers, because the floor
-depends only on the \emph{local} normal slope and not on the ambient dimension
-(Lemma~\ref{lem:frames}, and the measured $d$-independence of the matched floors);
-confirming this at scale is the clearest next step and is left as future work.
+(7)~Our evidence spans a ring, curved 2-manifolds swept across ambient dimension
+$d=8\to128$, six $(t_0,\lambda)$ law-identification cells, the two-horned ablation,
+pixel-space MNIST, and a preliminary CIFAR-10 pixel-space recursion ($3{,}072$ dimensions,
+three seeds), all chosen so that every quantity the theory names is directly measurable. The
+CIFAR-10 run confirms the collapse \emph{dynamics} and rules out mode collapse at scale
+(Figure~\ref{fig:cifar}), but at this model budget the samples are blurry and we do not
+claim a perceptual-quality result; we do not test latent-diffusion pipelines or
+larger models. The theory predicts the mechanism transfers, because the floor depends only
+on the \emph{local} normal slope and not on the ambient dimension (Lemma~\ref{lem:frames},
+and the measured $d$-independence of the matched floors); confirming this in a large
+latent-diffusion system is the clearest next step and is left as future work.
 
 \section{Reproducibility}\label{sec:repro}
 
