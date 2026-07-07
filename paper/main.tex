@@ -481,14 +481,23 @@ parameters.}
 \label{fig:floorlaw}
 \end{figure}
 
-\paragraph{An honest gap (\emph{we model}).} Iterating the floor through the recursion
-(every generation's pool is at least as wide as $\lambda\sigsq+(1-\lambda)\Phidet$)
-gives a deterministic fixed point $v^*_{\mathrm{det}}=4.5\,\sigsq$ at our parameters.
-The measured recursion floor is $\approx11\,\sigsq$, a factor $2.4$ above. Our theorem
-claims only a \emph{lower bound} on the recursion (respected), and we attribute the
-excess to per-generation compounding: a network trained on self-generated, fattened data
-has a worse slope profile than one trained on a clean tube of the same width, a channel
-the single-pass analysis deliberately omits. We leave the exact recursion constant open.
+\paragraph{An honest gap, half closed (\emph{we model}).} Iterating the floor through
+the recursion (every generation's pool is at least as wide as
+$\lambda\sigsq+(1-\lambda)\Phidet$) with the network's \emph{clean-tube} ceiling
+$\kb=3.9$ gives a deterministic fixed point $v^*_{\mathrm{det}}=4.5\,\sigsq$. The
+measured recursion floor is $\approx11\,\sigsq$, a factor $2.4$ above; our theorem
+claims only a \emph{lower bound} on the recursion (respected). The single-width probe
+(Appendix~\ref{app:details}) accounts for roughly half of the excess: the ceiling itself
+degrades on fatter training pools --- \emph{we observe}
+$\kb(w)=4.43-11.6\sqrt{w}$ across $\sqrt w\in[0.03,0.13]$ (max fit residual $0.02$) ---
+so a network trained on self-generated, fattened data has a worse slope profile than
+the clean-tube analysis assumes. Feeding this measured law back self-consistently,
+$v\leftarrow\Phidet\big(w(v),\kb(w(v))\big)$, moves the fixed point to $6.1\,\sigsq$ at
+$t_0=10^{-4}$ ($7.4\,\sigsq$ at $10^{-3}$) with no new parameters, and the resulting
+pool width $\sqrt{w^*}=0.094$ lies \emph{inside} the measured support of the $\kb(w)$
+law (interpolation, not extrapolation). The remaining factor $\approx1.5$--$1.8$ we
+attribute to stochastic per-generation compounding that no deterministic pass captures;
+its constant stays open.
 
 % ================================================================ 6 fix
 \section{The anchoring fix}\label{sec:fix}
@@ -617,7 +626,9 @@ recursions at $t_0\in\{0.02,0.05\}$, $\lambda\in\{0.25,0.5,0.75\}$; the affine l
 fitted at one $t_0$ predicts fixed points at the other within $1$ to $13\%$
 (Assumption~\ref{ass:a0} validation), and the measured excess-response slope runs
 $+0.6\to\approx0$ across pool widths (Assumption~\ref{ass:a2} validation), the net of a
-measured deficit channel $-0.68$ and injection channel $+0.73$.
+measured deficit channel $-0.68$ and injection channel $+0.73$; a refinement using the
+probe's own capacity measurements splits the latter further
+(Appendix~\ref{app:details}).
 
 \begin{figure}[t]
 \centering
@@ -690,9 +701,12 @@ Everything in the \emph{we model} tier is collected here.
 (1)~Assumptions~\ref{ass:a0} and~\ref{ass:a2} are measured, cross-validated laws about the
 trained pipeline, not derived facts; we present them as such, in the spirit of measured
 critical exponents.
-(2)~The recursion floor constant is open: our closed forms are exact for a single pass,
-and lower bounds for the recursion; the measured recursion floor sits a factor $2.4$
-above the iterated single-pass bound (per-generation compounding, not modeled).
+(2)~The recursion floor constant is partially open: our closed forms are exact for a
+single pass, and lower bounds for the recursion; the measured recursion floor sits a
+factor $2.4$ above the iterated single-pass bound, of which roughly half is accounted
+for by feeding the measured capacity-degradation law $\kb(w)$ back self-consistently
+(Section~\ref{sec:floor}), leaving a $1.5$--$1.8\times$ stochastic-compounding residual
+unmodeled.
 (3)~The residual-field ($\sim30\%$ single-pass) channel is bounded in a
 block-correlation model (Appendix~\ref{app:residual}); negative association across
 blocks is the one direction that could weaken that particular bound (the closed-form
@@ -720,6 +734,8 @@ latent-diffusion system is the clearest next step and is left as future work.
 
 \section{Reproducibility}\label{sec:repro}
 
+Code, result logs, and figures are public at\\
+\centerline{\url{https://github.com/Naman84789/model-collapse-manifolds}}\\
 Every claim maps to a script, an append-only result log, and a figure in the released
 code (ring, ablation, MNIST, floor law, law identification; $\sim$2 CPU-hours total).
 The four result figures regenerate from logged data in seconds. A README lists the
@@ -937,10 +953,23 @@ band, and never exceeds $\kappa$ ($n$-independent across $1$k to $16$k). The dec
 identity $(\kappa-\hat\kappa)^2\gamma^2+r^2_{\mathrm{res}}=r^2_{\mathrm{tot}}$ checks
 numerically along the path.
 
-\textbf{Two-channel anatomy of $c$.} Training single-width tubes at
+\textbf{Anatomy of $c$.} Training single-width tubes at
 $w\in\{0.0009,\dots,0.0169\}$ and measuring $dv/dw-1$ gives net
 $c\in\{0.00,0.05,0.13,0.10,0.05\}$ (small, positive, concave) as the sum of a
 deficit response $\approx-0.68$ (a fatter pool needs a smaller peak slope) and an
 injection response $\approx+0.73$ (a fatter pool damps injected variance less).
+The same probe's per-width slope fits give the capacity-degradation law
+$\kb(w)=4.43-11.6\sqrt{w}$ used in Section~\ref{sec:floor}, which refines this
+anatomy into three channels: writing
+$\tfrac{d}{dw}\Phidet(w,\kb(w))
+=\partial_w\Phidet|_{\kb}+(\partial_{\kb}\Phidet)\,\kb'(w)$, the mid-range values
+are a deficit $\approx-0.94$, a capacity-degradation term $\approx+0.7$, and a
+residual injection $\approx+0.3$ to $+0.4$; their sum reproduces the measured net
+$c$ pointwise ($+0.13$ derived vs.\ $+0.13$ measured at $w=0.0049$; $+0.10$ vs.\
+$+0.10$ at $w=0.01$). Most of the apparent injection response is thus the
+degradation of $\kb$ on fatter pools, and the residual injection is stable and
+positive, as the residual-channel model (Appendix~\ref{app:residual}) requires. We trust this
+decomposition mid-range only: at the thinnest width the $\sqrt w$ parametrization
+makes $\kb'(w)$ diverge, an artifact of the fit, not a mechanism.
 
 \end{document}
