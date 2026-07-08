@@ -268,6 +268,15 @@ independent type within $1$ to $13\%$ across six $(t_0,\lambda)$ cells
 \begin{assumption}[concave response]\label{ass:a2}
 $F_g(w)=a^2(t_0(g))\,w+s^2(t_0(g))+e^2(w)$, where the sampling excess
 $e^2:[0,\infty)\to(0,\infty)$ is nondecreasing and concave with $e^2(0)=e_0^2>0$.
+\emph{In words:} the output width is the pool width shrunk by the forward map
+($a^2w$), plus the truncation remainder ($s^2$), plus a sampler-added excess $e^2$
+that (i) never vanishes even for a perfectly thin pool ($e_0^2>0$, this is the floor),
+(ii) grows with a fatter pool but (iii) with diminishing returns (concave: doubling the
+pool width less than doubles the added excess).
+\emph{Why concave:} the excess comes from the network failing to represent the steep part
+of the score, and a fatter pool is \emph{easier} to represent (the required peak slope
+$\kappa_{\max}=1/(2\sigma_{\text{pool}})$ falls), so each extra unit of pool width buys
+less extra error, exactly a saturating (concave) response.
 \emph{Validation:} the measured local slope of $e^2$ runs from $+0.6$ (fat pools) to
 $\approx0$ (thin pools), concave and saturating; its small magnitude is itself a
 measured near-cancellation of two $O(0.7)$ channels (Section~\ref{sec:experiments}).
@@ -285,6 +294,15 @@ T(v)=\lambda\sigsq+(1-\lambda)v+e^2\!\big(\lambda\sigsq+(1-\lambda)v\big),
 with $s^2_g:=s^2(t_0(g))$ the truncation remainder. Let
 $c_\infty:=\lim_{w\to\infty}e^{2\prime}(w)$ (exists by concavity) and define the
 \emph{critical real-data fraction} $\lambda^*:=c_\infty/(1+c_\infty)$.
+
+\emph{How to read the theorem.} The per-generation update $T$ pushes the width toward a
+balance point. Part (i): if you keep enough fresh real data ($\lambda>\lambda^*$) there is
+a single stable plateau the width always settles to, from any start and any schedule.
+Part (ii): below that fresh-data threshold there is no plateau at all, the width runs off
+to infinity. Part (iii): if the sampler excess happens to be a straight line in the pool
+width, the plateau has a clean closed form. The one thing to notice is what $\lambda^*$
+and $v_\infty$ depend on: the sampler excess $e^2$, \emph{not} the truncation schedule,
+which is the whole point of Remark~\ref{rem:annealing}.
 
 \begin{theorem}[law of the collapse; \emph{we prove}]\label{thm:law}
 Fix $\lambda\in(0,1]$.
@@ -389,6 +407,16 @@ a $\sigma$-free equation; the uncapped equation has exact solution $W=1+u$
 integration. Consequently $\lim_{t_0\to0}V(t_0)/\sigsq=g_{\mathrm{class}}(\rho)+O(\sigsq/\rho^2)$:
 \textbf{universality in $\rho$ is a theorem}.
 \end{lemma}
+
+\emph{How to read the theorem.} There is one dimensionless knob, $\rho=\kb/\kappa_{\max}=
+2\sigma\kb$: how close the network's slope ceiling gets to the peak slope the data demands.
+The floor is a universal function of $\rho$ alone. Version (U) makes no assumption on the
+network and gives the clean bound $1/(8\kb^2)$; version (N) additionally assumes the
+network never over-shoots the true slope (which is what we measure) and gives a slightly
+tighter constant. The two constants differ by only $5.5\%$, so for intuition either one is
+``the'' floor. The single takeaway: when $\rho<1/\sqrt2$ the floor sits strictly above the
+true width $\sigsq$, i.e.\ the sampler is stuck too fat, and it gets relatively worse the
+thinner the manifold.
 
 \begin{theorem}[closed-form capacity floor; \emph{we prove}]\label{thm:floor}
 Let the trained score's normal slope satisfy $\hat\kappa(t)\le\kb<\infty$
@@ -555,6 +583,15 @@ local-PCA rates \citep{aamari2019nonasymptotic,singer2012vector} enter only at s
 order. Every quantity in the bound is intrinsic ($k,\tau,\sigma,m$); the ambient
 dimension $d$ appears nowhere.
 \end{lemma}
+
+\emph{How to read the theorem.} The collapse of Theorem~\ref{thm:law} happens because
+generation $g$ inherits generation $g\!-\!1$'s width: the map $F_g$ has a $v_{g-1}$ inside
+it, so errors compound. The matcher overwrites the pool's normal width with a fixed number
+(the reference's) \emph{before} training, so the input to $F_g$ no longer depends on
+$v_{g-1}$. The recursion becomes a constant sequence, there is nothing left to compound,
+and the critical-fraction threshold of Theorem~\ref{thm:law} disappears entirely. The only
+error left is the one-time cost of estimating the reference width from a finite sample, and
+that does not grow with generations.
 
 \begin{theorem}[anchoring makes the recursion memoryless; \emph{we prove} given
 Lemma~\ref{lem:frames} and Assumption~\ref{ass:a0}]\label{thm:fix}

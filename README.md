@@ -11,6 +11,10 @@ tiered there as **proved** (theorems / lower bounds), **experimentally validated
 (the runs below), and **partially modeled** (empirical mechanisms). This README is the
 run-order map; it does not restate the math.
 
+**New to the paper? Start with [`paper/WALKTHROUGH.md`](paper/WALKTHROUGH.md)** — a
+plain-English companion that explains every theorem, assumption, and proof step in words
+and answers "why?" for each, ending with a self-quiz of the questions a reviewer will ask.
+
 This repository is a curated subset of a larger private research directory: it contains
 everything needed to reproduce the paper's claims (scripts, logs, the paper itself), but
 two sections below (*Supporting / earlier-phase evidence*, *Not load-bearing*) describe
