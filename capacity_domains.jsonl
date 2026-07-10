@@ -1,0 +1,18 @@
+{"key": "CD_SEG_sig0.03", "geom": "SEG", "sig": 0.03, "kbar": 5.501, "k_by_t": [3.082, 4.307, 5.453, 5.501, 5.407]}
+{"key": "CD_SEG_sig0.05", "geom": "SEG", "sig": 0.05, "kbar": 4.92, "k_by_t": [3.142, 4.17, 4.92, 4.892, 4.804]}
+{"key": "CD_SEG_sig0.07", "geom": "SEG", "sig": 0.07, "kbar": 4.459, "k_by_t": [3.096, 3.986, 4.459, 4.384, 4.293]}
+{"key": "CD_SEG_sig0.1", "geom": "SEG", "sig": 0.1, "kbar": 3.751, "k_by_t": [2.979, 3.577, 3.751, 3.636, 3.555]}
+{"key": "CD_SEG_sig0.13", "geom": "SEG", "sig": 0.13, "kbar": 3.176, "k_by_t": [2.83, 3.176, 3.167, 3.042, 2.975]}
+{"key": "CD_SPHERE_sig0.03", "geom": "SPHERE", "sig": 0.03, "kbar": 4.232, "k_by_t": [2.916, 3.607, 4.015, 4.16, 4.232]}
+{"key": "CD_SPHERE_sig0.05", "geom": "SPHERE", "sig": 0.05, "kbar": 4.033, "k_by_t": [2.839, 3.466, 3.832, 3.964, 4.033]}
+{"key": "CD_SPHERE_sig0.07", "geom": "SPHERE", "sig": 0.07, "kbar": 3.78, "k_by_t": [2.732, 3.286, 3.603, 3.719, 3.78]}
+{"key": "CD_SPHERE_sig0.1", "geom": "SPHERE", "sig": 0.1, "kbar": 3.368, "k_by_t": [2.534, 2.981, 3.225, 3.319, 3.368]}
+{"key": "CD_SPHERE_sig0.13", "geom": "SPHERE", "sig": 0.13, "kbar": 2.971, "k_by_t": [2.316, 2.673, 2.855, 2.932, 2.971]}
+{"key": "CD_RING10_sig0.03", "geom": "RING10", "sig": 0.03, "kbar": 6.032, "k_by_t": [3.187, 4.314, 5.796, 6.032, 6.021]}
+{"key": "CD_RING10_sig0.05", "geom": "RING10", "sig": 0.05, "kbar": 5.339, "k_by_t": [3.112, 4.139, 5.254, 5.339, 5.301]}
+{"key": "CD_RING10_sig0.07", "geom": "RING10", "sig": 0.07, "kbar": 4.579, "k_by_t": [2.988, 3.845, 4.579, 4.56, 4.509]}
+{"key": "CD_RING10_sig0.1", "geom": "RING10", "sig": 0.1, "kbar": 3.723, "k_by_t": [2.833, 3.414, 3.723, 3.646, 3.601]}
+{"key": "CD_RING10_sig0.13", "geom": "RING10", "sig": 0.13, "kbar": 3.093, "k_by_t": [2.669, 3.016, 3.093, 3.013, 2.978]}
+{"key": "LAW_SEG", "A": 6.119, "B": -23.131, "maxres": 0.076, "rel_drop_pct": 42.3}
+{"key": "LAW_SPHERE", "A": 4.651, "B": -12.812, "maxres": 0.034, "rel_drop_pct": 29.8}
+{"key": "LAW_RING10", "A": 6.807, "B": -29.656, "maxres": 0.152, "rel_drop_pct": 48.7}

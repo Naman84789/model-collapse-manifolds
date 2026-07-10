@@ -158,8 +158,12 @@ anchored/unanchored split with full mode coverage (Figure~\ref{fig:cifar}).
 \item \textbf{A memorylessness theorem for anchoring} (Theorem~\ref{thm:fix}): matching
   pool and output normal variance to a stale real reference removes the recursion's
   memory, for every $\lambda>0$, with an error bound independent of the ambient dimension.
-\item \textbf{Falsifiable empirics}: a zero-fit prediction of the measured sampling floor
-  from one measured network property; a two-horned ablation separating the floor's
+\item \textbf{Falsifiable empirics}: a floor anatomy from one measured network
+  property --- the law's envelope explains ${\sim}60\%$ of the measured single-pass
+  floor, the remainder resolving into two further measured channels (in-band profile
+  sag; ensemble displacement) --- plus an interventional test: five training protocols
+  move the ceiling $3.5\to7.5$ and the floor tracks the law, never crossing it; a
+  two-horned ablation separating the floor's
   existence (sampler noise) from its size (slope ceiling); a 20-generation, 5-seed
   head-to-head win over the state-of-the-art remedy; a replay-buffer control at the
   anchor's exact information budget, separating anchoring from replay; a subcritical-%
@@ -507,27 +511,55 @@ finite ceiling $\kb$ makes the floor \emph{larger than} $\sigsq$ (the stochastic
 The two branches bracket the target from both sides; no choice of the sampler noise
 magnitude attains it.
 
-\paragraph{Zero-fit confrontation with a real network (\emph{we observe}).} For our
+\paragraph{Confronting the floor with a real network (\emph{we observe}).} For our
 standard pipeline the measured slope profile tracks $\kappa(t)$ faithfully at benign
 times ($\hat\kappa/\kappa=0.95$ to $0.97$ for $t\ge0.1$) and then saturates at
-$\kb\approx3.9$ while $\kappa$ continues to $\sim\!10$, an optimization ceiling
-independent of sample size. Feeding $\kb=3.9$ ($\rho=0.39$) into the floor law predicts
-$\Phidet=3.8\,\sigsq$ at $\sigma=0.05$, matching the same network's measured $t_0\to0$
-sampling floor with \emph{no free parameter} (Figure~\ref{fig:floorlaw}); integrating
-\eqref{eq:varode} with the full measured profile $\hat\kappa(t)$ reproduces
-$69$ to $75\%$ of the measured floor at each of three truncation times, with the exact-score
-control reproducing $\gamma^2(t_0)$ to all displayed digits. The remaining
-$\sim\!30\%$ is the residual-field channel of Lemma~\ref{lem:shield}, which we bound in
-a block-correlation model (\emph{we model}; Appendix~\ref{app:residual}).
+$\kb\approx3.7$--$4.3$ (seed range) while $\kappa$ continues to $\sim\!10$. The law's
+envelope value at the measured ceiling, $\Phidet=3.8$--$4.6\,\sigsq$
+(Figure~\ref{fig:floorlaw}), is a \emph{proven lower bound}; the directly measured
+single-pass floor at $t_0=10^{-4}$ is $6.3$--$7.5\,\sigsq$, so the bound holds and its
+envelope component accounts for $55$--$65\%$ of the measurement, with the exact-score
+control reproducing $\gamma^2(t_0)$ to all displayed digits. The remainder is not
+mysterious: re-running the sampler's own discrete variance recursion with measured
+inputs resolves it into two channels. \textbf{(i) Profile shape}: the measured
+$\hat\kappa(t)$ sags $\approx0.5$--$0.7$ below its own ceiling inside the deficit band,
+worth $+0.7\,\sigsq$ at the data width. \textbf{(ii) Ensemble displacement}: regressing
+the network's normal response on the sampler's \emph{own} ensemble at every step ---
+which is fatter than $p_t$ once excess accumulates, so it probes the S-shaped response
+into its flattening tails --- gives a smaller effective slope, worth $+2.6\,\sigsq$;
+the affine recursion driven by this measured ensemble slope then reproduces the sampler
+to $-0.4\,\sigsq$, i.e.\ the nonlinear remainder beyond the two channels is small (this
+prices the ensemble-deviation term that Lemma~\ref{lem:shield} controls only to first
+order). \textbf{Interventional test.} The law survives moving the ceiling: five
+training protocols ($t$-importance-sampling into the band, $4\times$ steps, a
+higher-frequency time embedding, and combinations) move $\kb$ from $3.5$ to $7.5$, and
+the measured floor falls from $7.8$ to $2.5\,\sigsq$, tracking the predicted
+$1/\kb^{2}$ ordering and never crossing the bound.
+
+\paragraph{What sets the ceiling (\emph{we observe}).} The interventions also identify
+the ceiling's origin. Raising the time-embedding frequency alone does nothing
+($\kb=3.5$): expressivity in $t$ is not binding. Importance-sampling training times
+into the band ($\kb\to6.7$) or simply training $4\times$ longer ($\kb\to6.4$) moves it
+strongly: under the uniform $t$-draw the deficit band holds ${<}1\%$ of the training
+measure (and $t<10^{-3}$ is never drawn at all, though the sampler visits it), so the
+ceiling is \emph{gradient starvation} --- an optimization constant, not an
+architectural one, consistent with its independence of sample size and its degradation
+on fatter pools (a fatter tube spreads the same starved gradient over an easier, wider
+band). The Case-2 conclusion is unchanged --- as $\sigma\to0$ the demanded peak
+$1/(2\sigma)$ diverges, so any fixed training budget caps $\kb$ --- but the constant is
+steerable: band-weighted noise-level sampling buys a $2$--$3\times$ lower per-pass
+floor at fixed size. It cannot reach $\sigsq$, and the recursion compounds whatever
+remains, so anchoring is still the fix.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.7\linewidth]{figs/fig4_capacity_floor.png}
 \caption{\textbf{The capacity floor, predicted and measured.} Blue: finite-$\sigma$
 variance-ODE floor at $\sigma=0.05$ (no fit). Dashed: the exact $\sigma\to0$ law
-$\big((1+3e^{-4})/8\big)\kb^{-2}$ of Theorem~\ref{thm:floor}. Star: the measured network
-ceiling $\kb=3.9$ predicts the measured sampling floor $3.8\sigsq$ with zero free
-parameters.}
+$\big((1+3e^{-4})/8\big)\kb^{-2}$ of Theorem~\ref{thm:floor}. Star: the envelope floor
+$3.8\sigsq$ at the measured ceiling $\kb=3.9$ --- a proven lower bound that accounts
+for ${\sim}60\%$ of the directly measured single-pass floor; the measured anatomy of
+the remainder (profile sag, ensemble displacement) is in the text.}
 \label{fig:floorlaw}
 \end{figure}
 
@@ -540,8 +572,12 @@ claims only a \emph{lower bound} on the recursion (respected). The single-width 
 (Appendix~\ref{app:details}) accounts for part of the excess: \emph{we observe} that
 the ceiling itself degrades on fatter training pools, from $3.7$--$4.3$ at
 $\sqrt w=0.03$ down to $2.8$--$3.0$ at $\sqrt w=0.13$ (ranges over three training
-seeds), and the degradation replicates under a half-width network and under a
-different ring radius (slopes $-9.4$ to $-13.0$ across all five measurements). Over
+seeds), and the degradation replicates under a half-width network, under a
+different ring radius (slopes $-9.4$ to $-13.0$ across all five measurements), and
+across three further geometries --- a flat segment (the flat-tube idealization made
+exact, so the degradation does not require curvature; $42\%$ drop over the same width
+range), a sphere in $\R^3$ ($30\%$), and a circle in $\R^{10}$ (codimension 9;
+$49\%$) --- with geometry-specific constants. Over
 this range the points are well described by the two-parameter fit
 $\kb(w)\approx4.4-11.6\sqrt{w}$. This is an \emph{empirical fit, not a derived form},
 and nothing below depends on the choice: refitting linear, logarithmic, or quadratic,
@@ -562,9 +598,14 @@ $1.5$--$2.0$ --- a quarter to a half of the logarithmic gap. For the remainder w
 say what it is \emph{not}: iterating the map with the measured generation-to-generation
 fluctuations gives a Jensen bias of only $0.006\,\sigsq$, and applying the measured
 $t\ge0.1$ slope-tracking ratio ($0.95$--$0.97$) to the whole profile moves the fixed
-point by only $+0.3$--$0.4\,\sigsq$; the leading remaining suspect is the network's
-profile \emph{shape} inside the deficit band, where tracking is not measured. Its
-constant stays open.
+point by only $+0.3$--$0.4\,\sigsq$. The remainder is now \emph{measured}: the profile
+sag and ensemble-displacement channels of the floor anatomy above, re-measured across
+six pool widths spanning the fixed point, lift the per-pass map to its directly
+measured values, and iterating that measured map gives a fixed point of
+$9.9\,\sigsq$ against the measured $10.8$--$13.2\,\sigsq$ --- the once factor-$2.4$
+discrepancy is now $1.1$--$1.3$, at the level of protocol differences (mixture pools,
+per-generation sample counts, seed scatter). What stays underived are the constants
+themselves: $\kb$, its degradation law, and the saturation profile.
 
 % ================================================================ 6 fix
 \section{The anchoring fix}\label{sec:fix}
@@ -744,8 +785,9 @@ finite horizon cannot distinguish true divergence from a plateau far above it, s
 claim the contrast, not divergence itself.) The supercritical plateaus track the law's
 $e^2/\lambda$ scaling: the implied per-pass excess $e^2(w^*)=\lambda(v_\infty-\sigsq)$
 is $3.9$--$5.0\,\sigsq$ across $\lambda\in\{0.25,\,0.5,\,2/3\}$ (the last from the
-replay control of Section~\ref{sec:fix}), bracketing the clean-tube single-pass floor
-$3.8\,\sigsq$ and its degradation-adjusted values.
+replay control of Section~\ref{sec:fix}), sitting between the envelope floor and the
+directly measured per-pass values, as the width-dependence of the measured map
+requires.
 
 \begin{figure}[t]
 \centering
@@ -830,13 +872,15 @@ Everything in the \emph{we model} tier is collected here.
 (1)~Assumptions~\ref{ass:a0} and~\ref{ass:a2} are measured, cross-validated laws about the
 trained pipeline, not derived facts; we present them as such, in the spirit of measured
 critical exponents.
-(2)~The recursion floor constant is partially open: our closed forms are exact for a
-single pass, and lower bounds for the recursion; the measured recursion floor sits a
-factor $2.4$ above the iterated single-pass bound, of which a quarter to a half (in
-log) is accounted for by feeding the measured capacity degradation $\kb(w)$ back
-self-consistently (Section~\ref{sec:floor}) --- an empirical closure, not a derivation
---- leaving a $1.5$--$2.0\times$ residual unmodeled (fluctuation bias and the measured
-tracking lag are quantitatively excluded as its source).
+(2)~The recursion floor constant is accounted for empirically, not derived: our closed
+forms are exact for a single pass and lower bounds for the recursion; feeding the
+measured capacity degradation $\kb(w)$ back self-consistently closes a quarter to a
+half (in log) of the once factor-$2.4$ gap, and directly measuring the per-pass map's
+two remaining channels (in-band profile sag; ensemble displacement) closes it to
+$1.1$--$1.3\times$ (Section~\ref{sec:floor}), the level of protocol differences. Every
+step of this accounting is a measurement; none of the constants ($\kb$, its
+degradation law --- an empirical fit replicated across four geometries --- or the
+saturation profile) is derived.
 (3)~The residual-field ($\sim30\%$ single-pass) channel is bounded in a
 block-correlation model (Appendix~\ref{app:residual}); negative association across
 blocks is the one direction that could weaken that particular bound (the closed-form
@@ -1054,6 +1098,13 @@ $|\text{thin}-1|\le0.012$.)
 % ================================================================ E residual
 \section{The residual channel (\emph{we model})}\label{app:residual}
 
+(\emph{Role revised by measurement}: the floor anatomy of Section~\ref{sec:floor}
+identifies the single-pass remainder beyond the envelope as two measured channels ---
+in-band profile sag and the deterministic ensemble-displacement effect --- with the
+residual beyond them small and slightly negative; this appendix's stochastic bound is
+retained as a consistency check on the residual field's magnitude, not as the
+remainder's explanation.)
+
 The orthogonal residual $\delta$ has measured band risk
 $r^2_{\mathrm{res}}(t)\approx0.02$ to $0.05$, flat in $t$ and in sample size, with
 path-coherence time $\approx\nu t$, $\nu\approx0.75$. Under a block-correlation model
@@ -1085,9 +1136,24 @@ Reference: $m=2{,}000$ real samples drawn once at $g=0$, never refreshed
 \textbf{Measured network profile.} The fitted slope $\hat\kappa(t)$ is extracted by
 affine regression of $\epshat$ against $x$ on fiber lines at each $t$; it tracks
 $\kappa(t)$ ($0.95$ to $0.97$ for $t\ge0.1$), saturates at $\kb\approx3.9$ inside the
-band, and never exceeds $\kappa$ ($n$-independent across $1$k to $16$k). The decomposition
+band, and never exceeds $\kappa$ ($n$-independent across $1$k to $16$k) --- a
+data-width statement: nets trained on fat pools ($\sqrt w\gtrsim0.10$) show mild
+overshoot at mid times, so the class-(N) constant applies at the data width while
+class (U) needs no such assumption. The decomposition
 identity $(\kappa-\hat\kappa)^2\gamma^2+r^2_{\mathrm{res}}=r^2_{\mathrm{tot}}$ checks
 numerically along the path.
+
+\textbf{$t_0$-dependence of the response slope.} The probe's net slope
+$c\in\{0.00,\dots,0.13\}$ is measured at its sampling point $t_0=5\times10^{-3}$. At
+the recursion's operating point $t_0=10^{-4}$, the directly measured per-pass map over
+the same widths has $dv/dw\approx0.68$ ($c\approx-0.32$): once the sampler traverses
+the whole band, the deficit channel dominates and $e^2$ \emph{decreases} over this
+range --- still within the law's requirement ($e^{2\prime}>-1$ keeps $T$ monotone and
+concave, and only strengthens contraction), and consistent with the plateau
+measurements ($e^2(w^*)=3.9$--$5.0\,\sigsq$ falling with the fixed point's width). The
+$\lambda=0.02$ runaway then implies the slope turns back positive in the far-fat
+regime ($w\gg10\,\sigsq$), outside the anatomy's measured range; Assumption~\ref{ass:a2}'s
+global nondecreasing-concave form is a regime model, exact where identified.
 
 \textbf{Anatomy of $c$.} Training single-width tubes at
 $w\in\{0.0009,\dots,0.0169\}$ and measuring $dv/dw-1$ gives net

@@ -654,9 +654,15 @@ slope of the learned score, which no schedule touches.** ∎
 
 **What the network measurement gives (Prop 2.5, now a corollary).** rprime_probe
 measured κ̄ ≈ 3.9 for the standard pipeline; (3.0N) then predicts Φ_det ≈ 3.8σ² ≈ 0.0095
-(finite-σ value; closed form (3.2C) gives g(0.39) = 3.77 in the σ→0 limit),
-matching the measured *single-pass* t₀ → 0 sampling floor. The floor is *predicted from
-one measured network property, deterministically, with no fit.*
+(finite-σ value; closed form (3.2C) gives g(0.39) = 3.77 in the σ→0 limit).
+[**CORRECTION 2026-07-10**: this envelope value is a *proven lower bound*, NOT a match
+to the direct measurement — rprime_probe2's own logged floors are excess 6.5σ² at
+t₀=1e-3 (rvar 0.01978, γ² 0.0035) and residual_anatomy.py measures 6.3–7.5σ² at
+t₀=1e-4. The envelope explains ~60%; the remainder is two measured channels (in-band
+profile sag +0.7σ²; ensemble displacement +2.6σ² — slope regressed on the sampler's
+own displaced ensemble), with the nonlinear remainder ≈ −0.4σ². The strong version of
+the confrontation is now interventional (ceiling_origin.py): five training protocols
+move κ̄ 3.5→7.5 and the measured floor tracks 1/κ̄², never crossing the bound.]
 
 ### Empirical confirmation of Theorem I on the recursion (T5–T7, 2026-07-04).
 

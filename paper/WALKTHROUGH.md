@@ -224,10 +224,17 @@ fixed-size model collapses *without bound*. To stay bounded you need `κ̄ = Ω(
 capacity must grow with the singularity. **No fixed architecture provides it.** That sentence
 is the paper's answer to the open problem; be able to say it in one breath.
 
-**The zero-fit confrontation (we observe).** Measure one real network's slope ceiling:
-`κ̄ ≈ 3.9`. Feed it into the floor law → predicts `3.8σ²`. The same network's *measured*
-sampling floor is `3.8σ²`. **No fitted parameter.** This is the single most persuasive number
-in the paper — a parameter-free prediction that lands.
+**The confrontation (we observe) — corrected 2026-07-10.** Measure one real network's
+slope ceiling: `κ̄ ≈ 3.7–4.3`. The floor law's envelope value at that ceiling is
+`3.8–4.6σ²` — a **proven lower bound**. The directly measured single-pass floor is
+`6.3–7.5σ²`: the bound holds and its envelope explains ~60% of the measurement; the
+rest is two *measured* channels (in-band profile sag `+0.7σ²`; ensemble displacement
+`+2.6σ²` — the sampler's own ensemble is fatter than `p_t`, so it probes the S-shaped
+response into its flat tails and experiences a smaller slope). The most persuasive
+evidence is now **interventional**: five training protocols move `κ̄` from 3.5 to 7.5
+and the measured floor falls 7.8 → 2.5σ², tracking `1/κ̄²` and never crossing the
+bound. (An earlier version of this walkthrough claimed the measured floor itself was
+`3.8σ²` — that number was the envelope prediction, not the direct measurement.)
 
 ---
 
@@ -372,8 +379,10 @@ If you can answer all of these without notes, you're ready.
    errors cancel between pool and reference at first order. Confirmed flat over `d=8→128`.)
 8. **Is `κ̄(w) = 4.4 − 11.6√w` a law?** (No — an empirical fit. Form-insensitive; used only as
    an interpolant inside the measured range.)
-9. **What's the single most convincing number?** (The zero-fit prediction: measured `κ̄=3.9`
-   predicts `3.8σ²`, the measured floor is `3.8σ²`, no fitted parameter.)
+9. **What's the single most convincing evidence for the floor law?** (The interventional
+   test: five training protocols move the measured ceiling `κ̄` from 3.5 to 7.5, and the
+   measured floor falls 7.8 → 2.5σ², tracking the predicted `1/κ̄²` ordering and never
+   crossing the proven lower bound.)
 10. **What would falsify the whole thing?** (If a fixed-capacity sampler on a genuinely thin
     manifold reached `σ²` without anchoring; or if anchoring failed to hold a plateau at some
     `λ > 0`; or if the floor didn't scale as `1/κ̄²`. None did.)
