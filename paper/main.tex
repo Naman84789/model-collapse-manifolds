@@ -140,8 +140,8 @@ the previous generation, the critical fraction disappears, and the dynamics of
 (Figure~\ref{fig:headtohead}), the annealed arm plateaus at $9.8\sigma^2$ while the
 anchored arms hold $1.01\sigma^2$, flat, on both samplers we test; on real pixels
 (MNIST), anchoring closes $\sim$81\% of the collapse gap (Figure~\ref{fig:mnist}); and a
-preliminary CIFAR-10 pixel recursion ($3{,}072$ dimensions, three seeds) shows the same
-separation with full mode coverage (Figure~\ref{fig:cifar}).
+preliminary CIFAR-10 pixel recursion ($3{,}072$ dimensions, three seeds) reproduces the
+anchored/unanchored split with full mode coverage (Figure~\ref{fig:cifar}).
 
 \paragraph{Contributions.}
 \begin{enumerate}\itemsep2pt
@@ -161,7 +161,9 @@ separation with full mode coverage (Figure~\ref{fig:cifar}).
 \item \textbf{Falsifiable empirics}: a zero-fit prediction of the measured sampling floor
   from one measured network property; a two-horned ablation separating the floor's
   existence (sampler noise) from its size (slope ceiling); a 20-generation, 5-seed
-  head-to-head win over the state-of-the-art remedy; a pixel-space MNIST recursion; and a
+  head-to-head win over the state-of-the-art remedy; a replay-buffer control at the
+  anchor's exact information budget, separating anchoring from replay; a subcritical-%
+  fraction run exhibiting the law's no-plateau regime; a pixel-space MNIST recursion; and a
   preliminary CIFAR-10 pixel-space recursion (three seeds) that rules out mode collapse by
   three independent nearest-neighbor metrics.
 \end{enumerate}
@@ -277,9 +279,22 @@ pool width less than doubles the added excess).
 of the score, and a fatter pool is \emph{easier} to represent (the required peak slope
 $\kappa_{\max}=1/(2\sigma_{\text{pool}})$ falls), so each extra unit of pool width buys
 less extra error, exactly a saturating (concave) response.
-\emph{Validation:} the measured local slope of $e^2$ runs from $+0.6$ (fat pools) to
-$\approx0$ (thin pools), concave and saturating; its small magnitude is itself a
-measured near-cancellation of two $O(0.7)$ channels (Section~\ref{sec:experiments}).
+\emph{Validation:} two independent estimators. The direct probe (training
+single-width pools and measuring $dv/dw-1$; Appendix~\ref{app:details}) gives a local
+slope that is small and nonincreasing, $+0.13\to+0.05$, across the upper half of the
+measured range, where all of the recursion's fixed points sit; its small magnitude is
+itself a measured near-cancellation of two $O(0.7)$ channels
+(Section~\ref{sec:experiments}). The recursion's own local convergence rates give an
+independent, indirect estimate that falls from $+0.6$ at the thinnest measured
+fixed-point pool ($\lambda=0.75$) to $\approx0$ at the fattest ($\lambda=0.25$): the
+same saturating direction, though the two estimators disagree in magnitude where they
+overlap, and we treat the rate-based values as directional only (rate fits must
+separate a transient, a known failure mode of that estimator). At the probe's thinnest
+widths the slope estimates rise from $0$, a regime the recursion never visits; the
+law's conclusions require only a unique downcrossing of $T(v)-v$, which the measured
+slopes ($\le0.13$ at every fixed point, against thresholds
+$\lambda/(1-\lambda)\ge1/3$ at every plateau-forming fraction we test, $\lambda\ge1/4$)
+guarantee.
 \end{assumption}
 
 % ================================================================ 4 law
@@ -291,7 +306,9 @@ v_g=T(v_{g-1})+s^2_g,\qquad
 T(v)=\lambda\sigsq+(1-\lambda)v+e^2\!\big(\lambda\sigsq+(1-\lambda)v\big),
 \label{eq:recursion}
 \end{equation}
-with $s^2_g:=s^2(t_0(g))$ the truncation remainder. Let
+with $s^2_g:=s^2(t_0(g))$ the truncation remainder. (The display takes $a^2(t_0)=1$;
+the general case replaces $s^2_g$ by $\eta_g=s^2_g+(a^2(t_0(g))-1)w_g$, which vanishes
+under any annealing schedule and is absorbed into the fitted law at fixed $t_0$.) Let
 $c_\infty:=\lim_{w\to\infty}e^{2\prime}(w)$ (exists by concavity) and define the
 \emph{critical real-data fraction} $\lambda^*:=c_\infty/(1+c_\infty)$.
 
@@ -299,7 +316,9 @@ $c_\infty:=\lim_{w\to\infty}e^{2\prime}(w)$ (exists by concavity) and define the
 balance point. Part (i): if you keep enough fresh real data ($\lambda>\lambda^*$) there is
 a single stable plateau the width always settles to, from any start and any schedule.
 Part (ii): below that fresh-data threshold there is no plateau at all, the width runs off
-to infinity. Part (iii): if the sampler excess happens to be a straight line in the pool
+to infinity. (For our trained pipeline the measured saturated slope puts $\lambda^*$ at
+$\approx0.03$--$0.05$; Section~\ref{sec:experiments} locates it and exhibits both
+regimes.) Part (iii): if the sampler excess happens to be a straight line in the pool
 width, the plateau has a clean closed form. The one thing to notice is what $\lambda^*$
 and $v_\infty$ depend on: the sampler excess $e^2$, \emph{not} the truncation schedule,
 which is the whole point of Remark~\ref{rem:annealing}.
@@ -367,11 +386,14 @@ With the exact slope $\hat\kappa=\kappa$, $V(t)=\gamma^2(t)$ solves \eqref{eq:va
 exactly. The forcing $+1$ is the sampler's own injected noise.
 \end{lemma}
 
-\begin{lemma}[orthogonality shield; \emph{we prove}, unconditional]\label{lem:shield}
+\begin{lemma}[orthogonality shield; \emph{we prove}, first order]\label{lem:shield}
 For any estimator, the residual $\delta$ satisfies $\E_{p_t}[\delta]=\E_{p_t}[x\delta]=0$
 (normal equations), hence has no first-order effect on \eqref{eq:varode}: at first order
 the residual can only \emph{add} variance. Thinning can enter only through the affine
-part.
+part. (The normal equations hold under $p_t$; along the sampler's own path the ensemble
+deviates from $p_t$, and the cross term re-enters as the product of that deviation with
+the band residual $r(t)$, whose measured smallness, $r^2\approx0.02$--$0.05$, keeps it
+second order; Appendix~\ref{app:ode}.)
 \end{lemma}
 
 By Lemma~\ref{lem:shield}, lower bounds derived from \eqref{eq:varode} with the affine
@@ -595,16 +617,20 @@ that does not grow with generations.
 
 \begin{theorem}[anchoring makes the recursion memoryless; \emph{we prove} given
 Lemma~\ref{lem:frames} and Assumption~\ref{ass:a0}]\label{thm:fix}
-Insert the matcher after pooling (and after sampling, for the jump pipeline). Then the
-training input has normal variance $\hat\sigma^2_{\mathrm{ref}}+O(\mathrm{err})$
+Insert the matcher after pooling (and after sampling, for the jump pipeline). Write
+$\eps_m:=O_p(m^{-1/2})+\Delta_{\mathrm{leak}}$ for the matcher error of
+Lemma~\ref{lem:frames}, a quantity that does not grow with $g$. Then the
+training input has normal variance $\hat\sigma^2_{\mathrm{ref}}+\eps_m$
 \emph{regardless of $v_{g-1}$}: the map \eqref{eq:recursion} loses its $v$-argument,
 \[
-v_g=F_g\big(\hat\sigma^2_{\mathrm{ref}}+O(\mathrm{err})\big),
+v_g=F_g\big(\hat\sigma^2_{\mathrm{ref}}+\eps_m\big),
 \]
-a constant sequence up to non-compounding $O(\mathrm{err})$. Consequently: no fixed-point
+a constant sequence up to the non-compounding $\eps_m$. Consequently: no fixed-point
 equation, \textbf{no critical fraction, and stability for every $\lambda>0$}; and with
-$S_{\mathrm{trunc}}$ the dynamics reduce to truncation-only, restoring the hypotheses
-and conclusion of \citet{khelifa2026recursive}'s Theorem~4.1 in the singular regime.
+$S_{\mathrm{trunc}}$ the dynamics reduce to truncation-only, restoring the
+\emph{conclusion} of \citet{khelifa2026recursive}'s Theorem~4.1 in the singular regime
+(the data remains singular; what anchoring removes is the compounding term that their
+hypotheses excluded).
 \end{theorem}
 
 \paragraph{Why this is not a replay buffer.} Replay, data-accumulation, and data-refresh
@@ -619,12 +645,24 @@ pool's fine-scale statistics, so the floor of Section~\ref{sec:floor} still gove
 majority; anchoring instead \emph{overwrites} the fine-scale statistics of the majority
 itself, which is why it removes the floor rather than diluting it. In the language of the law
 (Theorem~\ref{thm:law}): replay changes $\lambda$; anchoring changes the response map $F_g$.
+We test this at the anchor's exact information budget (\emph{we observe}): inserting the
+anchor's own stale reference ($m=2{,}000$ real points, drawn once at $g=0$, never
+refreshed) \emph{into the pool} every generation of the head-to-head protocol ---
+raising the effective real fraction to $\lambda_{\mathrm{eff}}=2/3$, with synthetic data
+now a $1/3$ \emph{minority} --- moves the 20-generation plateau only from $9.8\pm1.7$ to
+$8.5\pm1.1\,\sigsq$ (5 seeds, same annealed schedule), the small dilution the law
+predicts for a larger $\lambda$; the anchor, using the same $2{,}000$ points as a moment
+reference instead, holds $1.01\pm0.02\,\sigsq$. Replay dilutes the floor; anchoring
+removes it.
 
 \paragraph{Attribution, stated plainly.} In our pipeline the \emph{matcher} is the
 floor-breaker; the Tweedie jump is a \emph{raw-error reducer}. The jump's raw output is
 itself fat ($7$ to $20\times\sigsq$ across settings); its value is a $\approx2\times$
 smaller one-shot raw error and $\approx3\times$ smaller unanchored plateau
-($0.052$ vs $0.17$ at $\lambda=\tfrac12$, itself predicted by Theorem~\ref{thm:law} as
+($21$ vs $68\,\sigsq$ in raw normal variance, at $\lambda=\tfrac12$ and matched moderate
+truncation $t_0=\hat t=0.05$; the standard plateau includes the truncation remainder
+$s^2(0.05)/\lambda\approx39\,\sigsq$ that the jump removes, and the jump plateau is
+itself predicted by Theorem~\ref{thm:law} as
 $e^2_{\mathrm{jump}}/\lambda$), plus smaller post-match tails. Post-anchor, the standard
 and jump samplers converge to the same variance; we report both.
 
@@ -654,7 +692,7 @@ anchored arm reflects the local-chart approximation on a genuinely curved manifo
 
 \paragraph{Dimension scaling (\emph{we observe}).} Lemma~\ref{lem:frames}'s
 $d$-independence is a postdiction: across ambient $d=8\to128$ (curved 2-manifolds,
-fixed tube), the \emph{raw} one-shot floors grow near-linearly ($\sim d^{0.76}$
+fixed tube), the \emph{raw} one-shot floors grow steeply ($\sim d^{0.76}$
 standard, $\sim d^{0.95}$ jump, the collapse itself), while the \emph{matched} floors
 are flat ($\sim d^{0.1}$), and anchored recursions are flat for 8 generations at both
 $d=8$ and $d=128$.
@@ -662,10 +700,12 @@ $d=8$ and $d=128$.
 % ================================================================ 7 experiments
 \section{Experiments}\label{sec:experiments}
 
-All experiments are CPU-only ($\le12$ threads), use small MLPs
-(3 hidden layers, width 256, SiLU, sinusoidal time embedding), denoising score matching,
-and geometric reverse-time grids; every long run streams to an append-only log and is
-exactly resumable. Full protocols, seeds, and a script-to-claim map are in the released
+All core experiments (ring, curved manifolds, MNIST, law identification) are CPU-only
+($\le12$ threads) and use small MLPs (3 hidden layers, width 256, SiLU, sinusoidal time
+embedding) with denoising score matching and geometric reverse-time grids; the CIFAR-10
+scale-up alone uses a $\sim$7M-parameter convolutional denoiser on a single consumer
+GPU (mixed precision). Every long run streams to an append-only log and is exactly
+resumable. Full protocols, seeds, and a script-to-claim map are in the released
 code (Section~\ref{sec:repro}).
 
 \textbf{Protocols.} \emph{Ring}: radius $2.5$, $\sigma=0.05$ ($\sigsq=0.0025$), $4{,}000$
@@ -674,26 +714,53 @@ samples/generation, $2{,}000$ training steps. \emph{Head-to-head}
 $t_0\!:0.05\to10^{-4}$ geometrically (the remedy of \citealp{khelifa2026recursive});
 arms B/C add the anchor to the standard/jump samplers. \emph{Two-horned ablation}
 (Figure~\ref{fig:trap}): fixed $t_0=10^{-4}$, noise on/zeroed, $G=15$, 3 seeds.
-\emph{Pixel MNIST} (Figure~\ref{fig:mnist}): $8\times8$ pixels, $G=8$, 3 seeds,
+\emph{Replay control}: head-to-head protocol with the anchor's $m{=}2{,}000$ stale
+reference inserted into the pool each generation instead of used as a moment reference
+($G=20$, 5 seeds). \emph{Critical fraction}: fixed $t_0=10^{-4}$,
+$\lambda\in\{0.02,0.25\}$, 3 seeds each. \emph{Pixel MNIST} (Figure~\ref{fig:mnist}):
+$8\times8$ pixels, $G=8$, 3 seeds,
 local matcher with $k=96$, $k_{\dim}=12$. \emph{Law identification}: fixed-$t_0$
 recursions at $t_0\in\{0.02,0.05\}$, $\lambda\in\{0.25,0.5,0.75\}$; the affine law
 fitted at one $t_0$ predicts fixed points at the other within $1$ to $13\%$
-(Assumption~\ref{ass:a0} validation), and the measured excess-response slope runs
-$+0.6\to\approx0$ across pool widths (Assumption~\ref{ass:a2} validation), the net of a
-measured deficit channel $-0.68$ and injection channel $+0.73$; a refinement using the
-probe's own capacity measurements splits the latter further
+(Assumption~\ref{ass:a0} validation); the direct probe slope of $e^2$ is small and
+saturating ($+0.13\to+0.05$ over the upper measured range), the net of a measured
+deficit channel $-0.68$ and injection channel $+0.73$, and the recursion's own
+convergence rates independently give a slope falling from $+0.6$ (thin fixed-point
+pools, $\lambda=0.75$) to $\approx0$ (fat, $\lambda=0.25$)
+(Assumption~\ref{ass:a2} validation); a refinement using the
+probe's own capacity measurements splits the injection channel further
 (Appendix~\ref{app:details}).
+
+\paragraph{The critical fraction, located and exhibited (\emph{we observe}).} The
+probe's saturated slope, $c_\infty\approx0.03$--$0.05$, puts the critical fraction at
+$\lambda^*=c_\infty/(1+c_\infty)\approx0.03$--$0.05$ for this pipeline --- small, so the
+collapse is self-limiting at any practically relevant fresh-data fraction, and the
+theorem's content is that $\lambda^*>0$ at all. A recursion at $\lambda=0.02$ (at or
+below the estimate; fixed $t_0=10^{-4}$, 3 seeds, $G=25$) exhibits the subcritical
+regime directly: the width climbs monotonically through $69\pm16\,\sigsq$ at $g=24$,
+roughly $10\times$ its early value, with no sign of flattening --- while a matched
+$\lambda=0.25$ control plateaus at $16.5\pm2.2\,\sigsq$ by generation ${\sim}5$. (A
+finite horizon cannot distinguish true divergence from a plateau far above it, so we
+claim the contrast, not divergence itself.) The supercritical plateaus track the law's
+$e^2/\lambda$ scaling: the implied per-pass excess $e^2(w^*)=\lambda(v_\infty-\sigsq)$
+is $3.9$--$5.0\,\sigsq$ across $\lambda\in\{0.25,\,0.5,\,2/3\}$ (the last from the
+replay control of Section~\ref{sec:fix}), bracketing the clean-tube single-pass floor
+$3.8\,\sigsq$ and its degradation-adjusted values.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figs/fig6_cifar.png}
 \caption{\textbf{CIFAR-10 pixel recursion (\emph{we observe}).} (a) Off-manifold distance
 (mean nearest-neighbor distance to held-out real CIFAR-10) across 8 self-consuming
-generations, 3 seeds (mean $\pm$ s.d.). The anchor holds a stable plateau well below the
-unanchored arm, which settles into a worse, noisier state; the separation holds in every
-seed. (b) Three nearest-neighbor metrics relative to a real-vs-real baseline (dotted). The
+generations, 3 seeds (mean $\pm$ s.d.). The two arms stabilize on opposite sides of the
+real-vs-real baseline ($20.1$): unanchored above ($+2.7$, the predicted fattening),
+anchored below ($-3.8$, mild contraction toward the manifold); the sign of the split
+holds in every seed. Because the two deviations are of comparable size, panel (a) alone
+establishes stability, not superiority; the ranking evidence is (b): three
+nearest-neighbor metrics relative to a real-vs-real baseline (dotted). The
 anchor keeps \emph{coverage} of the real data at $1.00\times$ (no real modes dropped,
-ruling out mode collapse); its $0.75\times$ diversity is a bounded, non-compounding
+ruling out mode collapse) while the unanchored arm loses coverage ($1.16\times$); the
+anchor's $0.75\times$ diversity is a bounded, non-compounding
 contraction cost (identical at generations 4 and 7).}
 \label{fig:cifar}
 \end{figure}
@@ -701,22 +768,26 @@ contraction cost (identical at generations 4 and 7).}
 \paragraph{Scaling to CIFAR-10 pixels (\emph{we observe}).} To test whether the mechanism
 survives at realistic dimension, we ran the same self-consuming recursion in raw CIFAR-10
 pixel space ($32\times32\times3=3{,}072$ dimensions) with a small convolutional denoiser
-($\sim$7M parameters, mixed precision), $\lambda=\tfrac12$, $G=8$, three seeds
-(Figure~\ref{fig:cifar}a). The unanchored recursion settles into a worse, noisier state
-(off-manifold distance $22.8\pm1.2$ vs.\ the true-data baseline $20.1$) while the anchor
-holds a stable plateau ($16.3\pm0.7$); the gap has the same sign in every seed
-($+6.5\pm1.1$). Because a low off-manifold distance could in principle hide mode collapse
-(a few good samples repeated), we check three independent nearest-neighbor metrics against
-a real-vs-real baseline (Figure~\ref{fig:cifar}b): the anchored arm keeps \emph{coverage} of
-the real data at $1.00\times$ (the unanchored arm loses coverage, $1.16\times$), so no real
-modes are dropped, and its reduced intra-set diversity ($0.75\times$) is a bounded,
-non-compounding cost of the match. We are careful about what this shows. At this model
-budget the samples are blurry; this is a check on the collapse \emph{dynamics} and a
-ruling-out of mode collapse, not a demonstration of high perceptual quality, and the
-sub-baseline off-manifold distance reflects mild contraction toward the manifold rather than
-superiority to real data. The unanchored arm reaches a stable displaced fixed point rather
-than runaway collapse, exactly as Theorem~\ref{thm:law} predicts at $\lambda=\tfrac12$,
-where fresh-data injection pins a finite plateau.
+($\sim$7M parameters, mixed precision, single consumer GPU), $\lambda=\tfrac12$, $G=8$,
+three seeds (Figure~\ref{fig:cifar}a). Both arms are stable, and they stabilize on
+opposite sides of the real-vs-real baseline ($20.1$): the unanchored recursion settles
+\emph{above} it (off-manifold distance $22.8\pm1.2$, a deviation of $+2.7$, the
+fattening the theory predicts, same sign in every seed), while the anchored recursion
+sits \emph{below} it ($16.3\pm0.7$, a deviation of $-3.8$, mild contraction toward the
+manifold reflecting the anchor's known diversity cost). We are explicit about what
+panel~(a) can and cannot show: the two deviations are of comparable magnitude, so the
+distance metric alone ranks neither arm; it establishes that the anchored dynamics are
+stable and non-compounding, not that its samples are closer to the data distribution.
+The ranking evidence is Figure~\ref{fig:cifar}b: against a real-vs-real baseline, the
+anchored arm keeps \emph{coverage} of the real data at $1.00\times$ (no real modes
+dropped, ruling out mode collapse) while the unanchored arm loses coverage
+($1.16\times$); the anchored arm's reduced intra-set diversity ($0.75\times$) is a
+bounded cost, identical at generations 4 and 7 (non-compounding), whereas the unanchored
+arm's coverage loss is the collapse itself. At this model budget the samples are blurry;
+this is a check on the collapse \emph{dynamics} and a ruling-out of mode collapse, not a
+demonstration of perceptual quality. The unanchored arm reaches a stable displaced fixed
+point rather than runaway collapse, exactly as Theorem~\ref{thm:law} predicts at
+$\lambda=\tfrac12$, where fresh-data injection pins a finite plateau.
 
 \begin{table}[t]
 \centering\small
@@ -730,6 +801,10 @@ Experiment & Arm & Final value & Seeds \\
 Head-to-head, $G{=}20$ & annealed truncation \citep{khelifa2026recursive} & $9.84\pm1.7$ & 5 \\
  & standard sampler $+$ anchor & $1.01\pm0.02$ & 5 \\
  & jump sampler $+$ anchor & $1.01\pm0.02$ & 5 \\
+ & annealed $+$ replay ($m{=}2{,}000$ in-pool) & $8.5\pm1.1$ & 5 \\
+\midrule
+Critical fraction, $t_0{=}10^{-4}$ & $\lambda=0.02$ (subcritical) & $69\pm16$ at $g_{24}$, rising & 3 \\
+ & $\lambda=0.25$ (control) & $16.5\pm2.2$ (plateau) & 3 \\
 \midrule
 Ablation, fixed $t_0{=}10^{-4}$ & stochastic (noise on) & $10.8$ to $13.2$ & 3 \\
  & deterministic (noise zeroed) & $0$ (point collapse) & 3 \\
@@ -777,6 +852,7 @@ quantitatively (it predicts the direction and the regime boundary, not the numbe
 flag it rather than fit it.
 (7)~Our evidence spans a ring, curved 2-manifolds swept across ambient dimension
 $d=8\to128$, six $(t_0,\lambda)$ law-identification cells, the two-horned ablation,
+a replay-buffer control and a subcritical-fraction run,
 pixel-space MNIST, and a preliminary CIFAR-10 pixel-space recursion ($3{,}072$ dimensions,
 three seeds), all chosen so that every quantity the theory names is directly measurable. The
 CIFAR-10 run confirms the collapse \emph{dynamics} and rules out mode collapse at scale
@@ -792,8 +868,9 @@ latent-diffusion system is the clearest next step and is left as future work.
 Code, result logs, and figures are public at\\
 \centerline{\url{https://github.com/Naman84789/model-collapse-manifolds}}\\
 Every claim maps to a script, an append-only result log, and a figure in the released
-code (ring, ablation, MNIST, floor law, law identification; $\sim$2 CPU-hours total).
-The four result figures regenerate from logged data in seconds. A README lists the
+code (ring, ablation, replay and critical-fraction controls, MNIST, floor law, law
+identification; $\sim$3 CPU-hours total).
+The result figures regenerate from logged data in seconds. A README lists the
 run order, the load-bearing scripts, and the headline numbers a reproduction
 must match. The released code also includes an adversarial verification script for
 Theorem~\ref{thm:floor}: it re-derives the band crossing symbolically (independent of the
@@ -818,15 +895,16 @@ responsibility for every claim.
 % ================================================================ A proofs law
 \section{Proof of Theorem~\ref{thm:law}}\label{app:law}
 
-Write $g(v):=T(v)-v$ with $T$ as in \eqref{eq:recursion}; $g$ is concave (composition of
+Write $h(v):=T(v)-v$ with $T$ as in \eqref{eq:recursion} (we reserve $g$ for the
+generation index); $h$ is concave (composition of
 an affine map with the concave nondecreasing $w\mapsto w+e^2(w)$, minus a linear term),
-with $g(0)=T(0)=\lambda\sigsq+e^2(\lambda\sigsq)>0$ and one-sided derivative
-$g'(v)=(1-\lambda)\big(1+e^{2\prime}(w(v))\big)-1$, nonincreasing in $v$ with limit
+with $h(0)=T(0)=\lambda\sigsq+e^2(\lambda\sigsq)>0$ and one-sided derivative
+$h'(v)=(1-\lambda)\big(1+e^{2\prime}(w(v))\big)-1$, nonincreasing in $v$ with limit
 $(1-\lambda)(1+c_\infty)-1<0$ when $\lambda>\lambda^*$.
 
 \textbf{(i) Existence, uniqueness.} A concave function positive at $0$ whose derivative
-is eventually $\le-\delta<0$ tends to $-\infty$, so $g$ has a zero; concavity plus
-$g(0)>0$ forbids two downcrossings, so the zero $v_\infty$ is unique, with $T(v)>v$ for
+is eventually $\le-\delta<0$ tends to $-\infty$, so $h$ has a zero; concavity plus
+$h(0)>0$ forbids two downcrossings, so the zero $v_\infty$ is unique, with $T(v)>v$ for
 $v<v_\infty$ and $T(v)<v$ for $v>v_\infty$.
 
 \textbf{Contraction above.} For $v\ge v_\infty$, monotonicity and concavity give
@@ -844,9 +922,10 @@ $v_g<v_\infty+s^2_g$ gives $\limsup v_g\le v_\infty$. Alternating regimes inheri
 barriers. Linearizing $T$ at $v_\infty$ gives the local rate.
 
 \textbf{(ii) Divergence.} If $(1-\lambda)(1+c_\infty)>1$ then, since $e^{2\prime}\ge
-c_\infty$ everywhere (the concave derivative decreases \emph{to} its limit), $g'\ge
-(1-\lambda)(1+c_\infty)-1>0$, so $g$ is nondecreasing and $g(v)\ge g(0)>0$ for all $v$:
-$v_g\ge v_0+g\cdot T(0)\to\infty$, regardless of the schedule ($s^2_g\ge0$ only helps).
+c_\infty$ everywhere (the concave derivative decreases \emph{to} its limit), $h'\ge
+(1-\lambda)(1+c_\infty)-1>0$, so $h$ is nondecreasing and $h(v)\ge h(0)>0$ for all $v$:
+after $G$ generations $v_G\ge v_0+G\,T(0)\to\infty$, regardless of the schedule
+($s^2_g\ge0$ only helps).
 
 \textbf{(iii)} Substituting $e^2(w)=e_0^2+cw$ makes $T$ affine with slope
 $(1+c)(1-\lambda)$; solve the fixed point. \qed
@@ -932,7 +1011,9 @@ and the exact $1/(2\rho^2)$ match direct integration of \eqref{eq:limitode} to
 $\le2.4\times10^{-5}$ over $\rho\in[0.1,1]$ (pure Euler residual).
 
 Finally, Lemma~\ref{lem:shield} extends both bounds from the affine part to the full
-estimator (the residual only adds variance), and Lemma~\ref{lem:limitode} transfers the
+estimator to first order (the residual only adds variance; the path-deviation cross
+term is second order, the product of the ensemble deviation with the measured-small
+band residual $r$), and Lemma~\ref{lem:limitode} transfers the
 limit values to finite $\sigma$ with the stated error. \qed
 
 \textbf{Corollary~\ref{cor:capacity}} is Theorem~\ref{thm:floor}(U) read at fixed

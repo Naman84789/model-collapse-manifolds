@@ -108,9 +108,21 @@ represent the steep part of `κ`. A *fatter* pool has a *smaller* peak slope
 extra unit of pool width buys *less* extra error. Diminishing returns = concave. This isn't a
 convenience assumption; it's forced by the same `κ`-bump geometry as the floor.
 
-**How it's validated:** the measured local slope of `e²` runs `+0.6` (fat pools) → `≈0`
-(thin pools): increasing and saturating, exactly concave. And its small net value is a
-near-cancellation of two ~0.7-sized channels — see §8.
+**How it's validated (two independent estimators — get the direction right, a reviewer
+will check):** concave means the slope of `e²` is *larger at thin pools and smaller at
+fat pools* (diminishing returns). That is what's measured, both ways. (1) The direct
+probe (train single-width pools, measure `dv/dw − 1`) gives a small slope that falls
+`+0.13 → +0.05` across the upper half of the measured range — where all the recursion's
+fixed points live. (2) The recursion's own convergence rates give an independent
+estimate falling from `+0.6` at the *thinnest* fixed-point pool (`λ=0.75`) to `≈0` at
+the *fattest* (`λ=0.25`) — same saturating direction. The two estimators agree in sign
+and trend but not magnitude where they overlap; the paper treats the rate-based one as
+directional only (rate fits must separate a transient — a known failure mode). At the
+probe's very thinnest widths the slope estimates rise from 0; that regime is never
+visited by the recursion, and the law only needs a unique downcrossing of `T(v) − v`,
+which the measured slopes (≤0.13 at every fixed point, vs. thresholds `λ/(1−λ) ≥ 1/3`)
+guarantee. And the slope's small net value is a near-cancellation of two ~0.7-sized
+channels — see §8.
 
 ---
 
@@ -173,7 +185,11 @@ This is the headline "we prove." It's built from four lemmas; know what each *do
   pretending the score is linear." No — the nonlinearity lives entirely in `δ`, which can
   only make the floor *bigger*. So the affine lower bound is a genuine lower bound for the
   full nonlinear network. **This is the most important lemma to internalize** because it's
-  the most natural attack.
+  the most natural attack. One honest scope note (a sharp reviewer may push here): the
+  normal equations hold under the *true* marginal `p_t`; along the sampler's own path the
+  ensemble drifts away from `p_t`, and the cross term re-enters as (ensemble deviation) ×
+  (residual size `r`). It stays second order because `r` is *measured* small
+  (`r² ≈ 0.02–0.05`) — so the shield is "we prove, first order," not "unconditional."
 - **Lemma (finite band).** Because `κ(t)` peaks and comes back down, any ceiling `κ̄ < κ_max`
   is exceeded only on a **finite band** of times. *Why it matters:* the network only fails in
   a short window; but variance frozen in that window can't be removed later, because below
