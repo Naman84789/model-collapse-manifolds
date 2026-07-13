@@ -26,25 +26,27 @@ KBAR = 3.9
 fig, (ax, ax2) = plt.subplots(1, 2, figsize=(6.5, 2.55))
 
 # --- panel (a): the required slope is non-monotone, so the deficit band is finite.
-# Direct labels only (no legend box), so nothing can collide.
+# Direct labels only (no legend box); shade the actual deficit lens (cap-to-curve),
+# with dotted guides marking the band's extent on the time axis.
 ax.plot(t, kap, color=st.BLUE, lw=1.8)
 ax.axhline(KBAR, color=st.RED, lw=1.3, ls="--")
 bandmask = kap > KBAR
 tlo, thi = t[bandmask].min(), t[bandmask].max()
-ax.axvspan(tlo, thi, color=st.RED, alpha=0.08, lw=0)
-ax.text(np.sqrt(tlo * thi), 6.5, "deficit band:\nvariance freezes in",
+ax.fill_between(t, KBAR, kap, where=bandmask, color=st.RED, alpha=0.15, lw=0)
+ax.text(np.sqrt(tlo * thi), 1.75, "deficit band:\nvariance freezes in",
         ha="center", va="center", fontsize=8, color=st.RED)
-ax.annotate("peak $1/(2\\sigma)$", xy=(SIG ** 2, 1 / (2 * SIG)),
-            xytext=(1.2e-6, 9.6), fontsize=8, color=st.GRAY,
-            arrowprops=dict(arrowstyle="->", lw=0.9, color=st.GRAY))
-ax.text(1.0, 0.38, "required slope $\\kappa(t)$", fontsize=8,
-        color=st.BLUE, ha="center", va="bottom")
-ax.text(6.5, KBAR + 0.2, "network cap $\\bar\\kappa$", fontsize=8,
+ax.annotate("peak\n$1/(2\\sigma)$", xy=(SIG ** 2, 1 / (2 * SIG)),
+            xytext=(1e-6, 10.7), fontsize=7.5, color=st.GRAY, va="top",
+            arrowprops=dict(arrowstyle="->", lw=0.9, color=st.GRAY,
+                            shrinkB=4, relpos=(1.0, 0.8)))
+ax.text(8, 0.1, "required slope $\\kappa(t)$", fontsize=7.5,
+        color=st.BLUE, ha="right", va="bottom")
+ax.text(6.5, KBAR + 0.4, "network cap $\\bar\\kappa$", fontsize=7.5,
         color=st.RED, ha="right", va="bottom")
 ax.set_xscale("log")
 ax.set_xlabel("diffusion time $t$ (log scale)")
 ax.set_ylabel("slope $\\kappa$")
-ax.set_ylim(0, 11.4)
+ax.set_ylim(0, 11.2)
 ax.set_title("(a)", loc="left")
 
 # --- panel (b): the closed-form floor as a function of the slope cap
@@ -60,10 +62,15 @@ g_un = 1 / (2 * rho ** 2)
 ax2.plot(rho, g_no, color=st.BLUE, lw=1.8, label="no-overshoot: $g(\\rho)$")
 ax2.plot(rho, g_un, color=st.AMBER, lw=1.6, ls="--", label="unconditional: $1/(2\\rho^2)$")
 fs = [17.005, 14.121, 13.571]  # rho=0.2 at sigma=0.10, 0.05, 0.02
-ax2.plot([0.20] * 3, fs, "o", color=st.GREEN, ms=4.5,
+ax2.plot([0.20] * 3, fs, "o", color=st.GREEN, ms=4.5, mfc="none", mew=1.3,
          label="finite-$\\sigma$ ODE ($\\sigma$=0.10, 0.05, 0.02)")
 ax2.axhline(1, color=st.GRAY, ls=":", lw=1.0)
 ax2.text(0.03, 1.15, "true width $\\sigma^2$", color=st.GRAY, ha="left", fontsize=8)
+# the (U)-class threshold: floor exceeds sigma^2 whenever rho < 1/sqrt(2)
+RSTAR = 1 / np.sqrt(2)
+ax2.plot([RSTAR, RSTAR], [0.4, 1.0], color=st.GRAY, ls=":", lw=0.7, alpha=0.8)
+ax2.text(RSTAR - 0.015, 0.58, "$\\rho=1/\\sqrt{2}$", color=st.GRAY, fontsize=7.5,
+         ha="right", va="center")
 ax2.set_yscale("log")
 ax2.set_xlabel("slope cap / peak, $\\rho=\\bar\\kappa/\\kappa_{\\max}$")
 ax2.set_ylabel("floor width / $\\sigma^2$")
@@ -73,8 +80,50 @@ ax2.set_xlim(0, 1.02); ax2.set_ylim(0.4, 300)
 ax2.grid(axis="y", lw=0.5, alpha=0.18)
 
 fig.tight_layout(w_pad=2.0)
+
+# --- programmatic collision check: curves through text boxes, and text on text.
+def _text_bboxes(figure, axis):
+    from matplotlib.text import Text as _Text
+    figure.canvas.draw()
+    inv = axis.transData.inverted()
+    out = []
+    for txt in axis.texts:
+        if not txt.get_text():
+            continue
+        # Text-only extent: Annotation's override unions in the arrow, which by
+        # construction touches the curve it points at.
+        bb = _Text.get_window_extent(txt)
+        (x0, y0), (x1, y1) = inv.transform([(bb.x0, bb.y0), (bb.x1, bb.y1)])
+        out.append((txt.get_text()[:36], min(x0, x1), max(x0, x1),
+                    min(y0, y1), max(y0, y1)))
+    return out
+
+def check_collisions(figure, axis, curves):
+    import os
+    clean = True
+    boxes = _text_bboxes(figure, axis)
+    if os.environ.get("FIGDEBUG"):
+        for name, x0, x1, y0, y1 in boxes:
+            print("  box %-38r x:[%.3g, %.3g] y:[%.3g, %.3g]" % (name, x0, x1, y0, y1))
+    for name, x0, x1, y0, y1 in boxes:
+        for xs, ys in curves:
+            m = (xs >= x0) & (xs <= x1)
+            if m.any() and ((ys[m] >= y0) & (ys[m] <= y1)).any():
+                print("  COLLISION: %r vs curve" % name)
+                clean = False
+    for i in range(len(boxes)):
+        for j in range(i + 1, len(boxes)):
+            a, b = boxes[i], boxes[j]
+            if a[1] < b[2] and b[1] < a[2] and a[3] < b[4] and b[3] < a[4]:
+                print("  COLLISION: %r vs %r" % (a[0], b[0]))
+                clean = False
+    return clean
+
+capline = np.full_like(t, KBAR)
+ok_a = check_collisions(fig, ax, [(t, kap), (t, capline)])
+ok_b = check_collisions(fig, ax2, [(rho, g_no), (rho, g_un)])
 st.save(fig, "fig0_mechanism")
-print("fig0 OK")
+print("fig0 OK" + ("" if ok_a and ok_b else "  (with collisions -- fix placements!)"))
 
 # ---------------------------------------------------------------- fig5 pipeline
 fig, ax = plt.subplots(figsize=(6.2, 2.35))
