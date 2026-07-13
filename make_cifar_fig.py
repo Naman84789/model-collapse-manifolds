@@ -1,30 +1,20 @@
-"""CIFAR-10 pixel-recursion figure for the paper (fig6_cifar.png).
-Two panels, both honest:
+"""CIFAR-10 pixel-recursion figure for the paper (fig6_cifar), shared style from
+figstyle.py. Two panels, both honest:
   (a) off-manifold distance vs generation, unanchored vs anchored, 3 seeds (mean +/- s.d.),
       true-data baseline line. Shows the stable-plateau vs wander dynamics at D=3072.
   (b) three nearest-neighbor metrics vs the real-vs-real baseline (=1.0): precision,
-      COVERAGE (the mode-collapse detector), diversity. Coverage=1.0 for the anchor
+      coverage (the mode-collapse detector), diversity. Coverage=1.0 for the anchor
       rules out mode collapse; diversity 0.75x is the bounded contraction cost.
 Data are the measured trajectories (cifar_run.log) and diversity checks
 (cifar_diversity_check.py, 3 seeds), hardcoded so the figure regenerates with no state files.
 """
-import os
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-BASE = os.path.dirname(os.path.abspath(__file__))
-OUTD = os.path.join(BASE, "paper", "figs")
-os.makedirs(OUTD, exist_ok=True)
-TRUE = 20.1490
+import figstyle as st
 
-plt.rcParams.update({
-    "figure.dpi": 300, "savefig.dpi": 300, "font.size": 12,
-    "axes.titlesize": 13, "axes.labelsize": 12, "legend.fontsize": 10,
-    "axes.spines.top": False, "axes.spines.right": False, "font.family": "DejaVu Sans",
-})
-C_BAD = "#d62728"; C_GOOD = "#2ca02c"; C_TRUE = "#444444"
+st.use_style()
+TRUE = 20.1490
 
 # ---- panel (a) data: off-manifold distance, g0..g7 ----
 UNF = np.array([
@@ -38,51 +28,42 @@ FIX = np.array([
 g = np.arange(8)
 
 # ---- panel (b) data: metrics vs real-vs-real baseline (mean over 3 seeds) ----
-# rows: precision, coverage, diversity ; cols: unfixed, fixed
-metrics = ["precision\n(gen to ref)", "COVERAGE\n(real to gen)", "diversity\n(gen intra)"]
+metrics = ["precision\n(gen to ref)", "coverage\n(real to gen)", "diversity\n(gen intra)"]
 unf_m = [1.11, 1.16, 1.20]
 fix_m = [0.80, 1.00, 0.75]
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.4))
-
-def band(ax, x, T, color, label, ls="-"):
-    m = T.mean(0); s = T.std(0)
-    ax.plot(x, m, color=color, lw=2.3, ls=ls, label=label, zorder=3)
-    ax.fill_between(x, m - s, m + s, color=color, alpha=0.18, zorder=2)
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6.5, 2.7))
 
 # panel a
-band(ax1, g, UNF, C_BAD, "unanchored  (degrades)")
-band(ax1, g, FIX, C_GOOD, "+ local anchor  (ours)")
-ax1.axhline(TRUE, color=C_TRUE, ls=":", lw=1.6)
-ax1.text(0, TRUE + 0.15, "true-data baseline %.1f" % TRUE, ha="left", va="bottom",
-         color=C_TRUE, fontsize=10)
+st.band(ax1, g, UNF, st.RED, "unanchored (degrades)")
+st.band(ax1, g, FIX, st.GREEN, "+ local anchor (ours)")
+ax1.axhline(TRUE, color=st.GRAY, ls=":", lw=1.0)
+ax1.text(7, TRUE - 0.25, "true-data baseline %.1f" % TRUE, ha="right", va="top",
+         color=st.GRAY, fontsize=8)
 ax1.set_xlabel("generation of self-consuming training")
-ax1.set_ylabel("off-manifold distance to real CIFAR-10")
-ax1.set_title("(a) CIFAR-10 pixels (D=3072): anchor holds a stable plateau")
-ax1.legend(loc="upper right", framealpha=0.95)
-ax1.set_xticks(g); ax1.set_ylim(14, 26)
+ax1.set_ylabel("off-manifold distance\nto real CIFAR-10")
+ax1.set_title("(a)", loc="left")
+ax1.legend(loc="upper right")
+ax1.set_xticks(g); ax1.set_ylim(14, 27)
+ax1.grid(axis="y", lw=0.5, alpha=0.18)
 
 # panel b
 x = np.arange(3); w = 0.36
-ax2.bar(x - w/2, unf_m, w, color=C_BAD, alpha=0.85, label="unanchored")
-ax2.bar(x + w/2, fix_m, w, color=C_GOOD, alpha=0.85, label="+ local anchor")
-ax2.axhline(1.0, color=C_TRUE, ls=":", lw=1.6)
-ax2.text(2.55, 1.02, "real-data\nbaseline", color=C_TRUE, fontsize=9, ha="right", va="bottom")
+ax2.bar(x - w/2, unf_m, w, color=st.RED, label="unanchored")
+ax2.bar(x + w/2, fix_m, w, color=st.GREEN, label="+ local anchor")
+ax2.axhline(1.0, color=st.GRAY, ls=":", lw=1.0)
 for xi, (u, f) in enumerate(zip(unf_m, fix_m)):
-    ax2.text(xi - w/2, u + 0.02, "%.2f" % u, ha="center", va="bottom", fontsize=9, color=C_BAD)
-    ax2.text(xi + w/2, f + 0.02, "%.2f" % f, ha="center", va="bottom", fontsize=9, color=C_GOOD)
-ax2.annotate("coverage = 1.00:\nno mode collapse", xy=(1 + w/2, 1.00), xytext=(1.15, 0.55),
-             fontsize=9.5, color=C_GOOD,
-             arrowprops=dict(arrowstyle="->", color=C_GOOD, lw=1.3))
-ax2.set_xticks(x); ax2.set_xticklabels(metrics)
-ax2.set_ylabel("nearest-neighbor metric  /  real baseline")
-ax2.set_title("(b) The anchor keeps full coverage (rules out collapse)")
-ax2.legend(loc="upper left", framealpha=0.95)
-ax2.set_ylim(0, 1.4)
+    ax2.text(xi - w/2, u + 0.02, "%.2f" % u, ha="center", va="bottom", fontsize=7.5)
+    ax2.text(xi + w/2, f + 0.02, "%.2f" % f, ha="center", va="bottom", fontsize=7.5)
+ax2.text(1.0, 1.26, "coverage 1.00:\nno mode collapse", ha="center", va="bottom",
+         fontsize=8, color=st.GREEN)
+ax2.set_xticks(x); ax2.set_xticklabels(metrics, fontsize=8)
+ax2.set_ylabel("NN metric / real baseline (dotted)")
+ax2.set_title("(b)", loc="left")
+ax2.legend(ncol=2, loc="upper center")
+ax2.set_ylim(0, 1.62)
 
-fig.tight_layout()
-out = os.path.join(OUTD, "fig6_cifar.png")
-fig.savefig(out); plt.close(fig)
-print("fig6_cifar.png written to", out)
-print("  unanchored g1-g7 mean = %.2f, anchored = %.2f, gap = %.2f"
+fig.tight_layout(w_pad=1.6)
+st.save(fig, "fig6_cifar")
+print("fig6 OK  unanchored g1-g7 mean = %.2f, anchored = %.2f, gap = %.2f"
       % (UNF[:, 1:].mean(), FIX[:, 1:].mean(), UNF[:, 1:].mean() - FIX[:, 1:].mean()))

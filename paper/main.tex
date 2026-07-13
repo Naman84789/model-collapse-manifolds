@@ -360,7 +360,7 @@ of the next section.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figs/fig0_mechanism.png}
+\includegraphics[width=\linewidth]{figs/fig0_mechanism.pdf}
 \caption{\textbf{The mechanism and the law.} (a) The required normal slope
 $\kappa(t)=s/\gamma^2$ is non-monotone: it peaks at $\kappa_{\max}=1/(2\sigma)$ near
 $t\approx\sigsq$ and falls back to zero. A network with ceiling $\kb<\kappa_{\max}$
@@ -493,7 +493,7 @@ no fixed architecture provides it.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.72\linewidth]{figs/fig2_two_horned_trap.png}
+\includegraphics[width=0.72\linewidth]{figs/fig2_two_horned_trap.pdf}
 \caption{\textbf{The two-horned trap (\emph{we observe}).} Self-consuming recursions at
 fixed $t_0=10^{-4}$, no anchor, 3 seeds. With the reverse-SDE noise on, the recursion
 sticks fat at $10.8$ to $13.2\,\sigsq$ (red). With the noise zeroed (deterministic
@@ -553,13 +553,17 @@ remains, so anchoring is still the fix.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.7\linewidth]{figs/fig4_capacity_floor.png}
-\caption{\textbf{The capacity floor, predicted and measured.} Blue: finite-$\sigma$
-variance-ODE floor at $\sigma=0.05$ (no fit). Dashed: the exact $\sigma\to0$ law
-$\big((1+3e^{-4})/8\big)\kb^{-2}$ of Theorem~\ref{thm:floor}. Star: the envelope floor
-$3.8\sigsq$ at the measured ceiling $\kb=3.9$ --- a proven lower bound that accounts
-for ${\sim}60\%$ of the directly measured single-pass floor; the measured anatomy of
-the remainder (profile sag, ensemble displacement) is in the text.}
+\includegraphics[width=0.7\linewidth]{figs/fig4_capacity_floor.pdf}
+\caption{\textbf{The capacity floor: predicted, measured, and moved.} Filled blue:
+finite-$\sigma$ variance-ODE envelope floor at $\sigma=0.05$ (no fit). Dashed: the
+exact $\sigma\to0$ law $\big((1+3e^{-4})/8\big)\kb^{-2}$ of Theorem~\ref{thm:floor}.
+Star: the envelope bound $3.8\sigsq$ at the standard pipeline's measured ceiling
+$\kb=3.9$ --- a proven lower bound that accounts for ${\sim}60\%$ of the directly
+measured single-pass floor; the measured anatomy of the remainder (profile sag,
+ensemble displacement) is in the text. Open circles: the interventional test --- five
+training protocols move the measured ceiling from $3.5$ to $7.5$ and the measured
+floor falls from $7.8$ to $2.5\,\sigsq$, tracking the law and never crossing the
+bound.}
 \label{fig:floorlaw}
 \end{figure}
 
@@ -612,7 +616,7 @@ themselves: $\kb$, its degradation law, and the saturation profile.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.95\linewidth]{figs/fig5_pipeline.png}
+\includegraphics[width=0.95\linewidth]{figs/fig5_pipeline.pdf}
 \caption{\textbf{Where the anchor sits.} Each generation, the pool (and, for the jump
 pipeline, the sampler output) is passed through a bidirectional per-axis local moment
 match against a \emph{stale} reference of $m=2{,}000$ real samples drawn once at $g=0$.
@@ -709,7 +713,7 @@ and jump samplers converge to the same variance; we report both.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.78\linewidth]{figs/fig1_head_to_head.png}
+\includegraphics[width=0.78\linewidth]{figs/fig1_head_to_head.pdf}
 \caption{\textbf{Head-to-head vs.\ the state-of-the-art remedy (\emph{we observe}).}
 Ring manifold, $\sigma=0.05$, $\lambda=\tfrac12$, 20 generations, 5 seeds
 (mean $\pm$ s.d.). Red: annealed truncation $t_0\!:0.05\to10^{-4}$, no anchor
@@ -721,7 +725,7 @@ samplers): $1.01\sigsq\pm0.02$, flat for 20 generations.}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.72\linewidth]{figs/fig3_pixel_mnist.png}
+\includegraphics[width=0.72\linewidth]{figs/fig3_pixel_mnist.pdf}
 \caption{\textbf{Real pixels (\emph{we observe}).} Self-consuming recursion on
 $8\times8$ MNIST (64-dimensional pixel space), $\lambda=\tfrac12$, 8 generations,
 3 seeds. Off-manifold distance = mean nearest-neighbor distance to a held-out real test
@@ -791,7 +795,7 @@ requires.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figs/fig6_cifar.png}
+\includegraphics[width=\linewidth]{figs/fig6_cifar.pdf}
 \caption{\textbf{CIFAR-10 pixel recursion (\emph{we observe}).} (a) Off-manifold distance
 (mean nearest-neighbor distance to held-out real CIFAR-10) across 8 self-consuming
 generations, 3 seeds (mean $\pm$ s.d.). The two arms stabilize on opposite sides of the
@@ -860,7 +864,8 @@ Pixel CIFAR-10, $G{=}8$ & unanchored & $22.8\pm1.2$ & 3 \\
  & true-data baseline & $20.1$ & n/a \\
  & anchored coverage / diversity & $1.00\times$ / $0.75\times$ & 3 \\
 \midrule
-Floor prediction & measured $\kb{=}3.9\Rightarrow\Phidet$ & $3.8$ (zero fit) & n/a \\
+Floor law & envelope bound at measured $\kb{=}3.9$ & $3.8$ (${\sim}60\%$ of measured $6.3$--$7.5$) & n/a \\
+ & interventional test, $\kb\!:3.5\to7.5$ & floor $7.8\to2.5$, bound never crossed & 3 \\
 \bottomrule
 \end{tabular}
 \end{table}

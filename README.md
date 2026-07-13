@@ -63,7 +63,7 @@ step 12 below.
 | 9 | `poolwidth_probe.py` | `poolwidth_probe.jsonl` (6) | **Small-c resolved.** Net c≈{0,.05,.13,.10,.05} = deficit response −0.68 + injection response +0.73 (near-cancellation). (item 5) | — | ~5 min |
 | 10 | `jump_dscaling.py` | `jump_dscaling.jsonl` (12) | Supporting: raw floor blows up ~linearly in ambient d; matched floor **saturates** (~d^0.1); no compounding to d=128. | — | ~20 min |
 | 11 | `test_axmatch.py` | stdout | Unit test of the pixel-space local matcher (no crash when pool>ref; off-manifold 3.02→1.55). | — | ~1 min |
-| 12 | `make_figures.py` | `figures/fig1–4.png` | Regenerates all four paper figures from the jsonl above. | all | seconds |
+| 12 | `make_figures.py` (+ `figstyle.py`, `make_paper_diagrams.py`, `make_cifar_fig.py`) | `paper/figs/fig0–6.{pdf,png}` | Regenerates all seven paper figures (vector PDF + PNG twins) from the jsonl above, one shared publication style. fig4 now includes the interventional test (row 25): five protocol points, floor tracks the law, never below the bound. | all | seconds |
 | 13 | `falsify_floor.py` | stdout (14 checks) | **Adversarial verification of Theorem 2.** Independent RK45 integration vs both closed forms; sympy symbolic re-derivation of the band crossing; limits ρ→0, ρ→1⁻, κ̄→∞, λ→1; boundary-layer contraction at the predicted quadratic rate; 200-profile Monte Carlo attack on the comparison bound (incl. overshoot). 14/14 pass. | — | ~1 min |
 | 14 | `cifar_recursion.py` | `cifar_state/*.npz` (not committed, large), `cifar_run_offman.log` | **Scale check (preliminary).** Same recursion at D=3,072 (CIFAR-10 pixels), small conv UNet (~7M params, GPU/AMP), G=8, λ=½, 3 seeds. Unanchored settles at 22.8±1.2σ (true baseline 20.1); anchored holds 16.3±0.7, gap +6.5±1.1 in every seed. Needs a CUDA GPU in practice (~4.75 h/seed on an RTX 3050); downloads CIFAR-10 from HF parquet on first run (script prints the fetch command). | **fig6_cifar** | ~4.75 h/seed |
 | 15 | `cifar_diversity_check.py <seed>` | stdout | **Adversarial check on 14: is the anchored arm's lower off-manifold distance real quality or mode collapse the distance metric can't see?** Three NN metrics vs a real-vs-real baseline: precision (0.80×), **coverage (1.00×, rules out mode collapse)**, diversity (0.75×, bounded/non-compounding — identical at g4 and g7). Unanchored: precision 1.11×, coverage 1.16× (real modes go uncovered), diversity 1.20×. Read-only, CPU, <1 min per seed. | (fig6_cifar) | ~1 min |
@@ -78,11 +78,14 @@ step 12 below.
 | 24 | `capacity_domains.py` | `capacity_domains.jsonl` | **κ̄(w) degradation is not a ring artifact.** Same protocol, three new geometries: flat segment (the flat-tube idealization made exact) 6.12−23.1√w (42% drop — needs NO curvature); sphere in R³ 4.65−12.8√w (30%); circle in R¹⁰, codim 9, 6.81−29.7√w (49%). Constants geometry-specific, phenomenon universal. Kills the "single data-domain" limitation. | — | ~4 min |
 | 25 | `ceiling_origin.py` | `ceiling_origin.jsonl` (5) | **What sets κ̄ — and the interventional test of the floor law.** Five training arms: baseline κ̄=3.7; t-importance-sampling into the band κ̄=6.7; 4× steps κ̄=6.4; higher-freq time embedding κ̄=3.5 (**does nothing** — not expressivity); both κ̄=7.5. The band holds <1% of the uniform t-measure (t<1e-3 never sampled) → the ceiling is **gradient starvation**, an optimization constant. Measured floors fall 7.8→2.5σ² as κ̄ rises, tracking 1/κ̄² and **never crossing the proven bound** — the law survives intervention. Band-weighted t-sampling is a practical 2–3× mitigation; it cannot reach σ² and the recursion still compounds, so anchoring stays necessary. | — | ~2 min |
 
-### Regenerate the four figures
+### Regenerate the figures
 ```
-python make_figures.py     # reads head_to_head.jsonl, inject_ablation.jsonl,
-                           # pixel_mnist_recursion.jsonl; writes figures/fig1–4.png
+python make_figures.py         # figs 1–4: reads head_to_head.jsonl, inject_ablation.jsonl,
+                               # pixel_mnist_recursion.jsonl, ceiling_origin.jsonl
+python make_paper_diagrams.py  # fig 0 (mechanism + closed-form floor), fig 5 (pipeline)
+python make_cifar_fig.py       # fig 6 (CIFAR-10 recursion + coverage/diversity)
 ```
+Each writes vector PDF + PNG twins to `paper/figs/` (shared style in `figstyle.py`).
 All inputs are already present, so this runs in seconds without redoing any training.
 
 ---

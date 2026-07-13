@@ -1,29 +1,19 @@
-"""Two additional paper diagrams (beyond fig1-4):
+"""Two additional paper diagrams (beyond fig1-4), shared style from figstyle.py:
 
 fig0_mechanism : two panels. (a) the non-monotone required slope kappa(t)=s/gamma^2 with
-                 a finite ceiling kbar -> FINITE deficit band (Lemma 3.0) + the freeze-in;
-                 (b) the closed-form floor g(rho) for both classes (Lemma 3.3).
+                 a finite ceiling kbar -> FINITE deficit band (Lemma 3) + the freeze-in;
+                 (b) the closed-form floor g(rho) for both classes (Thm 2).
 fig5_pipeline  : schematic of the self-consuming loop and where the anchor sits.
 
 All quantitative curves are computed from the real formulas (no cartoons for math).
 """
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 
-OUT = r"paper\figs"
-import os
-os.makedirs(OUT, exist_ok=True)
+import figstyle as st
 
-plt.rcParams.update({
-    "figure.dpi": 300, "savefig.dpi": 300, "font.size": 13,
-    "axes.titlesize": 14, "axes.labelsize": 13.5, "legend.fontsize": 12,
-    "xtick.labelsize": 11.5, "ytick.labelsize": 11.5,
-    "axes.spines.top": False, "axes.spines.right": False, "font.family": "DejaVu Sans",
-})
-BLUE, ORANGE, RED, GREEN, GRAY = "#1f77b4", "#ff7f0e", "#d62728", "#2ca02c", "#555555"
+st.use_style()
 
 # ---------------------------------------------------------------- fig0 (a)+(b)
 SIG = 0.05
@@ -33,24 +23,29 @@ g2 = np.exp(-t) * SIG ** 2 + s ** 2
 kap = s / g2
 KBAR = 3.9
 
-fig, (ax, ax2) = plt.subplots(1, 2, figsize=(10.2, 4.2))
+fig, (ax, ax2) = plt.subplots(1, 2, figsize=(6.5, 2.55))
 
-# --- panel (a): the required slope is non-monotone, so the deficit band is finite
-ax.plot(t, kap, color=BLUE, lw=2.6, label=r"required slope $\kappa(t)$")
-ax.axhline(KBAR, color=RED, lw=2.0, ls="--", label=r"network cap $\bar\kappa$")
-band = kap > KBAR
-tlo, thi = t[band].min(), t[band].max()
-ax.axvspan(tlo, thi, color=RED, alpha=0.12)
-ax.annotate("deficit band:\nvariance freezes in",
-            xy=(np.sqrt(tlo * thi), 6.2), ha="center", va="center",
-            fontsize=12.5, color=RED, fontweight="bold")
-ax.annotate(r"peak $=1/2\sigma$",
-            xy=(SIG ** 2, 1 / (2 * SIG)), xytext=(7e-5, 9.2), fontsize=12, color=GRAY,
-            arrowprops=dict(arrowstyle="->", lw=1.3, color=GRAY))
-ax.set_xscale("log"); ax.set_xlabel(r"diffusion time $t$  (log scale)")
-ax.set_ylabel(r"slope $\kappa$"); ax.set_ylim(0, 11)
-ax.set_title("(a) the required slope is non-monotone")
-ax.legend(loc="upper right", framealpha=0.95)
+# --- panel (a): the required slope is non-monotone, so the deficit band is finite.
+# Direct labels only (no legend box), so nothing can collide.
+ax.plot(t, kap, color=st.BLUE, lw=1.8)
+ax.axhline(KBAR, color=st.RED, lw=1.3, ls="--")
+bandmask = kap > KBAR
+tlo, thi = t[bandmask].min(), t[bandmask].max()
+ax.axvspan(tlo, thi, color=st.RED, alpha=0.08, lw=0)
+ax.text(np.sqrt(tlo * thi), 6.5, "deficit band:\nvariance freezes in",
+        ha="center", va="center", fontsize=8, color=st.RED)
+ax.annotate("peak $1/(2\\sigma)$", xy=(SIG ** 2, 1 / (2 * SIG)),
+            xytext=(1.2e-6, 9.6), fontsize=8, color=st.GRAY,
+            arrowprops=dict(arrowstyle="->", lw=0.9, color=st.GRAY))
+ax.text(1.0, 0.38, "required slope $\\kappa(t)$", fontsize=8,
+        color=st.BLUE, ha="center", va="bottom")
+ax.text(6.5, KBAR + 0.2, "network cap $\\bar\\kappa$", fontsize=8,
+        color=st.RED, ha="right", va="bottom")
+ax.set_xscale("log")
+ax.set_xlabel("diffusion time $t$ (log scale)")
+ax.set_ylabel("slope $\\kappa$")
+ax.set_ylim(0, 11.4)
+ax.set_title("(a)", loc="left")
 
 # --- panel (b): the closed-form floor as a function of the slope cap
 rho = np.linspace(0.02, 0.999, 500)
@@ -62,68 +57,67 @@ Wex = (1 + uhi) * E + ((3 - 2 * q) - (3 + 2 * q) * E) / (2 * rho ** 2)
 g_no = 1 + (Wex - (1 + ulo)) / (1 + ulo) ** 2
 g_un = 1 / (2 * rho ** 2)
 
-ax2.plot(rho, g_no, color=BLUE, lw=2.6, label=r"no-overshoot: $g(\rho)$")
-ax2.plot(rho, g_un, color=ORANGE, lw=2.6, ls="--", label=r"unconditional: $1/(2\rho^2)$")
-ax2.axhline(1, color=GRAY, ls=":", lw=1.6)
-ax2.text(0.98, 1.18, r"true width $\sigma^2$", color=GRAY, ha="right", fontsize=11.5)
-fs = [17.005, 14.121, 13.571]
-for i, v in enumerate(fs):
-    ax2.plot([0.20], [v], "o", color=GREEN, ms=8,
-             label=("finite-$\\sigma$ (numerical)" if i == 0 else "_nolegend_"))
+ax2.plot(rho, g_no, color=st.BLUE, lw=1.8, label="no-overshoot: $g(\\rho)$")
+ax2.plot(rho, g_un, color=st.AMBER, lw=1.6, ls="--", label="unconditional: $1/(2\\rho^2)$")
+fs = [17.005, 14.121, 13.571]  # rho=0.2 at sigma=0.10, 0.05, 0.02
+ax2.plot([0.20] * 3, fs, "o", color=st.GREEN, ms=4.5,
+         label="finite-$\\sigma$ ODE ($\\sigma$=0.10, 0.05, 0.02)")
+ax2.axhline(1, color=st.GRAY, ls=":", lw=1.0)
+ax2.text(0.03, 1.15, "true width $\\sigma^2$", color=st.GRAY, ha="left", fontsize=8)
 ax2.set_yscale("log")
-ax2.set_xlabel(r"slope cap / peak,  $\rho=\bar\kappa/\kappa_{\max}$")
-ax2.set_ylabel(r"floor width / $\sigma^2$")
-ax2.set_title("(b) the floor is closed-form in the cap")
-ax2.legend(loc="upper right", framealpha=0.95)
+ax2.set_xlabel("slope cap / peak, $\\rho=\\bar\\kappa/\\kappa_{\\max}$")
+ax2.set_ylabel("floor width / $\\sigma^2$")
+ax2.set_title("(b)", loc="left")
+ax2.legend(loc="upper right")
 ax2.set_xlim(0, 1.02); ax2.set_ylim(0.4, 300)
+ax2.grid(axis="y", lw=0.5, alpha=0.18)
 
-fig.tight_layout()
-fig.savefig(os.path.join(OUT, "fig0_mechanism.png")); plt.close(fig)
+fig.tight_layout(w_pad=2.0)
+st.save(fig, "fig0_mechanism")
 print("fig0 OK")
 
 # ---------------------------------------------------------------- fig5 pipeline
-fig, ax = plt.subplots(figsize=(9.0, 3.4))
-ax.set_xlim(0, 10); ax.set_ylim(0, 3.4); ax.axis("off")
+fig, ax = plt.subplots(figsize=(6.2, 2.35))
+ax.set_xlim(0, 10); ax.set_ylim(0, 4.0); ax.axis("off")
 
-def box(x, y, w, h, text, fc, ec, fs=10, tc="black"):
-    ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.08",
-                                fc=fc, ec=ec, lw=1.6))
-    ax.text(x + w / 2, y + h / 2, text, ha="center", va="center", fontsize=fs, color=tc)
+def box(x, y, w, h, text, fc, ec, fs=8.5):
+    ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.06",
+                                fc=fc, ec=ec, lw=1.1))
+    ax.text(x + w / 2, y + h / 2, text, ha="center", va="center", fontsize=fs)
 
-def arrow(x1, y1, x2, y2, color="black", style="-|>", lw=1.8, con="arc3,rad=0.0"):
-    ax.add_patch(FancyArrowPatch((x1, y1), (x2, y2), arrowstyle=style, lw=lw,
-                                 color=color, connectionstyle=con, mutation_scale=16))
+def arrow(x1, y1, x2, y2, color="black", lw=1.1, con="arc3,rad=0.0"):
+    ax.add_patch(FancyArrowPatch((x1, y1), (x2, y2), arrowstyle="-|>", lw=lw,
+                                 color=color, connectionstyle=con,
+                                 mutation_scale=11, shrinkA=2, shrinkB=2))
 
-box(0.15, 1.45, 1.55, 0.9, "fresh real\ndata  ($\\lambda$)", "#eaf3fb", BLUE)
-box(2.35, 1.45, 1.45, 0.9, "pool$_g$", "#f5f5f5", GRAY)
-box(4.45, 1.45, 1.55, 0.9, "train score\n$\\hat\\varepsilon_g$ (DSM)", "#f5f5f5", GRAY)
-box(6.65, 1.45, 1.55, 0.9, "sample\n(reverse SDE)", "#f5f5f5", GRAY)
-box(8.75, 1.45, 1.1, 0.9, "gen$_g$", "#fdeaea", RED)
-arrow(1.7, 1.9, 2.32, 1.9)
-arrow(3.8, 1.9, 4.42, 1.9)
-arrow(6.0, 1.9, 6.62, 1.9)
-arrow(8.2, 1.9, 8.72, 1.9)
-# recursion arrow (bulges BELOW the row)
-arrow(9.25, 1.42, 3.1, 1.42, color=RED, con="arc3,rad=-0.3")
-ax.text(6.15, 0.35, "self-consuming recursion:  gen$_g$ becomes $(1-\\lambda)$ of pool$_{g+1}$",
-        color=RED, fontsize=9.5, ha="center")
+ROW_Y, ROW_H = 1.45, 0.95
+box(0.15, ROW_Y, 1.55, ROW_H, "fresh real\ndata ($\\lambda$)", st.LIGHT["blue"], st.BLUE)
+box(2.30, ROW_Y, 1.45, ROW_H, "pool$_g$", st.LIGHT["gray"], st.GRAY)
+box(4.35, ROW_Y, 1.60, ROW_H, "train score\n$\\hat\\varepsilon_g$ (DSM)", st.LIGHT["gray"], st.GRAY)
+box(6.55, ROW_Y, 1.60, ROW_H, "sample\n(reverse SDE)", st.LIGHT["gray"], st.GRAY)
+box(8.75, ROW_Y, 1.10, ROW_H, "gen$_g$", st.LIGHT["red"], st.RED)
+mid = ROW_Y + ROW_H / 2
+arrow(1.75, mid, 2.26, mid)
+arrow(3.80, mid, 4.31, mid)
+arrow(6.00, mid, 6.51, mid)
+arrow(8.20, mid, 8.71, mid)
 
-# anchor row (top)
-box(0.15, 2.75, 2.35, 0.62, "stale real reference\n($m$=2000, from $g$=0)", "#eafbea", GREEN, fs=8.8)
-box(3.15, 2.75, 4.0, 0.62,
-    "ANCHOR: bidirectional per-axis\nlocal moment match (Thm 3)", "#eafbea", GREEN, fs=9)
-arrow(2.52, 3.06, 3.12, 3.06, color=GREEN)
-arrow(4.0, 2.72, 3.1, 2.4, color=GREEN, con="arc3,rad=0.2")
-arrow(6.4, 2.72, 8.6, 2.4, color=GREEN, con="arc3,rad=-0.2")
-ax.text(8.0, 2.95, "matches pool + output normal\nvariance to the reference",
-        fontsize=8.3, color=GREEN, ha="center")
-fig.tight_layout()
-fig.savefig(os.path.join(OUT, "fig5_pipeline.png")); plt.close(fig)
+# recursion arrow (bulges below the row)
+arrow(9.30, ROW_Y - 0.06, 3.05, ROW_Y - 0.06, color=st.RED, con="arc3,rad=-0.25")
+ax.text(6.15, 0.28, "self-consuming recursion: gen$_g$ becomes $(1-\\lambda)$ of pool$_{g+1}$",
+        color=st.RED, fontsize=8, ha="center")
+
+# anchor row (top), with clear margin from the canvas edge
+TOP_Y, TOP_H = 3.05, 0.80
+box(0.15, TOP_Y, 2.30, TOP_H, "stale real reference\n($m$=2000, from $g$=0)",
+    st.LIGHT["green"], st.GREEN, fs=8)
+box(3.05, TOP_Y, 3.55, TOP_H, "anchor: bidirectional per-axis\nlocal moment match (Thm 3)",
+    st.LIGHT["green"], st.GREEN, fs=8)
+arrow(2.47, TOP_Y + TOP_H / 2, 3.01, TOP_Y + TOP_H / 2, color=st.GREEN)
+arrow(3.85, TOP_Y - 0.04, 3.10, ROW_Y + ROW_H + 0.04, color=st.GREEN, con="arc3,rad=0.18")
+arrow(6.20, TOP_Y - 0.04, 8.85, ROW_Y + ROW_H + 0.04, color=st.GREEN, con="arc3,rad=-0.22")
+ax.text(8.25, TOP_Y + 0.42, "matches pool + output\nnormal variance\nto the reference",
+        fontsize=8, color=st.GREEN, ha="center", va="center")
+
+st.save(fig, "fig5_pipeline")
 print("fig5 OK")
-
-# copy the four result figures into paper/figs
-import shutil
-SRC = r"figures"
-for f in os.listdir(SRC):
-    shutil.copy(os.path.join(SRC, f), os.path.join(OUT, f))
-print("figs copied:", sorted(os.listdir(OUT)))
