@@ -532,9 +532,11 @@ to $-0.4\,\sigsq$, i.e.\ the nonlinear remainder beyond the two channels is smal
 prices the ensemble-deviation term that Lemma~\ref{lem:shield} controls only to first
 order). \textbf{Interventional test.} The law survives moving the ceiling: five
 training protocols ($t$-importance-sampling into the band, $4\times$ steps, a
-higher-frequency time embedding, and combinations) move $\kb$ from $3.5$ to $7.5$, and
-the measured floor falls from $7.8$ to $2.5\,\sigsq$, tracking the predicted
-$1/\kb^{2}$ ordering and never crossing the bound.
+higher-frequency time embedding, and combinations) move $\kb$ from $3.5$ to $7.5$; the
+measured floor drops from $7.4$--$7.8\,\sigsq$ at the two low-$\kb$ protocols into the
+$2.5$--$4.9\,\sigsq$ range at the three high-$\kb$ ones (a group-level fall with
+protocol-dependent scatter, not a clean $1/\kb^2$ trace), and --- the load-bearing
+statement --- every one of the five sits strictly above its own proven bound.
 
 \paragraph{What sets the ceiling (\emph{we observe}).} The interventions also identify
 the ceiling's origin. Raising the time-embedding frequency alone does nothing
@@ -554,16 +556,17 @@ remains, so anchoring is still the fix.
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.7\linewidth]{figs/fig4_capacity_floor.pdf}
-\caption{\textbf{The capacity floor: predicted, measured, and moved.} Filled blue:
-finite-$\sigma$ variance-ODE envelope floor at $\sigma=0.05$ (no fit). Dashed: the
-exact $\sigma\to0$ law $\big((1+3e^{-4})/8\big)\kb^{-2}$ of Theorem~\ref{thm:floor}.
-Star: the envelope bound $3.8\sigsq$ at the standard pipeline's measured ceiling
-$\kb=3.9$ --- a proven lower bound that accounts for ${\sim}60\%$ of the directly
-measured single-pass floor; the measured anatomy of the remainder (profile sag,
-ensemble displacement) is in the text. Open circles: the interventional test --- five
-training protocols move the measured ceiling from $3.5$ to $7.5$ and the measured
-floor falls from $7.8$ to $2.5\,\sigsq$, tracking the law and never crossing the
-bound.}
+\caption{\textbf{The capacity floor: predicted, measured, and moved.} Blue line with
+markers: finite-$\sigma$ variance-ODE envelope floor at $\sigma=0.05$ (no fit).
+Dashed: the exact $\sigma\to0$ law $\big((1+3e^{-4})/8\big)\kb^{-2}$ of
+Theorem~\ref{thm:floor}. Star: the envelope bound $3.8\sigsq$ at the standard
+pipeline's measured ceiling $\kb=3.9$ --- a proven lower bound that accounts for
+${\sim}60\%$ of the directly measured single-pass floor; the measured anatomy of the
+remainder (profile sag, ensemble displacement) is in the text. Open circles: the
+interventional test --- five training protocols move the measured ceiling from $3.5$
+to $7.5$; the measured floor falls from ${\sim}7.6\,\sigsq$ (low $\kb$) into the
+$2.5$--$4.9\,\sigsq$ range (high $\kb$), with protocol scatter, and every point stays
+strictly above its bound.}
 \label{fig:floorlaw}
 \end{figure}
 
@@ -865,7 +868,7 @@ Pixel CIFAR-10, $G{=}8$ & unanchored & $22.8\pm1.2$ & 3 \\
  & anchored coverage / diversity & $1.00\times$ / $0.75\times$ & 3 \\
 \midrule
 Floor law & envelope bound at measured $\kb{=}3.9$ & $3.8$ (${\sim}60\%$ of measured $6.3$--$7.5$) & n/a \\
- & interventional test, $\kb\!:3.5\to7.5$ & floor $7.8\to2.5$, bound never crossed & 3 \\
+ & interventional test, $\kb\!:3.5\to7.5$ & floor $7.6\to\{2.5$--$4.9\}$, above bound & 3 \\
 \bottomrule
 \end{tabular}
 \end{table}

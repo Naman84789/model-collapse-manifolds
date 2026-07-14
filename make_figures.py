@@ -132,7 +132,10 @@ try:
     C0 = (1 + 3 * np.exp(-4.0)) / 8  # exact sigma->0 constant (1+3e^-4)/8
     ax.plot(kk, (C0 / kk ** 2) / SIG2, "--", color=st.AMBER, lw=1.4,
             label="exact $\\sigma\\to0$ law $\\;\\frac{1+3e^{-4}}{8}\\,\\bar\\kappa^{-2}$")
-    ax.plot(kbar, phi, "o", color=st.BLUE, ms=5,
+    # envelope floor as a connecting line + markers, so "above the bound" is
+    # visually rigorous (every measured floor sits above this curve).
+    order = np.argsort(kbar)
+    ax.plot(kbar[order], phi[order], "-o", color=st.BLUE, ms=5, lw=1.0,
             label="envelope floor (ODE at $\\sigma$=0.05, no fit)")
     ax.plot([3.9], [3.82], "*", color=st.BLUE, ms=13, zorder=5,
             label="envelope bound at measured $\\bar\\kappa$=3.9")
@@ -140,8 +143,8 @@ try:
             label="measured floors, five training protocols")
     ax.axhline(1.0, color=st.GRAY, ls=":", lw=1.0)
     ax.text(10.3, 1.07, "$\\sigma^2$", color=st.GRAY, fontsize=8, ha="right")
-    ax.annotate("floor tracks the law,\nnever below the bound",
-                xy=(10.9, 6.3), fontsize=8, color=st.RED, ha="right", va="center")
+    ax.annotate("raising $\\bar\\kappa$ lowers the floor;\nevery point above the bound",
+                xy=(10.9, 6.6), fontsize=8, color=st.RED, ha="right", va="center")
     ax.set_yscale("log")
     ax.set_xlabel("network normal-slope ceiling $\\bar\\kappa$")
     ax.set_ylabel("single-pass floor / $\\sigma^2$")
