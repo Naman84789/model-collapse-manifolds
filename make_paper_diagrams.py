@@ -61,9 +61,18 @@ g_un = 1 / (2 * rho ** 2)
 
 ax2.plot(rho, g_no, color=st.BLUE, lw=1.8, label="no-overshoot: $g(\\rho)$")
 ax2.plot(rho, g_un, color=st.AMBER, lw=1.6, ls="--", label="unconditional: $1/(2\\rho^2)$")
-fs = [17.005, 14.121, 13.571]  # rho=0.2 at sigma=0.10, 0.05, 0.02
-ax2.plot([0.20] * 3, fs, "o", color=st.GREEN, ms=4.5, mfc="none", mew=1.3,
-         label="finite-$\\sigma$ ODE ($\\sigma$=0.10, 0.05, 0.02)")
+# finite-sigma ODE floors swept across rho (sigma=0.05, self-checked in
+# finite_sigma_sweep.py against the appendix triples) -- they trace g(rho) from
+# just above, the O(sigma^2/rho^2) convergence the theorem predicts.
+try:
+    import json, os
+    swp = json.load(open(os.path.join(st.D, "finite_sigma_sweep.json")))
+    fr, fv = np.array(swp["rho"]), np.array(swp["floor_over_sig2"])
+except Exception:
+    fr = np.array([0.10, 0.15, 0.20, 0.28, 0.39, 0.55, 0.75, 0.95])
+    fv = np.array([67.01, 25.90, 14.12, 7.18, 3.81, 2.08, 1.30, 1.02])
+ax2.plot(fr, fv, "o", color=st.GREEN, ms=4.5, mfc="none", mew=1.3,
+         label="finite-$\\sigma$ ODE ($\\sigma$=0.05)")
 ax2.axhline(1, color=st.GRAY, ls=":", lw=1.0)
 ax2.text(0.03, 1.15, "true width $\\sigma^2$", color=st.GRAY, ha="left", fontsize=8)
 # the (U)-class threshold: floor exceeds sigma^2 whenever rho < 1/sqrt(2)

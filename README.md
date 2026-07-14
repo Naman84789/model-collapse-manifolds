@@ -78,11 +78,13 @@ step 12 below.
 | 24 | `capacity_domains.py` | `capacity_domains.jsonl` | **κ̄(w) degradation is not a ring artifact.** Same protocol, three new geometries: flat segment (the flat-tube idealization made exact) 6.12−23.1√w (42% drop — needs NO curvature); sphere in R³ 4.65−12.8√w (30%); circle in R¹⁰, codim 9, 6.81−29.7√w (49%). Constants geometry-specific, phenomenon universal. Kills the "single data-domain" limitation. | — | ~4 min |
 | 25 | `ceiling_origin.py` | `ceiling_origin.jsonl` (5) | **What sets κ̄ — and the interventional test of the floor law.** Five training arms: baseline κ̄=3.7; t-importance-sampling into the band κ̄=6.7; 4× steps κ̄=6.4; higher-freq time embedding κ̄=3.5 (**does nothing** — not expressivity); both κ̄=7.5. The band holds <1% of the uniform t-measure (t<1e-3 never sampled) → the ceiling is **gradient starvation**, an optimization constant. Measured floors fall from ~7.6σ² (two low-κ̄ protocols) into the 2.5–4.9σ² range (three high-κ̄ ones) — a group-level fall with protocol scatter, not a clean 1/κ̄² trace — every one **staying strictly above its proven bound** — the law survives intervention. Band-weighted t-sampling is a practical 2–3× mitigation; it cannot reach σ² and the recursion still compounds, so anchoring stays necessary. | — | ~2 min |
 
+| 26 | `finite_sigma_sweep.py` | `finite_sigma_sweep.json` | **Direct ODE validation of the closed form (fig0b green rings).** Integrates the exact finite-σ variance ODE (Radau) at σ=0.05 across ρ∈[0.10,0.95]; self-checks against the appendix triples (ρ=0.2→14.12, ρ=0.39→3.81, both to <0.1%) before emitting the sweep. The points sit just above g(ρ) and follow the no-overshoot branch — the O(σ²/ρ²) convergence Thm 2 predicts. Needs scipy (venv). | **fig0** | ~1 min |
+
 ### Regenerate the figures
 ```
 python make_figures.py         # figs 1–4: reads head_to_head.jsonl, inject_ablation.jsonl,
                                # pixel_mnist_recursion.jsonl, ceiling_origin.jsonl
-python make_paper_diagrams.py  # fig 0 (mechanism + closed-form floor), fig 5 (pipeline)
+python make_paper_diagrams.py  # fig 0 (mechanism + closed-form floor + finite-σ sweep), fig 5
 python make_cifar_fig.py       # fig 6 (CIFAR-10 recursion + coverage/diversity)
 ```
 Each writes vector PDF + PNG twins to `paper/figs/` (shared style in `figstyle.py`).
