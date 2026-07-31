@@ -39,20 +39,20 @@
 
 % ================================================================ abstract
 \begin{abstract}
-Generative models are increasingly trained on data that includes their own past outputs,
+Generative models are increasingly retrained on data that includes their own past outputs,
 and for diffusion models this \emph{self-consuming} loop is known to degrade quality from
-one generation to the next. The sharpest existing theory \citep{khelifa2026recursive}
-shows that a carefully annealed early-stopping schedule repairs the loop, but only when the
-data density is smooth, explicitly leaving open the case that matters most in practice,
-where data concentrate on a thin low-dimensional manifold. We settle this case, in two
-parts. \emph{Negatively}, we prove a \emph{capacity floor}: near a manifold of width
-$\sigma$ the score a diffusion model must represent is steep only inside a short, finite
-window of noise levels, so any network whose slope is capped below that peak bakes in a
-fixed amount of excess width on every pass that later denoising cannot remove. In the
-singular limit the floor is \emph{closed form}: it equals $1/(8\kb^2)$ in the network's
-slope cap $\kb$, with no dependence on the sampling schedule. A fixed model therefore
-collapses without bound as the manifold thins, and staying bounded requires capacity growing
-like $\sqrt{J}$ in the Fisher information $J$. Empirically the trap is two-horned: the
+one generation to the next. We settle the case that matters most in practice and that the
+sharpest prior theory \citep{khelifa2026recursive} repairs only for smooth densities and
+explicitly leaves open---data concentrated on a thin low-dimensional manifold---with
+matching negative and constructive results. \emph{Negatively}, we prove a closed-form
+\emph{capacity floor}: any truncated reverse-SDE sampler whose normal score slope is capped
+at $\kb$ retains excess width of at least $1/(8\kb^2)$ on every pass, with no dependence on
+the sampling schedule. The mechanism is geometric: near a manifold of width $\sigma$ the
+score a diffusion model must represent is steep only inside a short, finite window of noise
+levels, so a slope-capped network bakes in excess width there that later denoising cannot
+remove. A fixed model therefore collapses without bound as the manifold thins, and staying
+bounded requires capacity growing like $\sqrt{J}$ in the Fisher information $J$. Empirically
+the trap is two-horned: the
 stochastic sampler sticks $\sim\!11\times$ too wide, while the deterministic one collapses to
 a point; neither reaches the data. \emph{Constructively}, we prove that periodically
 re-matching the model's output to a small, \emph{fixed} pool of real examples makes the loop
@@ -98,18 +98,15 @@ of this second kind \citep{fefferman2016testing,pidstrigach2022manifold}.
 
 This paper answers Case~2.
 
-\paragraph{The idea in one paragraph.} When a model repeatedly learns from its own samples,
-the hardest property to preserve is the data's \emph{thinness}: the exact width of a pen
-stroke, the sharp edge of a shape. We show that a finite-capacity denoiser can reproduce
-that thinness only inside a brief window of noise levels, so a small, fixed amount of blur
-is baked in every generation and accumulates. Two things follow. The blur has an \emph{exact
-floor} set by a single number, the steepest slope the network can represent, and \emph{no}
-training or sampling schedule can lower it. And the accumulation can be cancelled by
-periodically re-matching the model's output to a small, unchanging set of real examples. The
-match rescales the output to \emph{their local width}; it does not copy the examples back
-into training. The rest of this section makes both statements precise. The first is our
-\emph{negative} result (a capacity floor); the second is our \emph{constructive} one (a
-data-anchoring fix).
+\paragraph{The idea in one paragraph.} The hardest property to preserve across generations
+is the data's \emph{thinness}---the exact width of a pen stroke, the sharp edge of a shape.
+A finite-capacity denoiser can reproduce that thinness only inside a brief window of noise
+levels, so a small, fixed amount of blur is baked in every generation and accumulates. This
+yields our two results, made precise below: a \emph{negative} one---the blur has an exact
+floor set by a single number, the steepest slope the network can represent, that no training
+or sampling schedule lowers---and a \emph{constructive} one---the accumulation is cancelled
+by periodically re-matching the model's output to the \emph{local width} of a small,
+unchanging set of real examples, without copying those examples back into training.
 
 \textbf{The negative half} is a \emph{capacity floor} (Section~\ref{sec:floor}). The
 score that a diffusion model must represent near a $\sigma$-thin manifold has normal
@@ -158,18 +155,23 @@ anchored/unanchored split with full mode coverage (Figure~\ref{fig:cifar}).
 \item \textbf{A memorylessness theorem for anchoring} (Theorem~\ref{thm:fix}): matching
   pool and output normal variance to a stale real reference removes the recursion's
   memory, for every $\lambda>0$, with an error bound independent of the ambient dimension.
-\item \textbf{Falsifiable empirics}: a floor anatomy from one measured network
-  property --- the law's envelope explains ${\sim}60\%$ of the measured single-pass
-  floor, the remainder resolving into two further measured channels (in-band profile
-  sag; ensemble displacement) --- plus an interventional test: five training protocols
-  move the ceiling $3.5\to7.5$ and the floor tracks the law, never crossing it; a
-  two-horned ablation separating the floor's
-  existence (sampler noise) from its size (slope ceiling); a 20-generation, 5-seed
-  head-to-head win over the state-of-the-art remedy; a replay-buffer control at the
-  anchor's exact information budget, separating anchoring from replay; a subcritical-%
-  fraction run exhibiting the law's no-plateau regime; a pixel-space MNIST recursion; and a
-  preliminary CIFAR-10 pixel-space recursion (three seeds) that rules out mode collapse by
-  three independent nearest-neighbor metrics.
+\item \textbf{Falsifiable empirics}, each targeting a named claim:
+  \begin{itemize}\itemsep1pt
+  \item \emph{Floor anatomy \& intervention}: the law's envelope explains ${\sim}60\%$ of
+    the measured single-pass floor, the remainder resolving into two further measured
+    channels (in-band profile sag; ensemble displacement); and across five training
+    protocols that move the ceiling $3.5\to7.5$, every measured floor stays above its
+    proven bound.
+  \item \emph{Two-horned ablation}: separates the floor's existence (sampler noise) from
+    its size (slope ceiling).
+  \item \emph{Head-to-head}: a 20-generation, 5-seed win over the state-of-the-art remedy,
+    with a replay-buffer control at the anchor's exact information budget that separates
+    anchoring from replay, and a subcritical-fraction run exhibiting the law's no-plateau
+    regime.
+  \item \emph{Real and scaled data}: a pixel-space MNIST recursion, and a preliminary
+    CIFAR-10 pixel recursion (three seeds) that rules out mode collapse by three
+    independent nearest-neighbor metrics.
+  \end{itemize}
 \end{enumerate}
 
 Throughout we keep the epistemic status of each claim explicit: \emph{we prove}
@@ -311,8 +313,11 @@ T(v)=\lambda\sigsq+(1-\lambda)v+e^2\!\big(\lambda\sigsq+(1-\lambda)v\big),
 \label{eq:recursion}
 \end{equation}
 with $s^2_g:=s^2(t_0(g))$ the truncation remainder. (The display takes $a^2(t_0)=1$;
-the general case replaces $s^2_g$ by $\eta_g=s^2_g+(a^2(t_0(g))-1)w_g$, which vanishes
-under any annealing schedule and is absorbed into the fitted law at fixed $t_0$.) Let
+the general case replaces $s^2_g$ by $\eta_g=s^2_g+(a^2(t_0(g))-1)w_g$. Its second
+term $\to0$ as $t_0\to0$ whenever $w_g$ stays bounded (part i), and at the small fixed
+$t_0$ we use it is $O(t_0 w_g)$, absorbed into the fitted law; in the divergent case
+(part ii) we work with the display form, where $\eta_g=s^2_g\ge0$ only strengthens the
+conclusion.) Let
 $c_\infty:=\lim_{w\to\infty}e^{2\prime}(w)$ (exists by concavity) and define the
 \emph{critical real-data fraction} $\lambda^*:=c_\infty/(1+c_\infty)$.
 
@@ -332,7 +337,9 @@ Fix $\lambda\in(0,1]$.
 \textbf{(i)} If $\lambda>\lambda^*$, $T$ has a unique fixed point $v_\infty>0$ solving
 $v=\lambda\sigsq+(1-\lambda)v+e^2(\lambda\sigsq+(1-\lambda)v)$, and for every $v_0\ge0$
 and every truncation schedule with $s_g^2\to0$ the iterates converge, $v_g\to v_\infty$,
-with local rate $\rho_{\mathrm{loc}}=(1-\lambda)\big(1+e^{2\prime}(w_\infty)\big)$.
+with local rate $\rho_{\mathrm{loc}}=(1-\lambda)\big(1+e^{2\prime}(w_\infty)\big)<1$
+(where $w_\infty=\lambda\sigsq+(1-\lambda)v_\infty$ is the fixed-point pool width; the
+strict inequality is forced by $T(0)>0$, Appendix~\ref{app:law}).
 \textbf{(ii)} If $(1-\lambda)(1+c_\infty)>1$, then $T(v)-v\ge T(0)>0$ for all $v$ and
 $v_g\to\infty$: no plateau, for any schedule.
 \textbf{(iii)} In the affine special case $e^2(w)=e_0^2+cw$:
@@ -371,7 +378,7 @@ closed-form no-overshoot law $g(\rho)$ (blue, Theorem~\ref{thm:floor}), exact
 unconditional law $1/(2\rho^2)$ (orange). Green rings: direct finite-$\sigma$ ODE
 integration at $\sigma=0.05$ swept across $\rho$ (self-checked against the appendix
 triples), sitting just above $g(\rho)$ and following the no-overshoot branch, the
-$O(\sigsq/\rho^2)$ convergence the theorem predicts. The dotted vertical marks
+relative $O(\sigsq/\rho^2)$ convergence the theorem predicts. The dotted vertical marks
 $\rho=1/\sqrt2$, below which the floor exceeds the true width $\sigsq$.}
 \label{fig:mechanism}
 \end{figure}
@@ -433,7 +440,11 @@ becomes, as $\sigma\to0$ at fixed $\rho$,
 \end{equation}
 a $\sigma$-free equation; the uncapped equation has exact solution $W=1+u$
 (the rescaled true marginal), and deviations contract quadratically under downward
-integration. Consequently $\lim_{t_0\to0}V(t_0)/\sigsq=g_{\mathrm{class}}(\rho)+O(\sigsq/\rho^2)$:
+integration. Consequently
+$\lim_{t_0\to0}V(t_0)/\sigsq=g_{\mathrm{class}}(\rho)\big(1+O(\sigsq/\rho^2)\big)$
+(a \emph{relative} correction: the boundary-layer perturbation scales with the leading
+term $W\sim\rho^{-2}$, so the additive gap to $g$ is $O(\sigsq/\rho^4)$, as the
+finite-$\sigma$ values confirm):
 \textbf{universality in $\rho$ is a theorem}.
 \end{lemma}
 
@@ -473,13 +484,15 @@ g(\rho)=1+\frac{W_{\mathrm{exit}}-(1+u_-)}{(1+u_-)^2} .
 \label{eq:closedform}
 \end{equation}
 $g(\rho)>1$ for every $\rho\in(0,1)$ with $g\to1$ only as $\rho\to1^-$, and
-$g(\rho)=C_0/\rho^2+O(1)$ as $\rho\to0$ with $C_0=(1+3e^{-4})/2=0.5275$, i.e.
-$\Phidet\to\big((1+3e^{-4})/8\big)\kb^{-2}=0.1319\,\kb^{-2}$.
+$g(\rho)=C_0/\rho^2+O(1)$ as $\rho\to0$ with $C_0=(1+3e^{-4})/2=0.5275$, i.e.\ the
+deterministic single-pass floor $\Phidet:=\lim_{t_0\to0}V(t_0)=\sigsq\,g(\rho)$
+satisfies $\Phidet\to\big((1+3e^{-4})/8\big)\kb^{-2}=0.1319\,\kb^{-2}$.
 
 The two asymptotic constants, $1/8$ and $(1+3e^{-4})/8$, differ by $5.5\%$: the class
 distinction is quantitatively minor. The closed forms match direct integration of
 \eqref{eq:limitode} to $\le2.4\times10^{-5}$ across $\rho\in[0.1,1]$, and the
-finite-$\sigma$ ODE converges to them from above at the stated $O(\sigsq/\rho^2)$ rate.
+finite-$\sigma$ ODE converges to them from above at the stated relative
+$O(\sigsq/\rho^2)$ rate.
 \end{theorem}
 
 \begin{corollary}[$\sigma\to0$: the answer to Case 2; \emph{we prove}]\label{cor:capacity}
@@ -573,49 +586,53 @@ strictly above its bound.}
 \label{fig:floorlaw}
 \end{figure}
 
-\paragraph{An honest gap, partially closed (\emph{we model}).} Iterating the floor
-through the recursion (every generation's pool is at least as wide as
+\paragraph{An honest gap, closed in three measured steps (\emph{we model}).} Iterating
+the floor through the recursion (every generation's pool is at least as wide as
 $\lambda\sigsq+(1-\lambda)\Phidet$) with the network's \emph{clean-tube} ceiling
 $\kb=3.9$ gives a deterministic fixed point $v^*_{\mathrm{det}}=4.5\,\sigsq$. The
 measured recursion floor is $\approx11\,\sigsq$, a factor $2.4$ above; our theorem
-claims only a \emph{lower bound} on the recursion (respected). The single-width probe
-(Appendix~\ref{app:details}) accounts for part of the excess: \emph{we observe} that
-the ceiling itself degrades on fatter training pools, from $3.7$--$4.3$ at
-$\sqrt w=0.03$ down to $2.8$--$3.0$ at $\sqrt w=0.13$ (ranges over three training
-seeds), and the degradation replicates under a half-width network, under a
-different ring radius (slopes $-9.4$ to $-13.0$ across all five measurements), and
-across three further geometries --- a flat segment (the flat-tube idealization made
-exact, so the degradation does not require curvature; $42\%$ drop over the same width
-range), a sphere in $\R^3$ ($30\%$), and a circle in $\R^{10}$ (codimension 9;
-$49\%$) --- with geometry-specific constants. Over
-this range the points are well described by the two-parameter fit
-$\kb(w)\approx4.4-11.6\sqrt{w}$. This is an \emph{empirical fit, not a derived form},
-and nothing below depends on the choice: refitting linear, logarithmic, or quadratic,
-or replacing the fit with a fit-free monotone interpolation of the raw points, moves
-the resulting fixed point by at most $10\%$, because the computation uses the fit only
-as an interpolant inside the measured range. Feeding the degradation back
-self-consistently, $v\leftarrow\Phidet\big(w(v),\kb(w(v))\big)$, moves the fixed point
-from $4.5$ to $5.6$--$7.1\,\sigsq$ at $t_0=10^{-4}$ (the range across the three probe
-seeds' fits), with the resulting pool width $\sqrt{w^*}\approx0.091$--$0.101$
-\emph{inside} the measured support (interpolation, not extrapolation). The closure
-assumes the degradation depends on the pool only through its width $w$, while the
-recursion's actual pools are two-component mixtures (clean tube plus fattened
-returns); testing this directly by training on the fixed point's own mixture
-composition gives $\kb^{\mathrm{mix}}=3.37\pm0.15$ against the single-tube prediction
-$3.34$, so the width-only reduction survives its first direct test. In total this
-\emph{self-consistent empirical closure} shrinks the unexplained factor from $2.4$ to
-$1.5$--$2.0$ --- a quarter to a half of the logarithmic gap. For the remainder we can
-say what it is \emph{not}: iterating the map with the measured generation-to-generation
-fluctuations gives a Jensen bias of only $0.006\,\sigsq$, and applying the measured
-$t\ge0.1$ slope-tracking ratio ($0.95$--$0.97$) to the whole profile moves the fixed
-point by only $+0.3$--$0.4\,\sigsq$. The remainder is now \emph{measured}: the profile
-sag and ensemble-displacement channels of the floor anatomy above, re-measured across
-six pool widths spanning the fixed point, lift the per-pass map to its directly
-measured values, and iterating that measured map gives a fixed point of
-$9.9\,\sigsq$ against the measured $10.8$--$13.2\,\sigsq$ --- the once factor-$2.4$
-discrepancy is now $1.1$--$1.3$, at the level of protocol differences (mixture pools,
-per-generation sample counts, seed scatter). What stays underived are the constants
-themselves: $\kb$, its degradation law, and the saturation profile.
+claims only a \emph{lower bound} on the recursion (respected). We account for that
+factor in three measured steps, each a directly logged measurement.
+
+\emph{Step 1, capacity degradation.} The single-width probe
+(Appendix~\ref{app:details}) shows the ceiling itself degrades on fatter training pools,
+from $3.7$--$4.3$ at $\sqrt w=0.03$ down to $2.8$--$3.0$ at $\sqrt w=0.13$ (ranges over
+three training seeds), and the degradation replicates under a half-width network, under a
+different ring radius (slopes $-9.4$ to $-13.0$ across all five measurements), and across
+three further geometries --- a flat segment (the flat-tube idealization made exact, so the
+degradation does not require curvature; $42\%$ drop over the same width range), a sphere in
+$\R^3$ ($30\%$), and a circle in $\R^{10}$ (codimension 9; $49\%$) --- with
+geometry-specific constants. Over this range the points are well described by the
+two-parameter fit $\kb(w)\approx4.4-11.6\sqrt{w}$, an \emph{empirical fit, not a derived
+form}; nothing below depends on the choice, since refitting linear, logarithmic, or
+quadratic, or replacing the fit with a fit-free monotone interpolation of the raw points,
+moves the resulting fixed point by at most $10\%$ (the computation uses the fit only as an
+interpolant inside the measured range).
+
+\emph{Step 2, the self-consistent closure.} Feeding the degradation back,
+$v\leftarrow\Phidet\big(w(v),\kb(w(v))\big)$, moves the fixed point from $4.5$ to
+$5.6$--$7.1\,\sigsq$ at $t_0=10^{-4}$ (the range across the three probe seeds' fits), with
+the resulting pool width $\sqrt{w^*}\approx0.091$--$0.101$ \emph{inside} the measured
+support (interpolation, not extrapolation). The closure assumes the degradation depends on
+the pool only through its width $w$, while the recursion's actual pools are two-component
+mixtures (clean tube plus fattened returns); testing this directly by training on the fixed
+point's own mixture composition gives $\kb^{\mathrm{mix}}=3.37\pm0.15$ against the
+single-tube prediction $3.34$, so the width-only reduction survives its first direct test.
+This closure shrinks the unexplained factor from $2.4$ to $1.5$--$2.0$ --- a quarter to a
+half of the logarithmic gap.
+
+\emph{Step 3, the measured remainder.} For what remains we first say what it is
+\emph{not}: iterating the map with the measured generation-to-generation fluctuations gives
+a Jensen bias of only $0.006\,\sigsq$, and applying the measured $t\ge0.1$ slope-tracking
+ratio ($0.95$--$0.97$) to the whole profile moves the fixed point by only
+$+0.3$--$0.4\,\sigsq$. The remainder is then \emph{measured}: the profile-sag and
+ensemble-displacement channels of the floor anatomy above, re-measured across six pool
+widths spanning the fixed point, lift the per-pass map to its directly measured values, and
+iterating that measured map gives a fixed point of $9.9\,\sigsq$ against the measured
+$10.8$--$13.2\,\sigsq$ --- the once factor-$2.4$ discrepancy is now $1.1$--$1.3$, at the
+level of protocol differences (mixture pools, per-generation sample counts, seed scatter).
+What stays underived are the constants themselves: $\kb$, its degradation law, and the
+saturation profile.
 
 % ================================================================ 6 fix
 \section{The anchoring fix}\label{sec:fix}
@@ -879,7 +896,12 @@ Floor law & envelope bound at measured $\kb{=}3.9$ & $3.8$ (${\sim}60\%$ of meas
 % ================================================================ 8 limitations
 \section{Limitations and scope}\label{sec:limits}
 
-Everything in the \emph{we model} tier is collected here.
+Everything in the \emph{we model} tier is collected here. None of it touches the paper's
+unconditional core: the closed-form floor (Theorem~\ref{thm:floor}) and the
+$\Omega(\sqrt J)$ capacity requirement (Corollary~\ref{cor:capacity}) hold given only the
+slope cap $\kb<\infty$, and the memorylessness theorem (Theorem~\ref{thm:fix}) holds given
+the frame-cancellation lemma; the items below concern how tightly our \emph{measured}
+constants pin the recursion's plateau, not whether the floor exists.
 (1)~Assumptions~\ref{ass:a0} and~\ref{ass:a2} are measured, cross-validated laws about the
 trained pipeline, not derived facts; we present them as such, in the spirit of measured
 critical exponents.
@@ -964,12 +986,15 @@ $v<v_\infty$ and $T(v)<v$ for $v>v_\infty$.
 
 \textbf{Contraction above.} For $v\ge v_\infty$, monotonicity and concavity give
 $0\le T(v)-v_\infty\le\rho_{\mathrm{loc}}(v-v_\infty)$ with
-$\rho_{\mathrm{loc}}=T'(v_\infty^+)<1$.
+$\rho_{\mathrm{loc}}=T'(v_\infty^+)<1$. The strict inequality needs no extra
+hypothesis: if $\rho_{\mathrm{loc}}=1$ then $h'(v_\infty)=0$, making the concave $h$
+maximal at $v_\infty$, whence $h(v_\infty)\ge h(0)=T(0)>0$, contradicting
+$h(v_\infty)=0$. So the crossing is always strict and the rate genuinely geometric.
 
 \textbf{Convergence under vanishing perturbations.} Let $v_g=T(v_{g-1})+s^2_g$,
 $s^2_g\to0$. While iterates stay $\ge v_\infty$,
 $x_g:=v_g-v_\infty\le\rho_{\mathrm{loc}}x_{g-1}+s^2_g\to0$ by the standard perturbed
-contraction argument (split $\sum_j\rho^{g-j}s^2_j$ at $j=g/2$). If an iterate drops
+contraction argument (split $\sum_j\rho_{\mathrm{loc}}^{\,g-j}s^2_j$ at $j=g/2$). If an iterate drops
 below $v_\infty$: define the unperturbed comparison $u_g=T(u_{g-1})$ started there; then
 $u_g\uparrow v_\infty$ (monotone, bounded, $T(v)>v$ below $v_\infty$) and $v_g\ge u_g$ by
 induction ($s^2_g\ge0$, $T$ monotone), so $\liminf v_g\ge v_\infty$, while
@@ -1023,8 +1048,9 @@ $s^2=\sigsq u(1+O(\sigsq u))$, $\gamma^2=\sigsq(1+u)(1+O(\sigsq u))$, so
 $\kappa=(1/\sigma)\frac{\sqrt u}{1+u}(1+O(\sigsq u))$ and
 $2\hat\kappa/s=(2m(u)/\sqrt u)/\sigsq$; the ODE becomes
 $-dW/du=1-(2m/\sqrt u)W+\sigsq W(1+o(1))$. On $u\in[0,U]$ the perturbing terms are
-$O(\sigsq U)$; the band occupies $u\le u_+=O(1/\rho^2)$, giving the stated
-$O(\sigsq/\rho^2)$. For the boundary: the uncapped equation
+$O(\sigsq U)$ \emph{per unit of} $W$; the band occupies $u\le u_+=O(1/\rho^2)$, giving
+the stated \emph{relative} error $O(\sigsq/\rho^2)$ (the additive gap to $g$ is a factor
+$W\sim\rho^{-2}$ larger, hence $O(\sigsq/\rho^4)$). For the boundary: the uncapped equation
 $-dW/du=1-2W/(1+u)$ has general solution $W=(1+u)+A(1+u)^2$ (direct check), so
 deviations from the slave solution $W=1+u$ contract as $\big((1+u)/(1+u')\big)^2$ under
 downward integration from $u'$ to $u$; the influence of the $t\gtrsim1$ boundary layer
