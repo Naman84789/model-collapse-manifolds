@@ -907,7 +907,9 @@ unconditional core: the closed-form floor (Theorem~\ref{thm:floor}) and the
 $\Omega(\sqrt J)$ capacity requirement (Corollary~\ref{cor:capacity}) hold given only the
 slope cap $\kb<\infty$, and the memorylessness theorem (Theorem~\ref{thm:fix}) holds given
 the frame-cancellation lemma; the items below concern how tightly our \emph{measured}
-constants pin the recursion's plateau, not whether the floor exists.
+constants pin the recursion's plateau, not whether the floor exists. Item~(8) is of a
+different kind: it delimits which architectures satisfy the slope-cap hypothesis in a
+binding way, without bearing on the theorem itself.
 (1)~Assumptions~\ref{ass:a0} and~\ref{ass:a2} are measured, cross-validated laws about the
 trained pipeline, not derived facts; we present them as such, in the spirit of measured
 critical exponents.
@@ -945,6 +947,21 @@ larger models. The theory predicts the mechanism transfers, because the floor de
 on the \emph{local} normal slope and not on the ambient dimension (Lemma~\ref{lem:frames},
 and the measured $d$-independence of the matched floors); confirming this in a large
 latent-diffusion system is the clearest next step and is left as future work.
+(8)~\textbf{Architectures that factor out the singular normal factor.} The floor's
+hypothesis is that the learned normal slope is bounded, $\hat\kappa\le\kb$, which binds
+when the network must itself represent the steep normal response. It does \emph{not} bind
+for parameterizations that build the singular factor into the sampler by construction, for
+instance a score of the form $-(x-\hat x)/h(t)$ with a learned projection-like map $\hat x$,
+as in the SiLD construction of \citet{huang2026provable}: there the network supplies
+$\hat x$ rather than the slope, and $\hat\kappa$ is not limited by network capacity.
+Theorem~\ref{thm:floor} is silent about such models. The experiments here all use ordinary
+$\eps$-prediction, for which the hypothesis does bind. We thank Wei Huang for this
+observation. The finite-capacity question does not disappear in that setting, it relocates:
+writing $\hat x=\Pi_M(x)+\delta(x)$, the score error carries a term of order
+$\delta(x)/h(t)$, so projection error is amplified by the same singular factor as $t\to0$.
+Whether that amplification admits a floor of the same $\kb^{-2}$ character, with
+$\E[\delta^2]$ in place of the slope deficit, is open and is the clearest theoretical
+extension of this work.
 
 \section{Reproducibility}\label{sec:repro}
 
