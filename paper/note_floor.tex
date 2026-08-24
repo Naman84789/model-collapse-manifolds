@@ -1,0 +1,161 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+
+\newcommand{\kb}{\bar\kappa}
+\newcommand{\sigsq}{\sigma^2}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\setlength{\parskip}{1.5pt}
+\title{\vspace{-1.2em}\bf A closed-form variance floor for slope-capped diffusion samplers on thin manifolds}
+\author{Naman Chandwani\quad\small\texttt{namanchandwani.10@gmail.com}\quad\small Independent researcher}
+\date{\vspace{-0.6em}\small August 2026}
+
+\begin{document}
+\maketitle
+\vspace{-2.2em}
+
+\noindent\textbf{Claim.} For data in a $\sigma$-tube about a manifold, any reverse-SDE sampler
+whose learned normal score slope is bounded by $\kb$ retains normal variance at least
+$1/(8\kb^2)$ as $\sigma\to0$, for \emph{every} truncation time and \emph{every} schedule. So a
+fixed-capacity model cannot track a thinning manifold, and bounded relative error forces
+$\kb\gtrsim1/\sigma$, i.e.\ capacity growing like $\sqrt J$ in the Fisher information. This note
+is self-contained; \S\ref{sec:U} is the entire argument (comparison principle, integrating
+factor, one Gamma integral).
+
+\section{Setup}
+Let $M\subset\R^d$ be a compact smooth $k$-manifold with reach $\tau>0$ and
+$X_0=\varphi(U)+\sigma N_\perp$, $U$ uniform on $M$, $N_\perp$ standard normal in the normal
+space. Use the variance-preserving OU process $X_t=aX_0+sZ$, $a=e^{-t/2}$, $s^2=1-e^{-t}$.
+Work in one normal coordinate $x\in\R$, treating the fiber marginal as Gaussian and decoupled
+from tangential position (\emph{flat-tube idealization}; curvature enters at $O(s^2/\tau)$).
+Then $X_0\sim\mathcal N(0,\sigsq)$, $X_t\sim\mathcal N(0,\gamma^2)$ with
+$\gamma^2=a^2\sigsq+s^2$, and the denoising target is exactly linear:
+\begin{equation}
+\varepsilon^*(x,t)=\kappa(t)x,\qquad \kappa(t)=s(t)/\gamma^2(t).
+\label{eq:kappa}
+\end{equation}
+Maximising \eqref{eq:kappa} over $u:=s^2$ gives $u^\star=\sigsq/(1-\sigsq)$ and
+\begin{equation}
+\kappa_{\max}=\tfrac{1}{2\sigma\sqrt{1-\sigsq}}=\tfrac{1}{2\sigma}(1+O(\sigsq)).
+\label{eq:peak}
+\end{equation}
+\emph{This is the mechanism:} $\kappa$ rises from $0$, peaks at $\approx1/(2\sigma)$ near
+$t\approx\sigsq$, and returns to $0$ as $t\to0$. The score is steep only inside a short, finite
+window of noise levels, and the peak diverges as the tube thins.
+
+Write the estimator's affine part as $\hat\varepsilon=\hat\kappa(t)x+b(t)+\delta(x,t)$, with
+$(\hat\kappa,b)$ the affine $L^2(p_t)$ fit and $\delta$ the orthogonal residual. The only
+hypothesis used below is
+\begin{equation}
+\hat\kappa(t)\le\kb<\infty\quad\text{for all }t,
+\label{eq:cap}
+\end{equation}
+a finite normal Lipschitz constant, automatic for any finite network. Put
+$\rho:=2\sigma\kb=\kb/\kappa_{\max}+O(\sigsq)$, the single dimensionless knob: how close the
+network's ceiling gets to the peak slope the data demands.
+
+\section{Two structural facts}
+\begin{lemma}[variance ODE]\label{lem:ode}
+Under the reverse Euler scheme $x\!\leftarrow\!x+(-\tfrac12x+\hat\varepsilon/s)dt+\sqrt{|dt|}\,\xi$
+with affine estimator, the ensemble normal variance obeys, in the small-step limit,
+\begin{equation}
+-\frac{dV}{dt}=\Big(1-\frac{2\hat\kappa(t)}{s(t)}\Big)V+1 .
+\label{eq:varode}
+\end{equation}
+\end{lemma}
+\noindent\emph{Check:} with the exact slope $\hat\kappa=\kappa$, $V(t)=\gamma^2(t)$ solves
+\eqref{eq:varode} identically. The forcing $+1$ is the sampler's own injected noise.
+
+\begin{lemma}[orthogonality shield, first order]\label{lem:shield}
+The normal equations give $\E_{p_t}[\delta]=\E_{p_t}[x\delta]=0$, so $\delta$ has no
+first-order effect on \eqref{eq:varode} and can only \emph{add} variance. A lower bound from
+the affine part alone therefore bounds the full nonlinear network.
+\end{lemma}
+\noindent This is why the floor is not an artifact of linearising the score: a real network is
+highly nonlinear, but its nonlinearity lives entirely in $\delta$.
+
+\paragraph{Singular rescaling.} Put $t=\sigsq u$, $V=\sigsq W$, $\hat\kappa=(1/\sigma)m(u)$.
+Since $s=\sqrt t(1+O(t))$, \eqref{eq:varode} becomes, as $\sigma\to0$ at fixed $\rho$,
+\begin{equation}
+-\frac{dW}{du}=1-\frac{2m(u)}{\sqrt u}W,
+\label{eq:limitode}
+\end{equation}
+which is $\sigma$-free. The uncapped equation $-dW/du=1-2W/(1+u)$ has general solution
+$W=(1+u)+A(1+u)^2$, so deviations from the slave $W=1+u$ contract like
+$((1+u)/(1+u'))^2$ under downward integration: the band-entry boundary layer is suppressed
+quadratically. Hence $\lim_{t_0\to0}V(t_0)/\sigsq=g(\rho)(1+O(\sigsq/\rho^2))$, a
+\emph{relative} correction.
+
+\section{The unconditional floor}\label{sec:U}
+\begin{theorem}\label{thm:U}
+Assume only \eqref{eq:cap}. Then for every $t_0>0$ and every schedule,
+\begin{equation}
+V(t_0)\ \ge\ \sigsq\,\frac{1}{2\rho^2}(1+o(1))\ =\ \frac{1}{8\kb^2}(1+o(1))\qquad(\sigma\to0),
+\label{eq:floor}
+\end{equation}
+and the floor exceeds the true width $\sigsq$ exactly when $\rho<1/\sqrt2$.
+\end{theorem}
+\begin{proof}
+\emph{(i) Comparison.} In \eqref{eq:varode} forcing and data are common and
+$\partial(-dV/dt)/\partial\hat\kappa=-2V/s\le0$: smaller slope gives larger variance. So any
+profile with $\hat\kappa\le\kb$ satisfies $V\ge V_{\hat\kappa\equiv\kb}$ pointwise. This is
+one-sided; no lower bound on $\hat\kappa$ is used, so arbitrary overshoot is permitted.
+\emph{(ii) Envelope.} Take $m\equiv\rho/2$ in \eqref{eq:limitode}; the integrating factor
+$e^{-2\rho\sqrt u}$ gives $\frac{d}{du}[We^{-2\rho\sqrt u}]=-e^{-2\rho\sqrt u}$.
+\emph{(iii) Integrate.} For data of sub-quadratic growth at $u=\infty$,
+\[
+W(0^+)=\int_0^\infty\! e^{-2\rho\sqrt u}du=2\!\int_0^\infty\! xe^{-2\rho x}dx=\frac{1}{2\rho^2},
+\]
+exactly, for every $\rho>0$. Undoing the rescaling gives \eqref{eq:floor};
+$1/(2\rho^2)>1\iff\rho<1/\sqrt2$; Lemma~\ref{lem:shield} extends it to the full estimator.
+\end{proof}
+
+\noindent\textbf{Refinement (no overshoot).} If also $\hat\kappa\le\kappa$ (the network never
+over-contracts), then $V(t_0)\ge\sigsq g(\rho)(1+o(1))$ with, for $q=\sqrt{1-\rho^2}$,
+$x_\mp=(1\mp q)/\rho$, $u_\mp=x_\mp^2$,
+\[
+W_{\mathrm{exit}}=(1+u_+)e^{-4q}+\tfrac{(3-2q)-(3+2q)e^{-4q}}{2\rho^2},\qquad
+g(\rho)=1+\tfrac{W_{\mathrm{exit}}-(1+u_-)}{(1+u_-)^2}.
+\]
+Band edges solve $\sqrt u/(1+u)=\rho/2$, i.e.\ $\rho x^2-2x+\rho=0$ ($x=\sqrt u$), nonempty iff
+$\rho<1$; above the band $W=1+u$ exactly, across it the same integrating factor with
+antiderivative $-(2\rho\sqrt u+1)e^{-2\rho\sqrt u}/(2\rho^2)$ gives $W_{\mathrm{exit}}$, and
+below it matching $(1+u)+A(1+u)^2$ at $u_-$ gives $g=1+A$. Here $g>1$ on $(0,1)$ and
+$g=C_0/\rho^2+O(1)$ as $\rho\to0$ with $C_0=(1+3e^{-4})/2$, so the floor is
+$0.1319\,\kb^{-2}$. The two constants, $1/8$ and $(1+3e^{-4})/8$, differ by $5.5\%$.
+
+\section{Consequence, assumptions, and how to refute it}
+Hold $\kb$ fixed and let $\sigma\to0$, so $J\asymp(d-k)/\sigsq\to\infty$. Then
+$V/\sigsq\ge(1+o(1))/(8\kb^2\sigsq)\to\infty$: a fixed-capacity truncated sampler collapses
+without bound relative to the data. Inverting, bounded relative error needs $\kb\gtrsim1/\sigma$,
+i.e.\ capacity $\sim\sqrt J$. Since the bound holds for every $t_0$ and every schedule, no
+annealing or truncation schedule evades it.
+
+\emph{Assumed} (where a sceptic should push): (1) the flat-tube idealization, one normal
+coordinate with Gaussian fiber decoupled from tangential position, curvature entering at
+$O(s^2/\tau)$ and not carried in the constants; (2) Lemma~\ref{lem:shield} is first order, since
+the normal equations hold under $p_t$ while the sampler's own path deviates from $p_t$,
+re-introducing a cross term second order in the measured-small band residual; (3) the $o(1)$ in
+\eqref{eq:floor} is the $\sigma\to0$ limit, relative correction $O(\sigsq/\rho^2)$, so the
+additive gap to $g$ is $O(\sigsq/\rho^4)$.
+
+\emph{Checks.} At \url{https://github.com/Naman84789/model-collapse-manifolds},
+\texttt{falsify\_floor.py} attacks the result \emph{from} \eqref{eq:varode} (RK45 vs.\ both closed
+forms; limits $\rho\to1^-$, $\rho\to0$, $\kb\to\infty$; 200 random slope profiles including
+overshooting ones; boundary-layer contraction; symbolic re-derivation).
+\texttt{e2e\_floor\_check.py} attacks it \emph{before} \eqref{eq:varode}: it recovers
+\eqref{eq:peak} from the density, then simulates the reverse SDE directly with a slope-capped
+score and measures the output variance without using \eqref{eq:varode} at all, recovering
+$1/(2\rho^2)$ to $1.7\%$ at the equality case.
+
+\emph{To refute:} exhibit a profile with $\hat\kappa\le\kb$ whose measured $V(t_0)$ falls below
+$\sigsq/(2\rho^2)$.
+
+\end{document}
