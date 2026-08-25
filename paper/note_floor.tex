@@ -52,9 +52,13 @@ Maximising \eqref{eq:kappa} over $u:=s^2$ gives $u^\star=\sigsq/(1-\sigsq)$ and
 $t\approx\sigsq$, and returns to $0$ as $t\to0$. The score is steep only inside a short, finite
 window of noise levels, and the peak diverges as the tube thins.
 
-Write the estimator's affine part as $\hat\varepsilon=\hat\kappa(t)x+b(t)+\delta(x,t)$, with
-$(\hat\kappa,b)$ the affine $L^2(p_t)$ fit and $\delta$ the orthogonal residual. The only
-hypothesis used below is
+Let $X_t$ be the sampler's \emph{own} ensemble at noise level $t$ and define the realised
+normal slope
+\[
+\hat\kappa(t):=\mathrm{Cov}\big(X_t,\hat\varepsilon(X_t,t)\big)\big/\mathrm{Var}(X_t),
+\]
+the $L^2$ regression slope of the estimator under the law the sampler actually visits. No
+decomposition of the network is needed. The only hypothesis used below is
 \begin{equation}
 \hat\kappa(t)\le\kb<\infty\quad\text{for all }t,
 \label{eq:cap}
@@ -77,13 +81,16 @@ with affine estimator, the ensemble normal variance obeys, in the small-step lim
 \noindent\emph{Check:} with the exact slope $\hat\kappa=\kappa$, $V(t)=\gamma^2(t)$ solves
 \eqref{eq:varode} identically. The forcing $+1$ is the sampler's own injected noise.
 
-\begin{lemma}[orthogonality shield, first order]\label{lem:shield}
-The normal equations give $\E_{p_t}[\delta]=\E_{p_t}[x\delta]=0$, so $\delta$ has no
-first-order effect on \eqref{eq:varode} and can only \emph{add} variance. A lower bound from
-the affine part alone therefore bounds the full nonlinear network.
+\begin{lemma}[Lipschitz sufficiency]\label{lem:shield}
+If $\hat\varepsilon(\cdot,t)$ is $\kb$-Lipschitz in the normal coordinate then
+$\hat\kappa(t)\le\kb$ under any law: for an i.i.d.\ copy $X'$ of $X$,
+$\mathrm{Cov}(X,g(X))=\tfrac12\E[(X-X')(g(X)-g(X'))]\le\tfrac{\kb}{2}\E[(X-X')^2]
+=\kb\,\mathrm{Var}(X)$. Lipschitz control is sufficient, not necessary.
 \end{lemma}
-\noindent This is why the floor is not an artifact of linearising the score: a real network is
-highly nonlinear, but its nonlinearity lives entirely in $\delta$.
+\noindent This is why the floor is not an artifact of linearising the score. \eqref{eq:varode}
+is an \emph{identity} for an arbitrary nonlinear $\hat\varepsilon$, since one Euler step enters
+the variance only through $\mathrm{Cov}(X,\hat\varepsilon(X))$; the nonlinearity is not
+discarded, it is absorbed into the definition of $\hat\kappa$.
 
 \paragraph{Singular rescaling.} Put $t=\sigsq u$, $V=\sigsq W$, $\hat\kappa=(1/\sigma)m(u)$.
 Since $s=\sqrt t(1+O(t))$, \eqref{eq:varode} becomes, as $\sigma\to0$ at fixed $\rho$,
@@ -118,7 +125,8 @@ $e^{-2\rho\sqrt u}$ gives $\frac{d}{du}[We^{-2\rho\sqrt u}]=-e^{-2\rho\sqrt u}$.
 W(0^+)=\int_0^\infty\! e^{-2\rho\sqrt u}du=2\!\int_0^\infty\! xe^{-2\rho x}dx=\frac{1}{2\rho^2},
 \]
 exactly, for every $\rho>0$. Undoing the rescaling gives \eqref{eq:floor};
-$1/(2\rho^2)>1\iff\rho<1/\sqrt2$; Lemma~\ref{lem:shield} extends it to the full estimator.
+$1/(2\rho^2)>1\iff\rho<1/\sqrt2$. It applies to the full nonlinear estimator with no
+extension step, since \eqref{eq:varode} is exact.
 \end{proof}
 
 \noindent\textbf{Refinement (no overshoot).} If also $\hat\kappa\le\kappa$ (the network never
@@ -145,9 +153,9 @@ slope budget is a separate question, not settled here.
 
 \emph{Assumed} (where a sceptic should push): (1) the flat-tube idealization, one normal
 coordinate with Gaussian fiber decoupled from tangential position, curvature entering at
-$O(s^2/\tau)$ and not carried in the constants; (2) Lemma~\ref{lem:shield} is first order, since
-the normal equations hold under $p_t$ while the sampler's own path deviates from $p_t$,
-re-introducing a cross term second order in the measured-small band residual; (3) the $o(1)$ in
+$O(s^2/\tau)$ and not carried in the constants; (2) $\hat\kappa$ is the regression slope under
+the sampler's own ensemble, so a probe that measures it under $p_t$ instead estimates a
+different quantity whenever $\hat\varepsilon$ is nonlinear; (3) the $o(1)$ in
 \eqref{eq:floor} is the $\sigma\to0$ limit, relative correction $O(\sigsq/\rho^2)$, so the
 additive gap to $g$ is $O(\sigsq/\rho^4)$.
 

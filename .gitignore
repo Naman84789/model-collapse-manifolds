@@ -14,3 +14,4 @@ __pycache__/
 /cifar_state/
 /_cifar_parquet/
 /cifar_grids/
+*.blg
