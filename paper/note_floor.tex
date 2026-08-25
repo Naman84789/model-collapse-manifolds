@@ -88,8 +88,9 @@ $\mathrm{Cov}(X,g(X))=\tfrac12\E[(X-X')(g(X)-g(X'))]\le\tfrac{\kb}{2}\E[(X-X')^2
 =\kb\,\mathrm{Var}(X)$. Lipschitz control is sufficient, not necessary.
 \end{lemma}
 \noindent This is why the floor is not an artifact of linearising the score. \eqref{eq:varode}
-is an \emph{identity} for an arbitrary nonlinear $\hat\varepsilon$, since one Euler step enters
-the variance only through $\mathrm{Cov}(X,\hat\varepsilon(X))$; the nonlinearity is not
+is an \emph{identity} for an arbitrary nonlinear $\hat\varepsilon$: for the continuous reverse
+SDE $dX=f(X)d\tau+dW$ with $f(x)=\tfrac12x-\hat\varepsilon(x,t)/s$, It\^o gives
+$\mathrm{Var}'=2\,\mathrm{Cov}(X,f(X))+1$, which is \eqref{eq:varode}. The nonlinearity is not
 discarded, it is absorbed into the definition of $\hat\kappa$.
 
 \paragraph{Singular rescaling.} Put $t=\sigsq u$, $V=\sigsq W$, $\hat\kappa=(1/\sigma)m(u)$.

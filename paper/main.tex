@@ -410,8 +410,9 @@ limit,
 \end{equation}
 With the exact slope $\hat\kappa=\kappa$, $V(t)=\gamma^2(t)$ solves \eqref{eq:varode}
 exactly. The forcing $+1$ is the sampler's own injected noise. No linearisation is
-performed: \eqref{eq:varode} is an identity for every $\epshat$, because one Euler step
-enters the variance only through $\Cov(X,\epshat(X))$.
+performed: to first order in the step a single Euler step moves the variance only through
+$\Cov(X,\epshat(X))$, the $O(dt^2)$ remainder vanishing in the limit; equivalently, in
+continuous time It\^o's formula yields \eqref{eq:varode} directly, with no expansion.
 \end{lemma}
 
 \begin{remark}[a checkable sufficient condition]\label{rem:lip}
@@ -1053,7 +1054,7 @@ after $G$ generations $v_G\ge v_0+G\,T(0)\to\infty$, regardless of the schedule
 \textbf{(iii)} Substituting $e^2(w)=e_0^2+cw$ makes $T$ affine with slope
 $(1+c)(1-\lambda)$; solve the fixed point. \qed
 
-% ================================================================ B ode + shield
+% ================================================================ B variance ODE
 \section{The variance ODE}\label{app:ode}
 
 \textbf{Lemma~\ref{lem:ode}.} One Euler step of the reverse scheme is
@@ -1064,10 +1065,15 @@ the injected noise,
 \Var(x')=\Var(x)+2\,dt\,\Cov\big(x,f(x)\big)+dt^2\Var\big(f(x)\big)+dt
 =V+\Big[V-\tfrac{2}{s}\Cov\big(x,\epshat(x)\big)+1\Big]dt+O(dt^2).
 \]
-No property of $\epshat$ beyond square-integrability is used, so this is exact for a
-nonlinear estimator; the $+dt$ is the injected noise. Divide by $dt$, let $dt\to0$, and
-substitute $\Cov(x,\epshat(x))=\hat\kappa\Var(x)$ from \eqref{eq:khat} to get
-\eqref{eq:varode}. With $\hat\kappa=\kappa=s/\gamma^2$: $\kappa/s=1/\gamma^2$ and
+No property of $\epshat$ beyond square-integrability is used, so this holds for a
+nonlinear estimator; the $+dt$ is the injected noise and the $O(dt^2)$ term is the finite
+variance of the drift. Divide by $dt$, let $dt\to0$, and substitute
+$\Cov(x,\epshat(x))=\hat\kappa\Var(x)$ from \eqref{eq:khat} to get \eqref{eq:varode}.
+
+\emph{Independent route, no discretisation.} For the continuous reverse SDE
+$dX=f(X)d\tau+dW$, It\^o gives $d(X^2)=2Xf(X)d\tau+2X\,dW+d\tau$, so
+$\E[X^2]'=2\E[Xf(X)]+1$ while $\E[X]'=\E[f(X)]$; subtracting,
+$\Var'=2\Cov\big(X,f(X)\big)+1$, which is \eqref{eq:varode}. With $\hat\kappa=\kappa=s/\gamma^2$: $\kappa/s=1/\gamma^2$ and
 $V=\gamma^2$ solves the equation exactly (direct check), confirming the bookkeeping. An
 intercept in $\epshat$ moves only the mean. \qed
 
