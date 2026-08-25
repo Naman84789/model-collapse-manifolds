@@ -50,8 +50,11 @@ at $\kb$ retains excess width of at least $1/(8\kb^2)$ on every pass, with no de
 the sampling schedule. The mechanism is geometric: near a manifold of width $\sigma$ the
 score a diffusion model must represent is steep only inside a short, finite window of noise
 levels, so a slope-capped network bakes in excess width there that later denoising cannot
-remove. A fixed model therefore collapses without bound as the manifold thins, and staying
-bounded requires capacity growing like $\sqrt{J}$ in the Fisher information $J$. Empirically
+remove. A model held at a fixed slope ceiling therefore collapses without bound as the manifold
+thins, and staying bounded requires a slope budget growing like $\sqrt{J}$ in the Fisher
+information $J$. Throughout, the hypothesis bounds the network's normal Lipschitz norm, not
+its parameter count; the link from architecture size to attainable slope is measured here,
+not proved. Empirically
 the trap is two-horned: the
 stochastic sampler sticks $\sim\!11\times$ too wide, while the deterministic one collapses to
 a point; neither reaches the data. \emph{Constructively}, we prove that periodically
@@ -460,7 +463,7 @@ thinner the manifold.
 
 \begin{theorem}[closed-form capacity floor; \emph{we prove}]\label{thm:floor}
 Let the trained score's normal slope satisfy $\hat\kappa(t)\le\kb<\infty$
-(finite normal Lipschitz constant, automatic for any finite network), and set
+(a finite normal Lipschitz constant: a bound on slope, not on parameter count), and set
 $\rho=2\sigma\kb$. Then for every truncation time $t_0>0$ and every schedule:
 
 \textbf{(U) Unconditional.} With no further assumption (arbitrary overshoot permitted),
@@ -497,14 +500,16 @@ $O(\sigsq/\rho^2)$ rate.
 
 \begin{corollary}[$\sigma\to0$: the answer to Case 2; \emph{we prove}]\label{cor:capacity}
 Hold $\kb$ fixed and let $\sigma\to0$ ($J\to\infty$). Then unconditionally
-$V/\sigsq\ge(1+o(1))/(8\kb^2\sigsq)\to\infty$: a fixed-capacity truncated sampler
-collapses \emph{relatively} without bound, for every annealing schedule. Conversely,
+$V/\sigsq\ge(1+o(1))/(8\kb^2\sigsq)\to\infty$: a truncated sampler held at a fixed slope
+ceiling collapses \emph{relatively} without bound, for every annealing schedule. Conversely,
 bounded relative collapse $V/\sigsq\le C$ requires
 \begin{equation}
 \kb\;\ge\;\frac{1}{2\sigma\sqrt{2C}}\;=\;\Omega(1/\sigma)\;=\;\Omega(\sqrt J).
 \end{equation}
-Truncated sampling of singular data demands capacity growing with the singularity;
-no fixed architecture provides it.
+Truncated sampling of singular data demands a slope budget growing with the singularity.
+This constrains the normal Lipschitz norm: a fixed architecture can meet it only by enlarging
+its weights, and whether training in fact does so is the empirical question the $\kb(w)$ probe
+addresses. We thank Wei Huang for pressing this distinction.
 \end{corollary}
 
 \begin{figure}[t]

@@ -24,8 +24,10 @@
 \noindent\textbf{Claim.} For data in a $\sigma$-tube about a manifold, any reverse-SDE sampler
 whose learned normal score slope is bounded by $\kb$ retains normal variance at least
 $1/(8\kb^2)$ as $\sigma\to0$, for \emph{every} truncation time and \emph{every} schedule. So a
-fixed-capacity model cannot track a thinning manifold, and bounded relative error forces
-$\kb\gtrsim1/\sigma$, i.e.\ capacity growing like $\sqrt J$ in the Fisher information. This note
+slope-capped model cannot track a thinning manifold, and bounded relative error forces
+$\kb\gtrsim1/\sigma$, i.e.\ a slope budget growing like $\sqrt J$ in the Fisher information. This bounds the
+network's normal Lipschitz norm, not its parameter count: a fixed architecture attains any
+$\kb$ by enlarging its weights. This note
 is self-contained; \S\ref{sec:U} is the entire argument (comparison principle, integrating
 factor, one Gamma integral).
 
@@ -57,7 +59,9 @@ hypothesis used below is
 \hat\kappa(t)\le\kb<\infty\quad\text{for all }t,
 \label{eq:cap}
 \end{equation}
-a finite normal Lipschitz constant, automatic for any finite network. Put
+a finite normal Lipschitz constant. This bounds the network's normal \emph{slope}, a
+weight-norm quantity, not its parameter count: a fixed architecture realises arbitrarily large
+$\kb$ by scaling its weights, so nothing below lower-bounds network size. Put
 $\rho:=2\sigma\kb=\kb/\kappa_{\max}+O(\sigsq)$, the single dimensionless knob: how close the
 network's ceiling gets to the peak slope the data demands.
 
@@ -133,10 +137,11 @@ $0.1319\,\kb^{-2}$. The two constants, $1/8$ and $(1+3e^{-4})/8$, differ by $5.5
 
 \section{Consequence, assumptions, and how to refute it}
 Hold $\kb$ fixed and let $\sigma\to0$, so $J\asymp(d-k)/\sigsq\to\infty$. Then
-$V/\sigsq\ge(1+o(1))/(8\kb^2\sigsq)\to\infty$: a fixed-capacity truncated sampler collapses
-without bound relative to the data. Inverting, bounded relative error needs $\kb\gtrsim1/\sigma$,
-i.e.\ capacity $\sim\sqrt J$. Since the bound holds for every $t_0$ and every schedule, no
-annealing or truncation schedule evades it.
+$V/\sigsq\ge(1+o(1))/(8\kb^2\sigsq)\to\infty$: a sampler held at a fixed slope ceiling
+collapses without bound relative to the data. Inverting, bounded relative error needs
+$\kb\gtrsim1/\sigma$, i.e.\ a slope budget $\sim\sqrt J$. Since the bound holds for every $t_0$ and every schedule, no
+annealing or truncation schedule evades it. Whether a given architecture supplies that
+slope budget is a separate question, not settled here.
 
 \emph{Assumed} (where a sceptic should push): (1) the flat-tube idealization, one normal
 coordinate with Gaussian fiber decoupled from tangential position, curvature entering at
