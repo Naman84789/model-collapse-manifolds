@@ -161,11 +161,14 @@ anchored/unanchored split with full mode coverage (Figure~\ref{fig:cifar}).
   memory, for every $\lambda>0$, with an error bound independent of the ambient dimension.
 \item \textbf{Falsifiable empirics}, each targeting a named claim:
   \begin{itemize}\itemsep1pt
-  \item \emph{Floor anatomy \& intervention}: the law's envelope explains ${\sim}60\%$ of
-    the measured single-pass floor, the remainder resolving into two further measured
-    channels (in-band profile sag; ensemble displacement); and across five training
-    protocols that move the ceiling $3.5\to7.5$, every measured floor stays above its
-    proven bound.
+  \item \emph{Floor anatomy \& intervention}: read at the ceiling the theorem
+    constrains, the law's envelope explains $81\%$ of the measured single-pass floor at
+    $\sigma=0.05$ (against $58\%$ read under $p_t$, and with half the seed spread), the
+    remainder resolving into
+    one further measured channel (in-band profile sag); the margin narrows with tube width
+    and the comparison fails at $\sigma=0.13$, where the flat-tube idealisation expires;
+    and across five training protocols that move the ceiling $3.5\to7.5$, every measured
+    floor stays above its proven bound.
   \item \emph{Two-horned ablation}: separates the floor's existence (sampler noise) from
     its size (slope ceiling).
   \item \emph{Head-to-head}: a 20-generation, 5-seed win over the state-of-the-art remedy,
@@ -560,13 +563,28 @@ tails. Measured on the same networks across five tube widths
 (\texttt{kbar\_sampler\_law.py}; $\sigma=0.03$ to $0.13$), the sampler-law ceiling is
 $0.83$ to $0.87$ of the forward-process one, monotone in $\sigma$ and without exception.
 Since the floor scales as $\kb^{-2}$, the quantity the theorem constrains gives the
-\emph{larger} bound: at $\sigma=0.05$ and this section's truncation $t_0=10^{-4}$,
-$\kb=3.01$ rather than $3.59$, and an envelope of $5.5\,\sigsq$ rather than
-$3.9\,\sigsq$ (Figure~\ref{fig:floorlaw}), against a measured single-pass floor of
-$7.9\,\sigsq$. Across the five widths the envelope accounts for $69$ to $74\%$ of the
-measured floor, where the forward-process reading accounted for $47$ to $56\%$; no width
-is falsified and the tightest margin is $26\%$. The exact-score control reproduces
-$\gamma^2(t_0)$ to all displayed digits.
+\emph{larger} bound. Over six seeds at $\sigma=0.05$: $\kb=3.26$ rather than $3.90$, so
+the envelope $\Phidet$ reads $5.49\,\sigsq$ rather than $3.83\,\sigsq$
+(Figure~\ref{fig:floorlaw}), accounting for $81\%$ of the measured single-pass floor
+against $58\%$ read under $p_t$, with no seed falsified. The correct reading is also the
+more reproducible one: its seed spread is $77$--$85\%$ against $42$--$72\%$ for the
+forward-process probe, which is what one expects once the probe and the dynamics are
+evaluated under the same law. The exact-score control reproduces $\gamma^2(t_0)$ to all
+displayed digits.
+
+\emph{Where the comparison stops working (\emph{we observe}).} The margin narrows
+monotonically as the tube fattens: $77$--$85\%$ of the measured floor at $\sigma=0.05$,
+$90$--$97\%$ at $\sigma=0.10$, and $97$--$103\%$ at $\sigma=0.13$, where the envelope
+exceeds the measured floor in three of six seeds. We report this rather than trim the
+range. It is not evidence against Theorem~\ref{thm:floor}, whose chain we verify
+symbolically (Appendix~\ref{app:floor}); it is the flat-tube idealisation expiring where
+Section~\ref{sec:limits} says it will, curvature entering at $O(s^2/\tau)$ and not carried
+in the constants. At $\sigma=0.13$ on a radius-$2.5$ ring that correction is no longer
+negligible. The monotone narrowing is the signature of an asymptotic bound pushed past its
+regime, not of a defect in the derivation, and it places the honest validity edge of the
+\emph{numerical} comparison between $\sigma=0.10$ and $\sigma=0.13$. We checked the
+obvious alternative first: taking $\kb$ as the maximum over the whole deficit band rather
+than over five probe times moves it by ${<}0.02$, and leaves two of six seeds violating.
 
 \paragraph{What is left over (\emph{we observe}).} Re-running the sampler's own discrete
 variance recursion with measured inputs now resolves the remainder into \emph{one}
@@ -606,10 +624,13 @@ remains, so anchoring is still the fix.
 \caption{\textbf{The capacity floor: predicted, measured, and moved.} Blue line with
 markers: finite-$\sigma$ variance-ODE envelope floor at $\sigma=0.05$ (no fit).
 Dashed: the exact $\sigma\to0$ law $\big((1+3e^{-4})/8\big)\kb^{-2}$ of
-Theorem~\ref{thm:floor}. Star: the envelope bound $3.8\sigsq$ at the standard
-pipeline's measured ceiling $\kb=3.9$ --- a proven lower bound that accounts for
-${\sim}60\%$ of the directly measured single-pass floor; the measured anatomy of the
-remainder (profile sag, ensemble displacement) is in the text. Open circles: the
+Theorem~\ref{thm:floor}. Stars: the envelope bound at the measured ceiling, read two
+ways. Hollow, under the forward process ($\kb=3.9$, bound $3.8\,\sigsq$); filled, under
+the sampler's own ensemble \eqref{eq:khat}, which is what the theorem constrains
+($\kb=3.3$, bound $5.5\,\sigsq$; six seeds). Both are proven lower bounds; the second is
+the tighter, accounting for $81\%$ of the directly measured single-pass floor against
+$58\%$. The measured anatomy of the remainder (in-band profile sag) is in the text,
+as is the tube width at which the comparison expires. Open circles: the
 interventional test --- five training protocols move the measured ceiling from $3.5$
 to $7.5$; the measured floor falls from ${\sim}7.6\,\sigsq$ (low $\kb$) into the
 $2.5$--$4.9\,\sigsq$ range (high $\kb$), with protocol scatter, and every point stays
@@ -949,7 +970,7 @@ Pixel CIFAR-10, $G{=}8$ & unanchored & $22.8\pm1.2$ & 3 \\
  & true-data baseline & $20.1$ & n/a \\
  & anchored coverage / diversity & $1.00\times$ / $0.75\times$ & 3 \\
 \midrule
-Floor law & envelope bound at measured $\kb{=}3.9$ & $3.8$ (${\sim}60\%$ of measured $6.3$--$7.5$) & n/a \\
+Floor law & envelope at $\kb$ under $p_t$ / under \eqref{eq:khat} & $3.8$ / $5.5\,\sigsq$ ($58\%$ / $81\%$ of measured) & 6 \\
  & interventional test, $\kb\!:3.5\to7.5$ & floor $7.6\to\{2.5$--$4.9\}$, above bound & 3 \\
 \bottomrule
 \end{tabular}
@@ -972,9 +993,15 @@ critical exponents.
 (2)~The recursion floor constant is accounted for empirically, not derived: our closed
 forms are exact for a single pass and lower bounds for the recursion; feeding the
 measured capacity degradation $\kb(w)$ back self-consistently closes a quarter to a
-half (in log) of the once factor-$2.4$ gap, and directly measuring the per-pass map's
-two remaining channels (in-band profile sag; ensemble displacement) closes it to
-$1.1$--$1.3\times$ (Section~\ref{sec:floor}), the level of protocol differences. Every
+half (in log) of the once factor-$2.4$ gap; measuring that degradation under the law
+\eqref{eq:khat} constrains, rather than under $p_t$, closes it to $1.2$--$1.4\times$ with
+no further correction, and the per-pass map's one remaining measured channel (in-band
+profile sag) accounts for the rest (Section~\ref{sec:floor}), at the level of protocol
+differences. Separately, the \emph{numerical} envelope comparison accounts for $77$--$85\%$
+of the measured floor at $\sigma=0.05$ and $90$--$97\%$ at $\sigma=0.10$ but fails in three
+of six seeds at
+$\sigma=0.13$, where curvature is no longer negligible against the flat-tube
+idealisation; we take $\sigma\lesssim0.10$ as the validated range for that comparison. Every
 step of this accounting is a measurement; none of the constants ($\kb$, its
 degradation law --- an empirical fit replicated across four synthetic geometries and
 real MNIST $8\times8$ pixel data --- or the saturation profile) is derived.
@@ -1220,9 +1247,9 @@ $|\text{thin}-1|\le0.012$.)
 \section{The residual channel (\emph{we model})}\label{app:residual}
 
 (\emph{Role revised by measurement}: the floor anatomy of Section~\ref{sec:floor}
-identifies the single-pass remainder beyond the envelope as two measured channels ---
-in-band profile sag and the deterministic ensemble-displacement effect --- with the
-residual beyond them small and slightly negative; this appendix's stochastic bound is
+identifies the single-pass remainder beyond the envelope as one measured channel ---
+in-band profile sag, the ensemble-displacement effect having been absorbed into the
+hypothesis by \eqref{eq:khat} --- with the residual beyond it small and slightly negative; this appendix's stochastic bound is
 retained as a consistency check on the residual field's magnitude, not as the
 remainder's explanation.)
 

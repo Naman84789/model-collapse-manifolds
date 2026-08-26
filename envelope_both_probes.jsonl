@@ -1,0 +1,10 @@
+{"key": "EBP_0.03_p_t", "sigma": 0.03, "probe": "p_t", "kbar_mean": 4.0974, "kbar_range": [3.743, 4.365], "phi_mean": 9.1935, "frac_mean": 0.5397, "frac_range": [0.3866, 0.6541], "violations": 0, "n_seeds": 6}
+{"key": "EBP_0.03_sampler", "sigma": 0.03, "probe": "sampler", "kbar_mean": 3.4021, "kbar_range": [2.836, 3.726], "phi_mean": 13.6111, "frac_mean": 0.7725, "frac_range": [0.7373, 0.8065], "violations": 0, "n_seeds": 6}
+{"key": "EBP_0.05_p_t", "sigma": 0.05, "probe": "p_t", "kbar_mean": 3.9021, "kbar_range": [3.588, 4.168], "phi_mean": 3.833, "frac_mean": 0.5812, "frac_range": [0.4171, 0.7213], "violations": 0, "n_seeds": 6}
+{"key": "EBP_0.05_sampler", "sigma": 0.05, "probe": "sampler", "kbar_mean": 3.2644, "kbar_range": [2.738, 3.582], "phi_mean": 5.489, "frac_mean": 0.8071, "frac_range": [0.7726, 0.8452], "violations": 0, "n_seeds": 6}
+{"key": "EBP_0.07_p_t", "sigma": 0.07, "probe": "p_t", "kbar_mean": 3.6624, "kbar_range": [3.394, 3.922], "phi_mean": 2.3637, "frac_mean": 0.6281, "frac_range": [0.4563, 0.7865], "violations": 0, "n_seeds": 6}
+{"key": "EBP_0.07_sampler", "sigma": 0.07, "probe": "sampler", "kbar_mean": 3.0695, "kbar_range": [2.607, 3.346], "phi_mean": 3.2923, "frac_mean": 0.8531, "frac_range": [0.821, 0.8967], "violations": 0, "n_seeds": 6}
+{"key": "EBP_0.1_p_t", "sigma": 0.1, "probe": "p_t", "kbar_mean": 3.2707, "kbar_range": [3.086, 3.519], "phi_mean": 1.6027, "frac_mean": 0.708, "frac_range": [0.5436, 0.873], "violations": 0, "n_seeds": 6}
+{"key": "EBP_0.1_sampler", "sigma": 0.1, "probe": "sampler", "kbar_mean": 2.7507, "kbar_range": [2.392, 2.95], "phi_mean": 2.1406, "frac_mean": 0.9302, "frac_range": [0.9046, 0.9677], "violations": 0, "n_seeds": 6}
+{"key": "EBP_0.13_p_t", "sigma": 0.13, "probe": "p_t", "kbar_mean": 2.9003, "kbar_range": [2.775, 3.125], "phi_mean": 1.3177, "frac_mean": 0.7894, "frac_range": [0.6445, 0.9423], "violations": 0, "n_seeds": 6}
+{"key": "EBP_0.13_sampler", "sigma": 0.13, "probe": "sampler", "kbar_mean": 2.4532, "kbar_range": [2.173, 2.627], "phi_mean": 1.6969, "frac_mean": 1.0047, "frac_range": [0.9678, 1.0336], "violations": 3, "n_seeds": 6}
