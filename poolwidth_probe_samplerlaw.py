@@ -59,6 +59,11 @@ def ring(n, sig, rng):
 def train(sig, seed):
     torch.manual_seed(seed); rng = np.random.default_rng(seed)
     data = torch.tensor(ring(N, sig, rng))
+    # poolwidth_probe.py constructs a Score() and an optimiser over it, then discards
+    # both and builds the real net. That extra construction advances the torch RNG, so
+    # the published net is NOT the one a single Score() call produces. Replicated here
+    # deliberately: without it every published ceiling is reproduced ~0.25 too high.
+    _ = torch.optim.Adam(Score().parameters(), 2e-3)
     net = Score(); opt = torch.optim.Adam(net.parameters(), 2e-3)
     for _ in range(STEPS):
         idx = torch.randint(0, N, (BATCH,)); x0 = data[idx]
