@@ -557,11 +557,32 @@ times ($\hat\kappa/\kappa=0.95$ to $0.97$ for $t\ge0.1$) and then saturates whil
 $\kappa$ continues to $\sim\!10$. \emph{Which} ceiling one reads off depends on the law
 the regression is taken under, and \eqref{eq:khat} settles that: the hypothesis is the
 slope under the sampler's \emph{own} ensemble. Probing the forward process instead
-returns a systematically larger ceiling, because the sampler's ensemble is fatter than
-$p_t$ once excess accumulates and so probes the S-shaped response into its flattening
-tails. Measured on the same networks across five tube widths
-(\texttt{kbar\_sampler\_law.py}; $\sigma=0.03$ to $0.13$), the sampler-law ceiling is
-$0.83$ to $0.87$ of the forward-process one, monotone in $\sigma$ and without exception.
+returns a systematically larger ceiling. Measured on the same networks across five tube
+widths (\texttt{kbar\_sampler\_law.py}; $\sigma=0.03$ to $0.13$), the sampler-law ceiling
+is $0.83$ to $0.87$ of the forward-process one, monotone in $\sigma$ and without
+exception.
+
+\emph{The gap is curvature, not saturation (\emph{we observe}).} The natural explanation
+--- that the sampler's ensemble is fatter than $p_t$ and so probes the response into its
+flattening tails --- is wrong, and the geometries of \S\ref{sec:experiments} refute it.
+Re-measuring all of them under both probes
+(\texttt{capacity\_domains\_samplerlaw.py}) gives a probe ratio of $0.995$--$0.998$ on the
+straight segment and $0.986$--$0.990$ on the codimension-9 ring, whose slope is read on
+its eight \emph{out-of-plane} axes: both flat normal coordinates, both agreeing to within
+$1\%$. The sampler ensemble is fatter in those settings too, so fattening alone cannot be
+the mechanism. Where the normal coordinate is \emph{curved} the probes separate: $0.82$--
+$0.86$ on the ring tube, whose radial normal curves in one direction, and $0.740$--$0.746$
+on $S^2$, which curves in two. The ordering is consistent across all five widths, though
+the sphere's deficit is $1.5$--$1.8\times$ the ring's rather than the $2\times$ strict
+proportionality in the number of curved directions would give, so we report the ordering
+and not a law. Two consequences. The flat tube the theorem idealises is exactly the case
+where the two readings coincide, so \eqref{eq:khat} and the forward-process probe agree in
+the setting Theorem~\ref{thm:floor} assumes; and the discrepancy on ring data is a
+curvature artifact of the probe, of the same origin as the $O(s^2/\tau)$ term
+\S\ref{sec:limits} declines to carry. Reassuringly, the relative degradation is untouched:
+the drop across $\sqrt w\!:0.03\to0.13$ reads $42.3\%$ against $42.2\%$ on the segment,
+$29.8$ against $29.2$ on the sphere, and $45.7$ against $45.8$ on the codimension-9 ring,
+so every trend claim in \S\ref{sec:experiments} stands under either probe.
 Since the floor scales as $\kb^{-2}$, the quantity the theorem constrains gives the
 \emph{larger} bound. Over six seeds at $\sigma=0.05$: $\kb=3.26$ rather than $3.90$, so
 the envelope $\Phidet$ reads $5.49\,\sigsq$ rather than $3.83\,\sigsq$
