@@ -560,8 +560,9 @@ tails. Measured on the same networks across five tube widths
 (\texttt{kbar\_sampler\_law.py}; $\sigma=0.03$ to $0.13$), the sampler-law ceiling is
 $0.83$ to $0.87$ of the forward-process one, monotone in $\sigma$ and without exception.
 Since the floor scales as $\kb^{-2}$, the quantity the theorem constrains gives the
-\emph{larger} bound: at $\sigma=0.05$, $\kb=3.01$ rather than $3.59$, and an envelope of
-$5.5\,\sigsq$ rather than $3.9\,\sigsq$, against a measured single-pass floor of
+\emph{larger} bound: at $\sigma=0.05$ and this section's truncation $t_0=10^{-4}$,
+$\kb=3.01$ rather than $3.59$, and an envelope of $5.5\,\sigsq$ rather than
+$3.9\,\sigsq$ (Figure~\ref{fig:floorlaw}), against a measured single-pass floor of
 $7.9\,\sigsq$. Across the five widths the envelope accounts for $69$ to $74\%$ of the
 measured floor, where the forward-process reading accounted for $47$ to $56\%$; no width
 is falsified and the tightest margin is $26\%$. The exact-score control reproduces
@@ -650,9 +651,12 @@ forward process; \eqref{eq:khat} asks for it under the sampler's own ensemble. R
 the identical protocol with both probes on the same networks
 (\texttt{poolwidth\_probe\_samplerlaw.py}; five widths, three seeds each) reproduces the
 published forward-process points and gives a sampler-law ceiling $0.82$ to $0.86$ of them,
-rising monotonically in $\sigma$. The degradation law is not merely rescaled but
+rising monotonically in $\sigma$. This probe inherits its parent's truncation
+$t_0=5\times10^{-3}$, so its ceilings sit slightly above those quoted at $t_0=10^{-4}$ in
+Section~\ref{sec:floor} ($3.25$ against $3.01$ at $\sigma=0.05$); the \emph{ratio} between
+the two probes is what transfers, and it agrees to within $0.011$ across both truncations. The degradation law is not merely rescaled but
 \emph{flatter}, $\kb(w)\approx3.65-8.33\sqrt w$ against $4.46-11.42\sqrt w$ (max residual
-$0.033$ on both), so no single factor converts one into the other. Propagated through the
+$0.032$ and $0.033$), so no single factor converts one into the other. Propagated through the
 same closure, the deterministic fixed point moves from $5.9\,\sigsq$ ($5.1$--$7.1$ over
 seeds) to $9.2\,\sigsq$ ($8.3$--$10.5$); the two seed bands do not overlap, so the shift is
 not seed scatter.
