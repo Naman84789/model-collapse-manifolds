@@ -1,0 +1,15 @@
+{"key": "CDS_SEG_0.03", "geom": "SEG", "sig": 0.03, "w": 0.0009, "kbar_pt": 5.5011, "kbar_sampler": 5.4854, "ratio": 0.9972}
+{"key": "CDS_SEG_0.05", "geom": "SEG", "sig": 0.05, "w": 0.0025, "kbar_pt": 4.9197, "kbar_sampler": 4.8955, "ratio": 0.9951}
+{"key": "CDS_SEG_0.07", "geom": "SEG", "sig": 0.07, "w": 0.0049, "kbar_pt": 4.4593, "kbar_sampler": 4.4373, "ratio": 0.9951}
+{"key": "CDS_SEG_0.1", "geom": "SEG", "sig": 0.1, "w": 0.01, "kbar_pt": 3.7514, "kbar_sampler": 3.733, "ratio": 0.9951}
+{"key": "CDS_SEG_0.13", "geom": "SEG", "sig": 0.13, "w": 0.0169, "kbar_pt": 3.1758, "kbar_sampler": 3.1704, "ratio": 0.9983}
+{"key": "CDS_SPHERE_0.03", "geom": "SPHERE", "sig": 0.03, "w": 0.0009, "kbar_pt": 4.2321, "kbar_sampler": 3.1325, "ratio": 0.7402}
+{"key": "CDS_SPHERE_0.05", "geom": "SPHERE", "sig": 0.05, "w": 0.0025, "kbar_pt": 4.0333, "kbar_sampler": 2.9842, "ratio": 0.7399}
+{"key": "CDS_SPHERE_0.07", "geom": "SPHERE", "sig": 0.07, "w": 0.0049, "kbar_pt": 3.7801, "kbar_sampler": 2.8036, "ratio": 0.7417}
+{"key": "CDS_SPHERE_0.1", "geom": "SPHERE", "sig": 0.1, "w": 0.01, "kbar_pt": 3.3676, "kbar_sampler": 2.5082, "ratio": 0.7448}
+{"key": "CDS_SPHERE_0.13", "geom": "SPHERE", "sig": 0.13, "w": 0.0169, "kbar_pt": 2.9709, "kbar_sampler": 2.2169, "ratio": 0.7462}
+{"key": "CDS_RING10_0.03", "geom": "RING10", "sig": 0.03, "w": 0.0009, "kbar_pt": 6.0188, "kbar_sampler": 5.9468, "ratio": 0.988}
+{"key": "CDS_RING10_0.05", "geom": "RING10", "sig": 0.05, "w": 0.0025, "kbar_pt": 5.4246, "kbar_sampler": 5.37, "ratio": 0.9899}
+{"key": "CDS_RING10_0.07", "geom": "RING10", "sig": 0.07, "w": 0.0049, "kbar_pt": 4.7167, "kbar_sampler": 4.6629, "ratio": 0.9886}
+{"key": "CDS_RING10_0.1", "geom": "RING10", "sig": 0.1, "w": 0.01, "kbar_pt": 3.9155, "kbar_sampler": 3.863, "ratio": 0.9866}
+{"key": "CDS_RING10_0.13", "geom": "RING10", "sig": 0.13, "w": 0.0169, "kbar_pt": 3.2695, "kbar_sampler": 3.2226, "ratio": 0.9856}
