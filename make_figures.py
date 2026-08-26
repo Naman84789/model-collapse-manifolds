@@ -137,8 +137,13 @@ try:
     order = np.argsort(kbar)
     ax.plot(kbar[order], phi[order], "-o", color=st.BLUE, ms=5, lw=1.0,
             label="envelope floor (ODE at $\\sigma$=0.05, no fit)")
-    ax.plot([3.9], [3.82], "*", color=st.BLUE, ms=13, zorder=5,
-            label="envelope bound at measured $\\bar\\kappa$=3.9")
+    # the same measured ceiling read two ways (6 seeds, envelope_both_probes.py):
+    # under p_t (hollow) and under the sampler's own ensemble, eq. (3), which is
+    # what Theorem 2 constrains (filled). The second is the tighter bound.
+    ax.plot([3.90], [3.83], "*", color=st.BLUE, ms=13, zorder=5, mfc="none", mew=1.3,
+            label="envelope at $\\bar\\kappa$=3.9 (forward-process probe)")
+    ax.plot([3.26], [5.49], "*", color=st.BLUE, ms=13, zorder=6,
+            label="envelope at $\\bar\\kappa$=3.3 (sampler-law probe)")
     ax.plot(ik, im, "o", color=st.RED, ms=5, mfc="none", mew=1.4, zorder=4,
             label="measured floors, five training protocols")
     ax.axhline(1.0, color=st.GRAY, ls=":", lw=1.0)
