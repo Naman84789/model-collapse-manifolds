@@ -61,10 +61,14 @@ def data_sphere(n, sig, rng):
 
 
 def data_ring10(n, sig, rng):
-    th = rng.uniform(0, 2 * np.pi, n)
-    x = np.zeros((n, 10)); x[:, 0] = R * np.cos(th); x[:, 1] = R * np.sin(th)
-    x += sig * rng.normal(size=(n, 10))
-    return x.astype("float32")
+    # verbatim from capacity_domains.py: radial spread IN-PLANE plus 8 out-of-plane
+    # directions (9 normal directions). Adding isotropic noise to all 10 coords
+    # instead would smear along the manifold, not just normal to it.
+    th = rng.uniform(0, 2 * np.pi, n); rr = R + sig * rng.normal(size=n)
+    out = np.zeros((n, 10), dtype="float32")
+    out[:, 0] = rr * np.cos(th); out[:, 1] = rr * np.sin(th)
+    out[:, 2:] = sig * rng.normal(size=(n, 8))
+    return out
 
 
 GEOMS = {"SEG": (data_seg, 2), "SPHERE": (data_sphere, 3), "RING10": (data_ring10, 10)}
