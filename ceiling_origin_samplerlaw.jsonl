@@ -1,0 +1,2 @@
+{"key": "COS_A", "arm": "A", "kbar_pt": 4.042, "kbar_sampler": 3.410, "ratio": 0.844, "phi_pt_s2": 3.570, "phi_sampler_s2": 4.911, "floor_meas_s2": 6.414, "frac_pt": 0.557, "frac_sampler": 0.766, "holds": true, "seeds": 3}
+{"key": "COS_B", "arm": "B", "kbar_pt": 6.992, "kbar_sampler": 5.374, "ratio": 0.769, "phi_pt_s2": 1.433, "phi_sampler_s2": 2.159, "floor_meas_s2": 3.397, "frac_pt": 0.422, "frac_sampler": 0.636, "holds": true, "seeds": 3}
