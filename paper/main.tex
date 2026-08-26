@@ -550,24 +550,33 @@ magnitude attains it.
 
 \paragraph{Confronting the floor with a real network (\emph{we observe}).} For our
 standard pipeline the measured slope profile tracks $\kappa(t)$ faithfully at benign
-times ($\hat\kappa/\kappa=0.95$ to $0.97$ for $t\ge0.1$) and then saturates at
-$\kb\approx3.7$--$4.3$ (seed range) while $\kappa$ continues to $\sim\!10$. The law's
-envelope value at the measured ceiling, $\Phidet=3.8$--$4.6\,\sigsq$
-(Figure~\ref{fig:floorlaw}), is a \emph{proven lower bound}; the directly measured
-single-pass floor at $t_0=10^{-4}$ is $6.3$--$7.5\,\sigsq$, so the bound holds and its
-envelope component accounts for $55$--$65\%$ of the measurement, with the exact-score
-control reproducing $\gamma^2(t_0)$ to all displayed digits. The remainder is not
-mysterious: re-running the sampler's own discrete variance recursion with measured
-inputs resolves it into two channels. \textbf{(i) Profile shape}: the measured
-$\hat\kappa(t)$ sags $\approx0.5$--$0.7$ below its own ceiling inside the deficit band,
-worth $+0.7\,\sigsq$ at the data width. \textbf{(ii) Ensemble displacement}: regressing
-the network's normal response on the sampler's \emph{own} ensemble at every step ---
-which is fatter than $p_t$ once excess accumulates, so it probes the S-shaped response
-into its flattening tails --- gives a smaller effective slope, worth $+2.6\,\sigsq$;
-the affine recursion driven by this measured ensemble slope then reproduces the sampler
-to $-0.4\,\sigsq$, i.e.\ the nonlinear remainder beyond the two channels is small (this
-measures exactly the $\hat\kappa$ of \eqref{eq:khat}, and prices the remaining nonlinear
-discrepancy). \textbf{Interventional test.} The law survives moving the ceiling: five
+times ($\hat\kappa/\kappa=0.95$ to $0.97$ for $t\ge0.1$) and then saturates while
+$\kappa$ continues to $\sim\!10$. \emph{Which} ceiling one reads off depends on the law
+the regression is taken under, and \eqref{eq:khat} settles that: the hypothesis is the
+slope under the sampler's \emph{own} ensemble. Probing the forward process instead
+returns a systematically larger ceiling, because the sampler's ensemble is fatter than
+$p_t$ once excess accumulates and so probes the S-shaped response into its flattening
+tails. Measured on the same networks across five tube widths
+(\texttt{kbar\_sampler\_law.py}; $\sigma=0.03$ to $0.13$), the sampler-law ceiling is
+$0.83$ to $0.87$ of the forward-process one, monotone in $\sigma$ and without exception.
+Since the floor scales as $\kb^{-2}$, the quantity the theorem constrains gives the
+\emph{larger} bound: at $\sigma=0.05$, $\kb=3.01$ rather than $3.59$, and an envelope of
+$5.5\,\sigsq$ rather than $3.9\,\sigsq$, against a measured single-pass floor of
+$7.9\,\sigsq$. Across the five widths the envelope accounts for $69$ to $74\%$ of the
+measured floor, where the forward-process reading accounted for $47$ to $56\%$; no width
+is falsified and the tightest margin is $26\%$. The exact-score control reproduces
+$\gamma^2(t_0)$ to all displayed digits.
+
+\paragraph{What is left over (\emph{we observe}).} Re-running the sampler's own discrete
+variance recursion with measured inputs now resolves the remainder into \emph{one}
+channel rather than two. Earlier versions of this measurement carried an
+\textbf{ensemble-displacement} term, worth $+2.6\,\sigsq$, for precisely the probe
+mismatch just described; under \eqref{eq:khat} that is not a correction to the bound but
+part of the hypothesis, and it is no longer counted separately. What remains is
+\textbf{profile shape}: the measured $\hat\kappa(t)$ sags $\approx0.5$--$0.7$ below its
+own ceiling inside the deficit band, worth $+0.7\,\sigsq$ at the data width. Beyond it
+the affine recursion driven by the measured ensemble slope reproduces the sampler to
+$-0.4\,\sigsq$: the nonlinear remainder is small. \textbf{Interventional test.} The law survives moving the ceiling: five
 training protocols ($t$-importance-sampling into the band, $4\times$ steps, a
 higher-frequency time embedding, and combinations) move $\kb$ from $3.5$ to $7.5$; the
 measured floor drops from $7.4$--$7.8\,\sigsq$ at the two low-$\kb$ protocols into the
