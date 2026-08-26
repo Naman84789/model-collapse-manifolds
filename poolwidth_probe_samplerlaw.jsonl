@@ -1,0 +1,6 @@
+{"key": "PWS_sig0.03", "sig": 0.03, "w": 0.0009, "kbar_pt": 4.0891, "kbar_pt_range": [3.743, 4.365], "kbar_sampler": 3.3668, "kbar_sampler_range": [3.23, 3.513], "ratio": 0.8234, "v_out": 0.026362}
+{"key": "PWS_sig0.05", "sig": 0.05, "w": 0.0025, "kbar_pt": 3.9128, "kbar_pt_range": [3.588, 4.168], "kbar_sampler": 3.252, "kbar_sampler_range": [3.121, 3.335], "ratio": 0.8311, "v_out": 0.027774}
+{"key": "PWS_sig0.07", "sig": 0.07, "w": 0.0049, "kbar_pt": 3.6887, "kbar_pt_range": [3.394, 3.922], "kbar_sampler": 3.0934, "kbar_sampler_range": [2.945, 3.193], "ratio": 0.8386, "v_out": 0.03005}
+{"key": "PWS_sig0.1", "sig": 0.1, "w": 0.01, "kbar_pt": 3.3227, "kbar_pt_range": [3.086, 3.519], "kbar_sampler": 2.8241, "kbar_sampler_range": [2.682, 2.941], "ratio": 0.8499, "v_out": 0.034768}
+{"key": "PWS_sig0.13", "sig": 0.13, "w": 0.0169, "kbar_pt": 2.9636, "kbar_pt_range": [2.787, 3.125], "kbar_sampler": 2.5472, "kbar_sampler_range": [2.441, 2.643], "ratio": 0.8595, "v_out": 0.041031}
+{"key": "FIT", "fits": {"kbar_pt": [4.4634, -11.4216], "kbar_sampler": [3.6499, -8.332]}, "fixed_point_s2": {"kbar_pt": 5.873, "kbar_sampler": 9.156}}

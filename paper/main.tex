@@ -645,6 +645,18 @@ quadratic, or replacing the fit with a fit-free monotone interpolation of the ra
 moves the resulting fixed point by at most $10\%$ (the computation uses the fit only as an
 interpolant inside the measured range).
 
+\emph{Under the law the theorem constrains.} The probe above reads the ceiling off the
+forward process; \eqref{eq:khat} asks for it under the sampler's own ensemble. Re-running
+the identical protocol with both probes on the same networks
+(\texttt{poolwidth\_probe\_samplerlaw.py}; five widths, three seeds each) reproduces the
+published forward-process points and gives a sampler-law ceiling $0.82$ to $0.86$ of them,
+rising monotonically in $\sigma$. The degradation law is not merely rescaled but
+\emph{flatter}, $\kb(w)\approx3.65-8.33\sqrt w$ against $4.46-11.42\sqrt w$ (max residual
+$0.033$ on both), so no single factor converts one into the other. Propagated through the
+same closure, the deterministic fixed point moves from $5.9\,\sigsq$ ($5.1$--$7.1$ over
+seeds) to $9.2\,\sigsq$ ($8.3$--$10.5$); the two seed bands do not overlap, so the shift is
+not seed scatter.
+
 \emph{Step 2, the self-consistent closure.} Feeding the degradation back,
 $v\leftarrow\Phidet\big(w(v),\kb(w(v))\big)$, moves the fixed point from $4.5$ to
 $5.6$--$7.1\,\sigsq$ at $t_0=10^{-4}$ (the range across the three probe seeds' fits), with
@@ -669,6 +681,16 @@ $10.8$--$13.2\,\sigsq$ --- the once factor-$2.4$ discrepancy is now $1.1$--$1.3$
 level of protocol differences (mixture pools, per-generation sample counts, seed scatter).
 What stays underived are the constants themselves: $\kb$, its degradation law, and the
 saturation profile.
+
+\emph{Two steps, not three.} Of the two channels Step~3 applies, ensemble displacement is
+the probe mismatch of Section~\ref{sec:floor}: under \eqref{eq:khat} it is not a correction
+to the bound but part of the hypothesis. Measuring $\kb$ under the sampler's own law
+therefore reaches $9.2\,\sigsq$ in Step~1 alone, against the $9.9\,\sigsq$ Step~3 reaches
+by applying it afterwards --- the same destination by a shorter route, agreeing to $8\%$,
+which is within the protocol differences between the two measurements (five widths and
+three seeds here, six widths there). The residual factor of $1.2$--$1.4$ against the
+measured $10.8$--$13.2\,\sigsq$ is unchanged in size and character; what changes is that
+one of the two channels no longer has to be carried.
 
 % ================================================================ 6 fix
 \section{The anchoring fix}\label{sec:fix}
