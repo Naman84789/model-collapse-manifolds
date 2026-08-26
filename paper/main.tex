@@ -603,6 +603,17 @@ $2.5$--$4.9\,\sigsq$ range at the three high-$\kb$ ones (a group-level fall with
 protocol-dependent scatter, not a clean $1/\kb^2$ trace), and --- the load-bearing
 statement --- every one of the five sits strictly above its own proven bound.
 
+That statement is the one most exposed by \eqref{eq:khat}, since a lower sampler-law
+ceiling \emph{raises} each arm's bound, so we re-measured all five under both probes
+(\texttt{ceiling\_origin\_samplerlaw.py}, three seeds per arm). It survives: no arm is
+violated, and the worst now sits at $78\%$ of its measured floor against $60\%$ read
+under $p_t$. The probe ratio is not a constant of the geometry but a property of the
+trained network, running $0.754$ to $0.853$ across the five and splitting cleanly by
+training protocol --- $0.843$--$0.853$ for the three arms drawing noise levels uniformly,
+$0.754$--$0.769$ for the two importance-sampling half their draws into the deficit band,
+which trains the network harder exactly where the sampler's ensemble is fattest relative
+to $p_t$. A single scale factor is therefore not a substitute for the measurement.
+
 \paragraph{What sets the ceiling (\emph{we observe}).} The interventions also identify
 the ceiling's origin. Raising the time-embedding frequency alone does nothing
 ($\kb=3.5$): expressivity in $t$ is not binding. Importance-sampling training times
