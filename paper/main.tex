@@ -415,7 +415,17 @@ With the exact slope $\hat\kappa=\kappa$, $V(t)=\gamma^2(t)$ solves \eqref{eq:va
 exactly. The forcing $+1$ is the sampler's own injected noise. No linearisation is
 performed: to first order in the step a single Euler step moves the variance only through
 $\Cov(X,\epshat(X))$, the $O(dt^2)$ remainder vanishing in the limit; equivalently, in
-continuous time It\^o's formula yields \eqref{eq:varode} directly, with no expansion.
+continuous time It\^o's formula yields \eqref{eq:varode} directly, with no expansion. The
+identity is exact for a normal coordinate that is itself a plain It\^o diffusion, which a
+\emph{flat} normal coordinate is. A curved one is not: for a radial coordinate in $\R^D$,
+$dr$ carries an extra $(D-1)/(2r)\,dt$. Measuring the residual of \eqref{eq:varode} along
+the sampler's own trajectory (\texttt{curved\_ode\_residual.py}) gives $+0.002$ on the flat
+segment, confirming exactness there, and $-0.06$ to $-0.07$ on the ring --- the right
+sign for that extra drift but $5$--$6\times$ its magnitude, so the curved-coordinate
+correction is real, larger than the na"ive term, and not yet accounted for. On curved data
+\eqref{eq:varode} should be read as the flat-coordinate identity plus a measured residual of
+this size, which is one mechanism behind the $O(\sigsq/\rho^2)$ term of
+Theorem~\ref{thm:floor}.
 \end{lemma}
 
 \begin{remark}[a checkable sufficient condition]\label{rem:lip}

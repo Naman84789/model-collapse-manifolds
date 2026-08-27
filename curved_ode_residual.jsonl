@@ -1,0 +1,4 @@
+{"key": "COR_seg_0.05", "geom": "seg", "sig": 0.05, "median_residual": 0.00242, "predicted_curv_term": 0.0, "ratio": null}
+{"key": "COR_seg_0.13", "geom": "seg", "sig": 0.13, "median_residual": 0.0017, "predicted_curv_term": 0.0, "ratio": null}
+{"key": "COR_ring_0.05", "geom": "ring", "sig": 0.05, "median_residual": -0.06242, "predicted_curv_term": -0.00971, "ratio": 6.428}
+{"key": "COR_ring_0.13", "geom": "ring", "sig": 0.13, "median_residual": -0.06877, "predicted_curv_term": -0.01272, "ratio": 5.407}
