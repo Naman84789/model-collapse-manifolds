@@ -142,8 +142,10 @@ try:
     # what Theorem 2 constrains (filled). The second is the tighter bound.
     ax.plot([3.90], [3.83], "*", color=st.BLUE, ms=13, zorder=5, mfc="none", mew=1.3,
             label="envelope at $\\bar\\kappa$=3.9 (forward-process probe)")
-    ax.plot([3.26], [5.49], "*", color=st.BLUE, ms=13, zorder=6,
-            label="envelope at $\\bar\\kappa$=3.3 (sampler-law probe)")
+    # Phi at the mean sampler-law ceiling, so the star sits ON the envelope curve.
+    # (The seed-mean of Phi is 5.49; Phi is convex, so plotting that would be off-curve.)
+    ax.plot([3.26], [5.34], "*", color=st.BLUE, ms=13, zorder=6,
+            label="envelope at $\\bar\\kappa$=3.26 (sampler-law probe)")
     ax.plot(ik, im, "o", color=st.RED, ms=5, mfc="none", mew=1.4, zorder=4,
             label="measured floors, five training protocols")
     ax.axhline(1.0, color=st.GRAY, ls=":", lw=1.0)

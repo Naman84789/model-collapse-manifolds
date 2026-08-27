@@ -163,7 +163,7 @@ anchored/unanchored split with full mode coverage (Figure~\ref{fig:cifar}).
   \begin{itemize}\itemsep1pt
   \item \emph{Floor anatomy \& intervention}: read at the ceiling the theorem
     constrains, the law's envelope explains $81\%$ of the measured single-pass floor at
-    $\sigma=0.05$ (against $58\%$ read under $p_t$, and with half the seed spread), the
+    $\sigma=0.05$ (against $58\%$ read under $p_t$, at a quarter of the seed spread), the
     remainder resolving into
     one further measured channel (in-band profile sag); the margin narrows with tube width
     and the comparison fails at $\sigma=0.13$, where the flat-tube idealisation expires;
@@ -592,12 +592,16 @@ D_{\mathrm{samp}}=1-\frac{r(w_{\max})}{r(w_{\min})}\big(1-D_{p_t}\big),
 \end{equation}
 so the drop is invariant to the probe up to the \emph{variation} of $r$ across the width
 range, and is wholly insensitive to its level. \eqref{eq:dropshift} reproduces all four
-measured drop shifts to $0.005$ percentage points. Since $r$ varies by at most $1.3\%$
-within a geometry across every case we measured --- flat, singly curved and doubly curved
---- a degradation law measured under $p_t$ transfers to \eqref{eq:khat} with a shift of
-under one point. This is what licenses the real-data claim: the MNIST $8\times8$
-degradation of $21.1\%$ would read between $20$ and $21\%$ under the sampler-law probe for
-any $r$-variation in the measured range, so we do not re-run it. We flag the assumption
+measured drop shifts to $0.005$ percentage points. Across the four geometries measured on
+a common protocol --- flat, singly curved and doubly curved --- $r$ varies by at most
+$1.33\%$ within a geometry, so a degradation law measured under $p_t$ transfers to
+\eqref{eq:khat} with a shift of under one point. The MNIST $8\times8$ degradation of
+$21.1\%$ would then read $20.0$--$21.0\%$, and we do not re-run it. This bound is
+conditional and we state the condition: the $t_0=10^{-4}$ ring probe of
+\S\ref{sec:floor}, measured at one seed per width, varies by $4.97\%$ instead, which
+would carry the same drop to $17.2\%$. We take the four-geometry figure as the
+better-sampled estimate and flag the single-seed one as the reason the transfer is an
+estimate rather than a measurement. We flag the assumption
 rather than hide it: on real data the normal frame is a per-point kNN-PCA estimate, and a
 sampler-law probe would need those frames anchored to off-manifold points, a choice the
 theory does not force and which we prefer not to make silently.
@@ -607,7 +611,7 @@ the envelope $\Phidet$ reads $5.49\,\sigsq$ rather than $3.83\,\sigsq$
 (Figure~\ref{fig:floorlaw}), accounting for $81\%$ of the measured single-pass floor
 against $58\%$ read under $p_t$, with no seed falsified. The correct reading is also the
 more reproducible one: its seed spread is $77$--$85\%$ against $42$--$72\%$ for the
-forward-process probe, which is what one expects once the probe and the dynamics are
+forward-process probe, a factor $4.2$ narrower, which is what one expects once the probe and the dynamics are
 evaluated under the same law. The exact-score control reproduces $\gamma^2(t_0)$ to all
 displayed digits.
 
@@ -677,7 +681,7 @@ Dashed: the exact $\sigma\to0$ law $\big((1+3e^{-4})/8\big)\kb^{-2}$ of
 Theorem~\ref{thm:floor}. Stars: the envelope bound at the measured ceiling, read two
 ways. Hollow, under the forward process ($\kb=3.9$, bound $3.8\,\sigsq$); filled, under
 the sampler's own ensemble \eqref{eq:khat}, which is what the theorem constrains
-($\kb=3.3$, bound $5.5\,\sigsq$; six seeds). Both are proven lower bounds; the second is
+($\kb=3.26$, bound $5.34\,\sigsq$; six seeds). Both are proven lower bounds; the second is
 the tighter, accounting for $81\%$ of the directly measured single-pass floor against
 $58\%$. The measured anatomy of the remainder (in-band profile sag) is in the text,
 as is the tube width at which the comparison expires. Open circles: the
@@ -723,10 +727,14 @@ the identical protocol with both probes on the same networks
 (\texttt{poolwidth\_probe\_samplerlaw.py}; five widths, three seeds each) reproduces every
 published forward-process ceiling to three decimals, and gives a sampler-law ceiling
 $0.830$ to $0.841$ of them. That band is narrow but not monotone in $\sigma$, unlike the
-$t_0=10^{-4}$ probe of Section~\ref{sec:floor}, whose ratio does rise monotonically; this
-probe inherits its parent's truncation $t_0=5\times10^{-3}$, and the two agree on the
-level of the ratio while differing on its weak trend, so we read a constant ${\approx}0.83$
-here and do not claim a direction. The degradation law is not merely rescaled but
+$t_0=10^{-4}$ probe of Section~\ref{sec:floor}, whose ratio rises from $0.827$ to $0.868$.
+The two differ by more than truncation: \texttt{poolwidth\_probe.py} performs an extra
+network construction before building the one it trains, which advances the RNG, so at the
+same nominal seed the two scripts train \emph{different} networks --- a $0.3$--$0.7$ shift
+in $\kb$, larger than any truncation effect. We replicate that construction here so the
+published ceilings reproduce exactly, average three seeds per width rather than one, and
+therefore read a constant ${\approx}0.83$ and claim no direction; the single-seed trend in
+\S\ref{sec:floor} should not be read as one. The degradation law is not merely rescaled but
 \emph{flatter}, $\kb(w)\approx3.80-10.25\sqrt w$ against $4.54-12.17\sqrt w$ (max residual
 $0.031$ and $0.047$), so no single factor converts one into the other. Propagated through
 the same closure, the deterministic fixed point moves from $5.8\,\sigsq$ to

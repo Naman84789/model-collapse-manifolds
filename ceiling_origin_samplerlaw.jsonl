@@ -3,4 +3,3 @@
 {"key": "COS_C", "arm": "C", "kbar_pt": 3.8173, "kbar_sampler": 3.219, "ratio": 0.8433, "phi_pt_s2": 3.9698, "phi_sampler_s2": 5.4826, "floor_meas_s2": 7.1891, "frac_pt": 0.5522, "frac_sampler": 0.7626, "holds": true, "seeds": 3}
 {"key": "COS_D", "arm": "D", "kbar_pt": 7.6478, "kbar_sampler": 5.7651, "ratio": 0.7538, "phi_pt_s2": 1.2708, "phi_sampler_s2": 1.9224, "floor_meas_s2": 3.4122, "frac_pt": 0.3724, "frac_sampler": 0.5634, "holds": true, "seeds": 3}
 {"key": "COS_E", "arm": "E", "kbar_pt": 6.0367, "kbar_sampler": 5.1498, "ratio": 0.8531, "phi_pt_s2": 1.7859, "phi_sampler_s2": 2.3204, "floor_meas_s2": 2.9874, "frac_pt": 0.5978, "frac_sampler": 0.7767, "holds": true, "seeds": 3}
-{"key": "COS_E", "arm": "E", "kbar_pt": 6.0367, "kbar_sampler": 5.1498, "ratio": 0.8531, "phi_pt_s2": 1.7859, "phi_sampler_s2": 2.3204, "floor_meas_s2": 2.9874, "frac_pt": 0.5978, "frac_sampler": 0.7767, "holds": true, "seeds": 3}
