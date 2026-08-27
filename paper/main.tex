@@ -583,6 +583,24 @@ curvature artifact of the probe, of the same origin as the $O(s^2/\tau)$ term
 the drop across $\sqrt w\!:0.03\to0.13$ reads $42.3\%$ against $42.2\%$ on the segment,
 $29.8$ against $29.2$ on the sphere, and $48.7$ against $48.0$ on the codimension-9 ring,
 so every trend claim in \S\ref{sec:experiments} stands under either probe.
+
+That last point is not a coincidence of these three geometries but an identity. Writing
+$r$ for the probe ratio and $D=1-\kb(w_{\max})/\kb(w_{\min})$ for the relative drop,
+\begin{equation}
+D_{\mathrm{samp}}=1-\frac{r(w_{\max})}{r(w_{\min})}\big(1-D_{p_t}\big),
+\label{eq:dropshift}
+\end{equation}
+so the drop is invariant to the probe up to the \emph{variation} of $r$ across the width
+range, and is wholly insensitive to its level. \eqref{eq:dropshift} reproduces all four
+measured drop shifts to $0.005$ percentage points. Since $r$ varies by at most $1.3\%$
+within a geometry across every case we measured --- flat, singly curved and doubly curved
+--- a degradation law measured under $p_t$ transfers to \eqref{eq:khat} with a shift of
+under one point. This is what licenses the real-data claim: the MNIST $8\times8$
+degradation of $21.1\%$ would read between $20$ and $21\%$ under the sampler-law probe for
+any $r$-variation in the measured range, so we do not re-run it. We flag the assumption
+rather than hide it: on real data the normal frame is a per-point kNN-PCA estimate, and a
+sampler-law probe would need those frames anchored to off-manifold points, a choice the
+theory does not force and which we prefer not to make silently.
 Since the floor scales as $\kb^{-2}$, the quantity the theorem constrains gives the
 \emph{larger} bound. Over six seeds at $\sigma=0.05$: $\kb=3.26$ rather than $3.90$, so
 the envelope $\Phidet$ reads $5.49\,\sigsq$ rather than $3.83\,\sigsq$
