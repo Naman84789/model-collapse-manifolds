@@ -562,9 +562,31 @@ widths (\texttt{kbar\_sampler\_law.py}; $\sigma=0.03$ to $0.13$), the sampler-la
 is $0.83$ to $0.87$ of the forward-process one, monotone in $\sigma$ and without
 exception.
 
-\emph{The gap is curvature, not saturation (\emph{we observe}).} The natural explanation
---- that the sampler's ensemble is fatter than $p_t$ and so probes the response into its
-flattening tails --- is wrong, and the geometries of \S\ref{sec:experiments} refute it.
+\emph{What the ceiling actually depends on (\emph{we observe}).} We had first attributed
+the gap to the sampler's ensemble being fatter than $p_t$ and so probing the response into
+its flattening tails, and then, on seeing the flat geometries agree, rejected that
+explanation in favour of curvature. Both readings were too simple. Sweeping the ensemble
+width at fixed network and fixed $t$ (\texttt{slope\_vs\_width.py}) shows the measured
+ceiling falling with width on \emph{every} geometry --- by $10$--$28\%$ over a sixfold
+sweep on the flat segment and $23$--$55\%$ on the ring --- so saturation is real and
+curvature roughly doubles the sensitivity to it rather than supplying the effect on its own.
+What then distinguishes the geometries is not their response to width but how far their
+sampler ensembles actually depart from $p_t$, and in what way. Measured on the sampler's
+own trajectory (\texttt{ensemble\_shape.jsonl}), the flat segment stays within
+$1.06$--$1.43\times$ the width of $p_t$ and symmetric (skewness $+0.05$ to $-0.03$),
+which predicts a probe ratio of $0.996$ against $0.995$--$0.998$ measured: the flat case
+is quantitatively closed. The ring reaches $2.05\times$ the width, sits $0.03$--$0.04$
+\emph{inside} the contracted manifold, and is strongly left-skewed, from $-0.44$ at
+$t=0.1$ to $-1.02$ at $t=5\times10^{-3}$. Skewness is the sharpest discriminator we
+found: essentially zero on flat normal coordinates and order one on curved ones. Injecting
+a comparable skew into an otherwise matched synthetic ensemble moves the measured ceiling
+from $3.47$ to $3.30$, so width and skew together account for roughly half of the ring's
+$3.6\to3.0$ gap and we do not claim to have closed the budget. The methodological point
+survives the incompleteness, and is the one we would ask a reader to take: $\kb$ is not a
+property of a trained network alone. It is a property of a network \emph{and} the ensemble
+it is read on, and any reported score-slope or Lipschitz ceiling that does not name its
+measurement ensemble is under-specified. The geometries of \S\ref{sec:experiments} make
+the point sharply.
 Re-measuring all of them under both probes
 (\texttt{capacity\_domains\_samplerlaw.py}) gives a probe ratio of $0.995$--$0.998$ on the
 straight segment and $0.975$--$0.988$ on the codimension-9 ring, whose slope is read on
