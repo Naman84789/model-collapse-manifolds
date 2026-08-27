@@ -577,8 +577,9 @@ $1.06$--$1.43\times$ the width of $p_t$ and symmetric (skewness $+0.05$ to $-0.0
 which predicts a probe ratio of $0.996$ against $0.995$--$0.998$ measured: the flat case
 is quantitatively closed. The ring reaches $2.05\times$ the width, sits $0.03$--$0.04$
 \emph{inside} the contracted manifold, and is strongly left-skewed, from $-0.44$ at
-$t=0.1$ to $-1.02$ at $t=5\times10^{-3}$. Skewness is the sharpest discriminator we
-found: essentially zero on flat normal coordinates and order one on curved ones. Injecting
+$t=0.1$ to $-1.02$ at $t=5\times10^{-3}$. Skewness is the sharpest \emph{descriptive} discriminator: essentially zero on flat normal
+coordinates and order one on curved ones. It is not, however, the operative one; see
+\eqref{eq:momexp}. Injecting
 a comparable skew into an otherwise matched synthetic ensemble moves the measured ceiling
 from $3.47$ to $3.30$. Width and skew supply $5.6\%$ of the ring's $3.6\to3.0$ gap; moments
 beyond the third and the coupling between radius and angle supply the rest, and the budget
@@ -651,7 +652,34 @@ along the way and rejected as too small: the radial It\^o correction $(D-1)/(2r)
 extra contraction $-(D-1)V/R^2$ to \eqref{eq:varode} on curved data, lowering the envelope
 by only $0.7$--$1.7\%$, an order short of accounting for the discrepancy.
 
-\emph{The probe gap, in full (\emph{we observe}).} The margin narrows
+\emph{The probe gap, in closed form (\emph{we prove, and measure}).} The four channels are
+not independent effects but terms of a single expansion. For any ensemble $q$ and any fixed
+estimator, expanding $\epshat$ about the ensemble mean $m$ and taking the regression slope
+gives
+\begin{equation}
+\hat\kappa \;=\; \epshat'(m)\;+\;\tfrac12\epshat''(m)\frac{\mu_3}{\mu_2}
+\;+\;\tfrac16\epshat'''(m)\frac{\mu_4}{\mu_2}\;+\;\cdots,
+\label{eq:momexp}
+\end{equation}
+with $\mu_k$ the central moments of the normal coordinate under $q$. An affine estimator
+kills every term past the first and $\hat\kappa$ becomes ensemble-free; a nonlinear one does
+not, and the two probes then differ because they carry different $m$, $\mu_3$ and
+$\mu_4/\mu_2$. Evaluating \eqref{eq:momexp} on the trained networks, with the derivatives
+taken by finite differences of the angle-averaged radial response and the moments read off
+the sampler's own ensemble, reproduces the measured ceiling to $1.3\%$ on the flat segment
+and $1.8\%$ on the ring at $t=5\times10^{-3}$.
+
+The expansion also identifies which term matters, and it is not the one we first supposed.
+The skewness contribution is negligible on both geometries: it moves the ring's ceiling from
+$3.598$ to $3.597$. The work is done by the \emph{fourth}-moment term weighted by the
+network's third derivative, which moves the segment by $1\%$ ($4.777\to4.733$) and the ring
+by $18\%$ ($3.598\to2.945$). Curvature enters through $\epshat'''$, the sharpness with which
+the learned radial response saturates; the skew we measured is a correlate of that sharpness
+rather than its cause. This is what makes $\kb$ ensemble-dependent in a way no low-order
+summary repairs: the leading correction is a fourth moment against a third derivative, and
+neither is recoverable from a reported width.
+
+\emph{The same budget, channel by channel (\emph{we observe}).} The margin narrows
 monotonically as the tube fattens: $77$--$85\%$ of the measured floor at $\sigma=0.05$,
 $90$--$97\%$ at $\sigma=0.10$, and $97$--$103\%$ at $\sigma=0.13$, all inside the
 relative error term above.
@@ -1106,8 +1134,10 @@ profile sag) accounts for the rest (Section~\ref{sec:floor}), at the level of pr
 differences. Separately, the \emph{numerical} envelope comparison accounts for $77$--$85\%$
 of the measured floor at $\sigma=0.05$ and $90$--$97\%$ at $\sigma=0.10$ but fails in three
 of six seeds at
-$\sigma=0.13$ by at most $3.4\%$, inside the relative error term $O(\sigsq/ho^2)=4.2\%$
-that Theorem~ef{thm:floor} carries at that width; no validity range is restricted. Every
+$\sigma=0.13$ by at most $3.4\%$, inside the relative error term $O(\sigsq/
+ho^2)=4.2\%$
+that Theorem~
+ef{thm:floor} carries at that width; no validity range is restricted. Every
 step of this accounting is a measurement; none of the constants ($\kb$, its
 degradation law --- an empirical fit replicated across four synthetic geometries and
 real MNIST $8\times8$ pixel data --- or the saturation profile) is derived.
