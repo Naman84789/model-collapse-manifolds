@@ -1,0 +1,1 @@
+{"key":"BUDGET_ring_t0.005","geom":"ring","t":0.005,"stages":{"pt_width_synth":3.564,"sampler_width_synth":3.470,"three_moment_matched":3.367,"real_radii_angles_shuffled":3.123,"actual_sampler":2.894},"components_pct":{"width":2.6,"skew":3.0,"higher_radial_moments":7.2,"radius_angle_coupling":7.3},"product_check":2.90,"measured":2.894}

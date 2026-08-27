@@ -580,9 +580,9 @@ is quantitatively closed. The ring reaches $2.05\times$ the width, sits $0.03$--
 $t=0.1$ to $-1.02$ at $t=5\times10^{-3}$. Skewness is the sharpest discriminator we
 found: essentially zero on flat normal coordinates and order one on curved ones. Injecting
 a comparable skew into an otherwise matched synthetic ensemble moves the measured ceiling
-from $3.47$ to $3.30$, so width and skew together account for roughly half of the ring's
-$3.6\to3.0$ gap and we do not claim to have closed the budget. The methodological point
-survives the incompleteness, and is the one we would ask a reader to take: $\kb$ is not a
+from $3.47$ to $3.30$. Width and skew supply $5.6\%$ of the ring's $3.6\to3.0$ gap; moments
+beyond the third and the coupling between radius and angle supply the rest, and the budget
+closes. The methodological point is the one we would ask a reader to take: $\kb$ is not a
 property of a trained network alone. It is a property of a network \emph{and} the ensemble
 it is read on, and any reported score-slope or Lipschitz ceiling that does not name its
 measurement ensemble is under-specified. The geometries of \S\ref{sec:experiments} make
@@ -637,11 +637,37 @@ forward-process probe, a factor $4.2$ narrower, which is what one expects once t
 evaluated under the same law. The exact-score control reproduces $\gamma^2(t_0)$ to all
 displayed digits.
 
-\emph{Where the comparison stops working (\emph{we observe}).} The margin narrows
+\emph{The finite-$\sigma$ error term (\emph{we resolve}).} Theorem~\ref{thm:floor} is a
+$\sigma\to0$ statement carrying a \emph{relative} correction $O(\sigsq/\rho^2)$. Comparing
+its envelope against finite-$\sigma$ data without applying that correction is an error, and
+it is the one we made: at $\sigma=0.13$ the envelope exceeds the measured floor in three
+seeds of six, by at most $3.4\%$, while the theorem''s own error term at that width
+($\rho=0.638$) permits $4.15\%$. Every width, worst seed included, is consistent once the
+stated correction is applied: $2.2\%$ allowed against $0\%$ observed at $\sigma=0.03$,
+rising to $4.2\%$ against $3.4\%$ at $\sigma=0.13$. There is no violation and no
+restricted validity range; the bound tightens toward equality as the tube fattens because
+$\rho$ grows, which is what the theorem predicts. We record the curvature term we checked
+along the way and rejected as too small: the radial It\^o correction $(D-1)/(2r)$ adds an
+extra contraction $-(D-1)V/R^2$ to \eqref{eq:varode} on curved data, lowering the envelope
+by only $0.7$--$1.7\%$, an order short of accounting for the discrepancy.
+
+\emph{The probe gap, in full (\emph{we observe}).} The margin narrows
 monotonically as the tube fattens: $77$--$85\%$ of the measured floor at $\sigma=0.05$,
-$90$--$97\%$ at $\sigma=0.10$, and $97$--$103\%$ at $\sigma=0.13$, where the envelope
-exceeds the measured floor in three of six seeds. We report this rather than trim the
-range. It is not evidence against Theorem~\ref{thm:floor}, whose chain we verify
+$90$--$97\%$ at $\sigma=0.10$, and $97$--$103\%$ at $\sigma=0.13$, all inside the
+relative error term above.
+
+The remaining gap between envelope and measurement decomposes completely. Taking the ring
+at $t=5\times10^{-3}$ and moving one feature at a time from the $p_t$ ensemble to the
+sampler''s own: widening to the sampler''s width costs $2.6\%$ of the slope; matching its
+skew a further $3.0\%$; replacing the moment-matched surrogate by the sampler''s actual
+radial marginal, so that moments beyond the third enter, a further $7.2\%$; and restoring
+the coupling between radius and angle, which an isotropic surrogate destroys, a final
+$7.3\%$. The product $3.564\times0.974\times0.970\times0.928\times0.927=2.90$ against
+$2.894$ measured, so the four channels close the budget rather than half of it
+(\texttt{gap\_budget.jsonl}). Two of them are invisible to any summary statistic of the
+ensemble: the sampler''s radial law is not determined by its first three moments, and it is
+not a product of a radial marginal with a uniform angle. That is the concrete sense in
+which $\kb$ is a property of the ensemble and not of the network. It is not evidence against Theorem~\ref{thm:floor}, whose chain we verify
 symbolically (Appendix~\ref{app:floor}); it is the flat-tube idealisation expiring where
 Section~\ref{sec:limits} says it will, curvature entering at $O(s^2/\tau)$ and not carried
 in the constants. At $\sigma=0.13$ on a radius-$2.5$ ring that correction is no longer
@@ -1080,8 +1106,8 @@ profile sag) accounts for the rest (Section~\ref{sec:floor}), at the level of pr
 differences. Separately, the \emph{numerical} envelope comparison accounts for $77$--$85\%$
 of the measured floor at $\sigma=0.05$ and $90$--$97\%$ at $\sigma=0.10$ but fails in three
 of six seeds at
-$\sigma=0.13$, where curvature is no longer negligible against the flat-tube
-idealisation; we take $\sigma\lesssim0.10$ as the validated range for that comparison. Every
+$\sigma=0.13$ by at most $3.4\%$, inside the relative error term $O(\sigsq/ho^2)=4.2\%$
+that Theorem~ef{thm:floor} carries at that width; no validity range is restricted. Every
 step of this accounting is a measurement; none of the constants ($\kb$, its
 degradation law --- an empirical fit replicated across four synthetic geometries and
 real MNIST $8\times8$ pixel data --- or the saturation profile) is derived.
