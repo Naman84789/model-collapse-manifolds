@@ -346,6 +346,64 @@ independent noise gives Var(x′) = (1 + (½ − κ̂/s)dt)² V + dt = V + (1 �
 (Exactness check with κ̂ = κ: §2.1. The bias/mean ODE, needed for the sphere curvature
 discussion, is −dμ/dt = (½ − κ̂/s)μ − b/s — first-order decoupled.)
 
+### Lemma 2.1c (variance ODE on a CURVED normal coordinate). [PROVED 2026-08-28]
+
+(2.1) is exact for a normal coordinate that is itself a plain Itô diffusion, which a flat
+one is and a radial one is not. Let h be the signed distance to the manifold, so |∇h| = 1
+and n := ∇h. For dX = f(X)dτ + dW in R^D, Itô gives
+
+    dh = (⟨n,f⟩ + ½ Δh) dτ + ⟨n,dW⟩,
+
+and ⟨n,dW⟩ has quadratic variation dτ because |n| = 1. Hence Var′(h) = 2Cov(h,B) + 1
+exactly, with B = ⟨n,f⟩ + ½Δh. With f = ½x − ε̂/s and ε_n := ⟨n,ε̂⟩,
+
+    −dV/dt = (1 − 2κ̂/s)V + 1 + Cov(h, Δh) + [Cov(h,⟨n,x⟩) − V].          (2.1c)
+
+The bracket vanishes for a sphere about the origin (⟨n,x⟩ = r = h + αR) and for an affine
+subspace through it (⟨n,x⟩ = h) — every geometry used in the paper. Δh ≡ 0 for a flat
+normal coordinate, which is *why* (2.1) is exact there. For a sphere of radius R in R^D,
+Δh = (D−1)/r and
+
+    Cov(h,Δh) = (D−1)Cov(r,1/r) = (D−1)(1 − E[r]E[1/r]) = −((D−1)/2)E[(r−r′)²/(rr′)] ≤ 0.
+
+*Verification.* (a) Analytic, no free parameters: for Brownian motion from the origin in
+R^D (f = 0), r = √τ·χ_D gives dV/dτ = D − c_D² in closed form with
+c_D = √2·Γ((D+1)/2)/Γ(D/2). The difference between that and (2.1c) reduces to
+(D−1)Γ((D−1)/2) = 2Γ((D+1)/2), i.e. the recursion zΓ(z) = Γ(z+1) at z = (D−1)/2 —
+identically zero. Confirmed to 50 digits for D = 2,3,4,5,8,10,32,100,784 and non-integer
+D = 1.01,1.5,2.5,3.7 (radial_ode_identity.py). (b) Simulation under the sampler's own
+Euler scheme: 100.6% of the residual on a clean shell, 96.3% on a shell with 0.2% of mass
+near the origin where the *linearisation* explains only 25%.
+
+**The linearisation −(D−1)V/R² is not a usable substitute.** It is the first term of the
+1/r expansion about the mean radius. It is already 2.09× too small for a plain Rayleigh
+law in D = 2, and unboundedly too small once r carries mass at small radius. An earlier
+version of this file rejected the curvature term at 0.7–1.7% of the envelope on the basis
+of that linearisation; the rejection stands (see 3.1c) but the reasoning did not.
+
+### Lemma 3.1c — the floor survives curvature. [PROVED 2026-08-28]
+
+If Δh is L-Lipschitz in h on the support of the ensemble then |Cov(h,Δh)| ≤ L·V by the
+two-point identity (Remark rem:lip), so from (2.1c)
+
+    −dV/dt ≥ (1 − 2κ̄/s − L)V + 1,
+
+and Theorem I holds verbatim with the coefficient shifted by −L. For a sphere in R^D whose
+ensemble stays at radius ≥ a, L = (D−1)/a². The shift is a *constant* while 2κ̄/s diverges
+as s → 0, so curvature is irrelevant exactly where the floor is set: for the ring (D=2,
+a=1.5) it is 4.5% of the coefficient at t=1, 0.57% at t=1e−2, 0.018% at t=1e−5, and it
+lowers Φ_det(3.9) by 2.0% (curved_floor_envelope.py, which reproduces
+deficit_floor_law.integrate exactly at L=0).
+
+**Measurement caveat, recorded so it is not repeated.** curved_ode_residual.py estimated
+this residual by finite-differencing V(t) along a sampler trajectory. That estimator forms
+(V[i+1]−V[i])/dt, so any sampling error in V is divided by dt and diverges as dt → 0; the
+measured "residual" moved from −0.041 to −0.050 to −0.062 across grid refinements and the
+*predicted* term moved 10% with it, because the trajectory itself changes with the step
+count. Do not use it. curved_ode_onestep.py measures the same quantity on a frozen
+ensemble with one Euler step, paired and antithetic so the O(√dτ) sampling term cancels
+exactly.
+
 **Terminology (two distinct "injections" — do not conflate in the manuscript).**
 (1) **Sampler-noise injection**: the +1 forcing in (2.1), i.e. the reverse-SDE's own
 Brownian term √|dt| ξ. This is a property of the *sampler class*, present even for a

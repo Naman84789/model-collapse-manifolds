@@ -417,16 +417,90 @@ performed: to first order in the step a single Euler step moves the variance onl
 $\Cov(X,\epshat(X))$, the $O(dt^2)$ remainder vanishing in the limit; equivalently, in
 continuous time It\^o's formula yields \eqref{eq:varode} directly, with no expansion. The
 identity is exact for a normal coordinate that is itself a plain It\^o diffusion, which a
-\emph{flat} normal coordinate is. A curved one is not: for a radial coordinate in $\R^D$,
-$dr$ carries an extra $(D-1)/(2r)\,dt$. Measuring the residual of \eqref{eq:varode} along
-the sampler's own trajectory (\texttt{curved\_ode\_residual.py}) gives $+0.002$ on the flat
-segment, confirming exactness there, and $-0.06$ to $-0.07$ on the ring --- the right
-sign for that extra drift but $5$--$6\times$ its magnitude, so the curved-coordinate
-correction is real, larger than the na"ive term, and not yet accounted for. On curved data
-\eqref{eq:varode} should be read as the flat-coordinate identity plus a measured residual of
-this size, which is one mechanism behind the $O(\sigsq/\rho^2)$ term of
-Theorem~\ref{thm:floor}.
+\emph{flat} normal coordinate is. A curved one is not, and the correction has a closed
+form. Write $h$ for the signed distance to the manifold, so $|\nabla h|=1$ and
+$n:=\nabla h$ is the unit normal; It\^o gives
+$dh=\langle n,f\rangle\,d\tau+\tfrac12\Delta h\,d\tau+\langle n,dW\rangle$, and the same
+two lines yield, still exactly and still for an arbitrary $\epshat$,
+\begin{equation}
+-\frac{dV}{dt}=\Big(1-\frac{2\hat\kappa(t)}{s(t)}\Big)V+1
+\;+\;\Cov\big(h,\Delta h\big)\;+\;\big[\Cov\big(h,\langle n,x\rangle\big)-V\big].
+\label{eq:varode-curved}
+\end{equation}
 \end{lemma}
+
+The bracket vanishes for a sphere about the origin and for an affine subspace through it,
+which between them cover every geometry we analyse: the segment and the eight out-of-plane
+axes of the codimension-9 ring are affine subspaces through the origin, and the ring tube
+and $S^2$ are spheres about it. The operative term is $\Cov(h,\Delta h)$, and $\Delta h\equiv0$
+for a flat normal coordinate --- which is \emph{why} \eqref{eq:varode} is exact there,
+rather than by assumption. For a sphere of radius $R$ in $\R^D$, $\Delta h=(D-1)/r$ and
+\begin{equation}
+\Cov\big(h,\Delta h\big)=(D-1)\,\Cov\!\big(r,\tfrac1r\big)=(D-1)\big(1-\E[r]\,\E[1/r]\big)
+=-\tfrac{D-1}{2}\,\E\!\left[\frac{(r-r')^2}{r\,r'}\right]
+\label{eq:curvterm}
+\end{equation}
+for an i.i.d.\ copy $r'$: negative by Cauchy--Schwarz, and unbounded relative to its own
+linearisation $-(D-1)V/R^2$ as soon as $r$ carries mass at small radius. The linearisation
+is already $2.09\times$ wrong for a plain Rayleigh law in $D=2$. We verify
+\eqref{eq:varode-curved} against a case with a closed form: for Brownian motion from the
+origin in $\R^D$, $r=\sqrt\tau\,\chi_D$ gives $dV/d\tau=D-c_D^2$ with
+$c_D=\sqrt2\,\Gamma(\tfrac{D+1}2)/\Gamma(\tfrac D2)$, and the difference between that and
+\eqref{eq:varode-curved} reduces to $z\Gamma(z)=\Gamma(z+1)$ at $z=(D-1)/2$ --- identically
+zero, confirmed to $50$ digits for integer and non-integer $D$ alike, and reproduced to
+$100.6\%$ by direct simulation under the sampler's own Euler scheme
+(\texttt{radial\_ode\_identity.py}).
+
+We also confirm \eqref{eq:varode-curved} on the trained ring network itself, which requires
+abandoning the estimator we used previously. Differentiating $V(t)$ along a sampler
+trajectory forms $(V_{i+1}-V_i)/dt$, so sampling error in $V$ is divided by $dt$ and
+diverges as the grid refines: within one script the residual so measured moved from
+$-0.041$ at $1000$ steps to $-0.050$ at $2000$ (the earlier probe, at $4000$ steps and a
+different sample count, reported $-0.062$), and the \emph{predicted} term moved $10.6\%$
+over the same refinement, because the trajectory itself changes with the step count. Instead we freeze the ensemble at a given $t$
+and take a single Euler step, paired and antithetic so that the $O(\sqrt{d\tau})$ sampling
+term cancels exactly (\texttt{curved\_ode\_onestep.py}). The flat and curved forms then
+differ by a measurable margin and the measurement selects between them. At $t=0.5$ the flat
+right-hand side is $-0.316$ against a measured $-0.495$; \eqref{eq:varode-curved} predicts
+$-0.496$. Sweeping $t$ at a fixed step $d\tau=10^{-4}$, the curvature term is reproduced to
+a ratio of $0.993$, $0.992$ and $0.978$ at $t=0.5$, $0.2$ and $0.1$, where the term is
+$-0.180$, $-0.063$ and $-0.031$. Below that the term falls under the estimator's own noise
+--- the absolute discrepancy stays between $0.0005$ and $0.005$ down to $t=5\times10^{-3}$,
+and is $0.013$ at $t=2\times10^{-3}$, while the term itself shrinks to $-0.005$ --- so we
+claim the identity only where it is resolvable, and note that this is the same statement as
+the correction being negligible at small $t$.
+
+Because $\Delta h$ enters only through a covariance with $h$, Remark~\ref{rem:lip} converts
+\eqref{eq:varode-curved} into a bound with no further assumptions.
+
+\begin{corollary}[the floor survives curvature]\label{cor:curved}
+If $\Delta h$ is $L$-Lipschitz in $h$ on the support of the ensemble, then
+$|\Cov(h,\Delta h)|\le L\,V$ and
+\[
+-\frac{dV}{dt}\;\ge\;\Big(1-\frac{2\kb}{s}-L\Big)V+1 ,
+\]
+so Theorem~\ref{thm:floor} holds verbatim with the coefficient shifted by $-L$. For a
+sphere in $\R^D$ whose ensemble stays at radius $\ge a$, $L=(D-1)/a^2$.
+\end{corollary}
+
+The shift is a \emph{constant} while $2\kb/s$ diverges as $s\to0$, so curvature is
+irrelevant exactly where the floor is set: for $D=2$ and $a=1.5$ it is $4.5\%$ of the
+coefficient at $t=1$, $0.57\%$ at $t=10^{-2}$ and $0.018\%$ at $t=10^{-5}$. Near the floor
+($t\in[10^{-4},10^{-2}]$) the ring's sampler ensemble has median $\E[r]=2.46$ with its
+$0.1\%$ radial quantile at $1.32$--$1.45$, giving $L\approx0.5$ and lowering
+$\Phi_{\det}(3.9)$ by $2.0$--$2.6\%$ (\texttt{curved\_floor\_envelope.py}, which reproduces
+\texttt{deficit\_floor\_law.integrate} exactly at $L=0$). This is what reconciles a large
+measured ODE residual on the ring with a floor bound the ring nonetheless satisfies: the
+residual lives at moderate $t$ and the floor does not.
+
+We flag the one real weakness of this route rather than leave it to be found. $L$ is set by
+an essential infimum, so it is governed by rare small-radius stragglers and not by the bulk
+of the ensemble. Reading $a$ off the $0.01\%$ quantile instead ($0.36$--$0.46$ near the
+floor) costs $12$--$19\%$, and an ensemble genuinely reaching $a=0.05$ would push the bound
+below $\sigsq$ and assert nothing at all. The exact term \eqref{eq:curvterm} has no such
+sensitivity --- it is two measured moments, $\E[r]$ and $\E[1/r]$ --- so where a numerical
+floor is wanted on curved data we would integrate with the measured $\E[r]\E[1/r]$ and use
+Corollary~\ref{cor:curved} only for the assumption-light statement.
 
 \begin{remark}[a checkable sufficient condition]\label{rem:lip}
 The hypothesis of Theorem~\ref{thm:floor} constrains $\hat\kappa$, a regression slope. A
@@ -658,9 +732,16 @@ stated correction is applied: $2.2\%$ allowed against $0\%$ observed at $\sigma=
 rising to $4.2\%$ against $3.4\%$ at $\sigma=0.13$. There is no violation and no
 restricted validity range; the bound tightens toward equality as the tube fattens because
 $\rho$ grows, which is what the theorem predicts. We record the curvature term we checked
-along the way and rejected as too small: the radial It\^o correction $(D-1)/(2r)$ adds an
-extra contraction $-(D-1)V/R^2$ to \eqref{eq:varode} on curved data, lowering the envelope
-by only $0.7$--$1.7\%$, an order short of accounting for the discrepancy.
+along the way and rejected as too small. The radial It\^o correction $(D-1)/(2r)$ adds a
+contraction to \eqref{eq:varode} on curved data; we first estimated it by linearising
+$1/r$ about the mean radius, as $-(D-1)V/R^2$, and rejected it at $0.7$--$1.7\%$ of the
+envelope. The linearisation was wrong --- the exact term is \eqref{eq:curvterm}, which is
+$2.09\times$ larger already for a Rayleigh law and unbounded relative to the linearisation
+when $r$ carries mass at small radius --- but the conclusion was not. Corollary~\ref{cor:curved}
+puts the rigorous cost at $2.0\%$ of $\Phi_{\det}(3.9)$ for an ensemble staying at radius
+$\ge1.5$, still an order short of the discrepancy, and the shift is a constant against a
+$2\kb/s$ that diverges, so it is $0.018\%$ of the coefficient by $t=10^{-5}$. Curvature
+does not set the floor; the moment structure of the ensemble does.
 
 \emph{The probe gap, in closed form (\emph{we prove, and measure}).} The four channels are
 not independent effects but terms of a single expansion. For any ensemble $q$ and any fixed
@@ -1155,9 +1236,15 @@ real MNIST $8\times8$ pixel data --- or the saturation profile) is derived.
 block-correlation model (Appendix~\ref{app:residual}); negative association across
 blocks is the one direction that could weaken that particular bound (the closed-form
 floor of Theorem~\ref{thm:floor} does not depend on it).
-(4)~Curvature is carried at order $O(s^2/\tau)$ in the flat-tube idealization; sphere
-experiments bound the resulting bias empirically (non-compounding), but we do not
-compute the constants.
+(4)~Curvature enters in two distinct places and we now treat them differently. In the
+\emph{variance flow} it is exact: \eqref{eq:varode-curved} carries it as $\Cov(h,\Delta h)$
+with no error term, and Corollary~\ref{cor:curved} bounds its effect on the floor at
+$2$--$3\%$ for our geometries, with the caveat on rare small-radius stragglers recorded
+there. In the \emph{flat-tube idealization} of the fiber marginal --- Gaussian and decoupled
+from tangential position --- curvature is still carried at $O(s^2/\tau)$ and we do not
+compute those constants; the sphere experiments bound the resulting bias empirically
+(non-compounding). The two should not be conflated: the first is now a closed form, the
+second is not.
 (5)~The anchor controls normal \emph{second moments}; tails and tangential statistics
 improve but are not anchored; on strongly curved data the anchored recursion shows a
 mild residual creep (Figure~\ref{fig:mnist}).
@@ -1284,6 +1371,27 @@ $\E[X^2]'=2\E[Xf(X)]+1$ while $\E[X]'=\E[f(X)]$; subtracting,
 $\Var'=2\Cov\big(X,f(X)\big)+1$, which is \eqref{eq:varode}. With $\hat\kappa=\kappa=s/\gamma^2$: $\kappa/s=1/\gamma^2$ and
 $V=\gamma^2$ solves the equation exactly (direct check), confirming the bookkeeping. An
 intercept in $\epshat$ moves only the mean. \qed
+
+\emph{The curved case, \eqref{eq:varode-curved}.} Let $h$ be the signed distance to the
+manifold, so $|\nabla h|=1$ and $n:=\nabla h$. For $dX=f(X)d\tau+dW$ in $\R^D$, It\^o gives
+$dh=\big(\langle n,f\rangle+\tfrac12\Delta h\big)d\tau+\langle n,dW\rangle$, and
+$\langle n,dW\rangle$ has quadratic variation $d\tau$ because $|n|=1$. The same subtraction
+as above, with drift $B=\langle n,f\rangle+\tfrac12\Delta h$, gives $\Var'(h)=2\Cov(h,B)+1$
+exactly --- no expansion, and no property of $\epshat$ beyond square-integrability. With
+$f=\tfrac12x-\epshat/s$ we have
+$\langle n,f\rangle=\tfrac12\langle n,x\rangle-\eps_n/s$ where $\eps_n:=\langle n,\epshat\rangle$,
+so $2\Cov(h,\langle n,f\rangle)=\Cov(h,\langle n,x\rangle)-2\hat\kappa V/s$; adding
+$2\Cov(h,\tfrac12\Delta h)$ and writing $\Cov(h,\langle n,x\rangle)=V+[\Cov(h,\langle n,x\rangle)-V]$
+gives \eqref{eq:varode-curved}. Two checks on the bracket: for a plane through the origin,
+$h=x_D$ and $\langle n,x\rangle=x_D=h$; for a sphere about the origin, $h=r-\alpha R$ and
+$\langle n,x\rangle=r=h+\alpha R$. In both cases $\Cov(h,\langle n,x\rangle)=V$ and the
+bracket vanishes. For the plane $\Delta h=0$ as well, recovering \eqref{eq:varode}.
+
+For \eqref{eq:curvterm}: $\Cov(r,1/r)=\E[r\cdot\tfrac1r]-\E[r]\E[1/r]=1-\E[r]\E[1/r]$, and
+the two-point form of Remark~\ref{rem:lip} with $g(r)=1/r$ gives
+$\Cov(r,1/r)=\tfrac12\E[(r-r')(\tfrac1r-\tfrac1{r'})]=-\tfrac12\E[(r-r')^2/(rr')]\le0$.
+The same two-point form with $|g'|=(D-1)/r^2\le(D-1)/a^2$ on $r\ge a$ gives
+Corollary~\ref{cor:curved}. \qed
 
 \textbf{Remark~\ref{rem:lip}.} For an i.i.d.\ copy $X'$ of $X$,
 $\tfrac12\E[(X-X')(g(X)-g(X'))]$ expands to $\E[Xg(X)]-\E[X]\E[g(X)]=\Cov(X,g(X))$. If $g$
