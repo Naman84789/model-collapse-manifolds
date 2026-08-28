@@ -451,6 +451,17 @@ zero, confirmed to $50$ digits for integer and non-integer $D$ alike, and reprod
 $100.6\%$ by direct simulation under the sampler's own Euler scheme
 (\texttt{radial\_ode\_identity.py}).
 
+The same It\^o step fixes the first moment, where the curvature term is far larger and does
+not vanish as the ensemble concentrates:
+\begin{equation}
+-\frac{d\mu}{dt}=\frac{\mu}{2}-\frac{\E[\eps_n]}{s}+\tfrac12\E[\Delta h],
+\qquad \E[\Delta h]=(D-1)\,\E[1/r] \ \text{ on a sphere},\ 0 \text{ on a flat coordinate.}
+\label{eq:meanode}
+\end{equation}
+Being a different moment of the same correction, \eqref{eq:meanode} is an independent check
+rather than a restatement, and it is the sharper one: $\Cov(r,1/r)\to0$ as the tube
+contracts whereas $\E[1/r]\to1/(\alpha R)$ stays $O(1)$.
+
 We also confirm \eqref{eq:varode-curved} on the trained ring network itself, which requires
 abandoning the estimator we used previously. Differentiating $V(t)$ along a sampler
 trajectory forms $(V_{i+1}-V_i)/dt$, so sampling error in $V$ is divided by $dt$ and
@@ -462,13 +473,36 @@ and take a single Euler step, paired and antithetic so that the $O(\sqrt{d\tau})
 term cancels exactly (\texttt{curved\_ode\_onestep.py}). The flat and curved forms then
 differ by a measurable margin and the measurement selects between them. At $t=0.5$ the flat
 right-hand side is $-0.316$ against a measured $-0.495$; \eqref{eq:varode-curved} predicts
-$-0.496$. Sweeping $t$ at a fixed step $d\tau=10^{-4}$, the curvature term is reproduced to
-a ratio of $0.993$, $0.992$ and $0.978$ at $t=0.5$, $0.2$ and $0.1$, where the term is
-$-0.180$, $-0.063$ and $-0.031$. Below that the term falls under the estimator's own noise
---- the absolute discrepancy stays between $0.0005$ and $0.005$ down to $t=5\times10^{-3}$,
-and is $0.013$ at $t=2\times10^{-3}$, while the term itself shrinks to $-0.005$ --- so we
-claim the identity only where it is resolvable, and note that this is the same statement as
-the correction being negligible at small $t$.
+$-0.496$. Sweeping $t$ at a fixed step $d\tau=10^{-4}$, the raw ratio is $0.993$, $0.992$
+and $0.978$ at $t=0.5$, $0.2$ and $0.1$, and then degrades as the term shrinks toward the
+estimator's own error.
+
+That error is measurable rather than guessed, because the flat segment runs the identical
+estimator on a geometry where \eqref{eq:curvterm} vanishes \emph{identically}: whatever
+residual it reports is the method's bias at that $t$ and step. It reports $-0.0003$,
+$+0.0011$, $+0.0013$, $+0.0019$, $+0.0031$, $+0.0051$ at $t=0.5$ down to $10^{-2}$, growing
+as $1/s$ --- the Euler drift bias, which the two geometries share. Subtracting it, the ring's
+ratio is $0.992$, $1.010$, $1.021$, $0.994$, $0.980$ and $1.078$ across the same range: the
+identity holds to within $2\%$ at five of those six times and $8\%$ at the sixth, over a
+$50\times$ span in $t$, with at most $0.0013$ left unexplained anywhere
+(\texttt{onestep\_control\_corrected.py}). The correction is a genuine control and not a
+fitted offset: at $d\tau=10^{-5}$, where the $O(d\tau)$ bias is gone and only random noise
+remains, subtracting the flat geometry's independent draws stops helping, exactly as it
+should.
+
+$S^2\subset\R^3$ then tests the coefficient itself, at $(D-1)=2$ rather than $1$, on a
+different network, a different radial law and a different ambient dimension
+(\texttt{curved\_ode\_onestep\_sphere.py}). The variance equation gives ratios $1.000$,
+$1.002$, $0.996$, $0.967$ at $t=0.5$ to $0.05$. The mean equation \eqref{eq:meanode} is the
+decisive one, because its curvature term does not shrink: across all eight probe times from
+$t=0.5$ down to $2\times10^{-3}$ the ratio is $0.9994$, $0.9986$, $0.9997$, $1.0003$,
+$1.0011$, $1.0003$, $1.0032$, $1.0068$ --- every one within $0.7\%$, over a $250\times$ span
+in $t$. Over the same range, forcing the coefficient to $1$ instead of $D-1=2$ misses by
+$1.999$ to $2.014$, so the scaling is confirmed and not fitted. The margin being tested is
+not marginal: at $t=0.05$ the flat form predicts $+0.099$ against a measured $+0.505$, and at
+$t=5\times10^{-3}$ it predicts $-0.711$ against a measured $-0.312$. On a curved normal
+coordinate the flat mean equation is wrong by factors, and \eqref{eq:meanode} is right to a
+fraction of a percent.
 
 Because $\Delta h$ enters only through a covariance with $h$, Remark~\ref{rem:lip} converts
 \eqref{eq:varode-curved} into a bound with no further assumptions.

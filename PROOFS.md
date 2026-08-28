@@ -366,6 +366,24 @@ normal coordinate, which is *why* (2.1) is exact there. For a sphere of radius R
 
     Cov(h,Δh) = (D−1)Cov(r,1/r) = (D−1)(1 − E[r]E[1/r]) = −((D−1)/2)E[(r−r′)²/(rr′)] ≤ 0.
 
+**The companion mean equation.** The same Itô step fixes the first moment too, and the
+curvature term there is an order of magnitude larger, so it is the sharper test:
+
+    −dμ/dt = μ/2 − E[ε_n]/s + ½ E[Δh],     E[Δh] = (D−1)E[1/r] for a sphere.
+
+The flat version (−dμ/dt = (½ − κ̂/s)μ − b/s, above) is the Δh ≡ 0 case. For S² at R = 2.5
+the extra term is ≈ (D−1)/2 · 0.4 ≈ 0.4, against ≈ 0.03 for the variance term at moderate t.
+Being a different moment of the same correction, it is an independent check and not a
+restatement.
+
+*Verification of the mean equation on a network.* S² in R³ (curved_ode_onestep_sphere.py),
+same frozen-ensemble one-step estimator. At dτ=1e-3 the ratio across all eight probe times
+t = 0.5 … 2e-3 is 0.9994, 0.9986, 0.9997, 1.0003, 1.0011, 1.0003, 1.0032, 1.0068 — every one
+within 0.7%. Forcing (D−1)=1 misses by 1.999–2.014, so the coefficient is confirmed, not
+fitted. The flat form is wrong by factors over the same range: +0.099 predicted vs +0.505
+measured at t=0.05, and −0.711 vs −0.312 at t=5e-3. The variance equation on the same run
+gives 1.000, 1.002, 0.996, 0.967 at t = 0.5 … 0.05.
+
 *Verification.* (a) Analytic, no free parameters: for Brownian motion from the origin in
 R^D (f = 0), r = √τ·χ_D gives dV/dτ = D − c_D² in closed form with
 c_D = √2·Γ((D+1)/2)/Γ(D/2). The difference between that and (2.1c) reduces to

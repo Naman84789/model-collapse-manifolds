@@ -15,6 +15,13 @@ Reported per (t, dtau):
 
 If ratio ~ 1 and ratio_D1 ~ 2, the (D-1) scaling is confirmed and not fitted.
 
+The same Ito step also fixes the MEAN, which is a different moment of the same correction
+and so an independent check rather than a restatement:
+
+    -d mu/dt = mu/2 - E[eps_r]/s + (D-1)/2 E[1/r],
+
+the last term absent from the flat version. Both are measured on the same frozen ensemble.
+
 Run:  python curved_ode_onestep_sphere.py  ->  curved_ode_onestep_sphere.jsonl
 """
 import os, json, time
@@ -92,7 +99,14 @@ def onestep(net, x, t, dtau, seed):
     ub = (u * b.numpy()).sum(1)
     flat = 2 * float(np.cov(r, ub)[0, 1]) + 1
     cov1 = float(np.cov(r, 1.0 / r)[0, 1])           # Cov(r, 1/r)
-    return meas, flat, flat + (DAMB - 1) * cov1, flat + 1.0 * cov1, V0, cov1
+    # --- the mean equation, same frozen ensemble, same one step ---
+    m_meas = (mean - float(r.mean())) / dtau
+    m_flat = float(ub.mean())
+    inv = float((1.0 / r).mean())
+    m_exact = m_flat + 0.5 * (DAMB - 1) * inv
+    m_exact1 = m_flat + 0.5 * 1.0 * inv
+    return (meas, flat, flat + (DAMB - 1) * cov1, flat + 1.0 * cov1, V0, cov1,
+            m_meas, m_flat, m_exact, m_exact1)
 
 
 if __name__ == "__main__":
@@ -102,25 +116,31 @@ if __name__ == "__main__":
     ts = np.geomspace(T_MAX, T0, KGRID + 1)
     want = {min(range(KGRID), key=lambda i: abs(ts[i] - p)) for p in PROBE_TS}
     print(f"S^2 in R^3, sigma=0.05.  (D-1) = {DAMB-1}.  NSAMP={NSAMP}, MREP={MREP} pairs.")
+    print("VARIANCE equation, then MEAN equation. ratio -> 1 confirms; "
+          "'if D-1=1' -> 2 shows the coefficient is not fitted.")
     print(f"  {'t':>8} {'dtau':>7} {'measured':>10} {'flat':>10} {'resid':>10}"
-          f" {'curv(D-1=2)':>12} {'ratio':>7} {'ratio if D-1=1':>15}")
+          f" {'curv(D-1=2)':>12} {'ratio':>7} {'ratio if D-1=1':>15}  eq")
     for i in range(KGRID):
         t = float(ts[i]); dt = float(ts[i + 1] - ts[i])
         s = np.sqrt(1 - np.exp(-t))
         if i in want:
             for dtau in DTAUS:
-                m, fl, ex, ex1, V0, c1 = onestep(net, x, t, dtau, seed=2000 + i)
-                res = m - fl; cv = ex - fl; cv1 = ex1 - fl
-                rat = res / cv if abs(cv) > 1e-12 else float("nan")
-                rat1 = res / cv1 if abs(cv1) > 1e-12 else float("nan")
-                print(f"  {t:>8.4f} {dtau:>7.0e} {m:>10.5f} {fl:>10.5f} {res:>10.5f}"
-                      f" {cv:>12.5f} {rat:>7.3f} {rat1:>15.3f}")
-                out.append(dict(key=f"COSS_{t:.5f}_{dtau:g}", t=t, dtau=dtau,
-                                V0=round(V0, 6), measured=round(m, 5), flat=round(fl, 5),
-                                resid=round(res, 5), curv_D1_2=round(cv, 5),
-                                curv_D1_1=round(cv1, 5),
-                                ratio=None if np.isnan(rat) else round(rat, 4),
-                                ratio_if_D1_is_1=None if np.isnan(rat1) else round(rat1, 4)))
+                (m, fl, ex, ex1, V0, c1,
+                 mm, mfl, mex, mex1) = onestep(net, x, t, dtau, seed=2000 + i)
+                row = dict(key=f"COSS_{t:.5f}_{dtau:g}", t=t, dtau=dtau, V0=round(V0, 6))
+                for tag, a, b_, c, d in (("var", m, fl, ex, ex1),
+                                         ("mean", mm, mfl, mex, mex1)):
+                    res = a - b_; cv = c - b_; cv1 = d - b_
+                    rat = res / cv if abs(cv) > 1e-12 else float("nan")
+                    rat1 = res / cv1 if abs(cv1) > 1e-12 else float("nan")
+                    print(f"  {t:>8.4f} {dtau:>7.0e} {a:>10.5f} {b_:>10.5f} {res:>10.5f}"
+                          f" {cv:>12.5f} {rat:>7.3f} {rat1:>15.3f}  {tag}")
+                    row.update({f"{tag}_measured": round(a, 5), f"{tag}_flat": round(b_, 5),
+                                f"{tag}_resid": round(res, 5), f"{tag}_curv": round(cv, 5),
+                                f"{tag}_ratio": None if np.isnan(rat) else round(rat, 4),
+                                f"{tag}_ratio_if_D1_is_1":
+                                    None if np.isnan(rat1) else round(rat1, 4)})
+                out.append(row)
         with torch.no_grad():
             e = net(x, torch.full((NSAMP, 1), t))
         x = x + (-0.5 * x + e / s) * dt + np.sqrt(abs(dt)) * torch.randn_like(x)
