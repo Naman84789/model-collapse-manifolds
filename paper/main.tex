@@ -165,8 +165,9 @@ anchored/unanchored split with full mode coverage (Figure~\ref{fig:cifar}).
     constrains, the law's envelope explains $81\%$ of the measured single-pass floor at
     $\sigma=0.05$ (against $58\%$ read under $p_t$, at a quarter of the seed spread), the
     remainder resolving into
-    one further measured channel (in-band profile sag); the margin narrows with tube width
-    and the comparison fails at $\sigma=0.13$, where the flat-tube idealisation expires;
+    one further measured channel (in-band profile sag); the margin narrows with tube width,
+    and where the flat envelope is exceeded at $\sigma=0.13$ the curved-geometry correction
+    of Corollary~\ref{cor:curved} removes the excess outright;
     and across five training protocols that move the ceiling $3.5\to7.5$, every measured
     floor stays above its proven bound.
   \item \emph{Two-horned ablation}: separates the floor's existence (sampler noise) from
@@ -765,7 +766,22 @@ seeds of six, by at most $3.4\%$, while the theorem''s own error term at that wi
 stated correction is applied: $2.2\%$ allowed against $0\%$ observed at $\sigma=0.03$,
 rising to $4.2\%$ against $3.4\%$ at $\sigma=0.13$. There is no violation and no
 restricted validity range; the bound tightens toward equality as the tube fattens because
-$\rho$ grows, which is what the theorem predicts. We record the curvature term we checked
+$\rho$ grows, which is what the theorem predicts.
+
+A second and independent reason the comparison was never in tension is that
+$\Phi_{\det}$, integrated from \eqref{eq:varode}, is not the correct bound on a ring at
+all. These networks are trained on a curved manifold, so the governing equation is
+\eqref{eq:varode-curved} and the bound is the one shifted by $-L$
+(Corollary~\ref{cor:curved}). That shift lowers the envelope by $2.4\%$ at $\sigma=0.03$
+rising to $4.3\%$ at $\sigma=0.13$, and it removes the excess outright rather than
+tolerating it: at $\sigma=0.13$ the worst seed falls from $103.4\%$ of its measured floor
+to $98.9\%$ taking $a=1.5$, and to $97.8\%$ at the ensemble's measured $0.1\%$ radial
+quantile $a=1.32$. The conclusion does not turn on that choice --- every $a$ below $1.75$
+suffices, and the sampler's own ensemble puts $0.1\%$ of its mass at radius $1.32$ and
+$0.01\%$ at $0.363$. Under the corrected bound no seed at any width is exceeded, and we
+report the two resolutions separately because they are independent: the first is a
+tolerance the theorem already carries, the second is a statement that the object being
+compared was the wrong one. We record the curvature term we checked
 along the way and rejected as too small. The radial It\^o correction $(D-1)/(2r)$ adds a
 contraction to \eqref{eq:varode} on curved data; we first estimated it by linearising
 $1/r$ about the mean radius, as $-(D-1)V/R^2$, and rejected it at $0.7$--$1.7\%$ of the
@@ -807,7 +823,8 @@ neither is recoverable from a reported width.
 \emph{The same budget, channel by channel (\emph{we observe}).} The margin narrows
 monotonically as the tube fattens: $77$--$85\%$ of the measured floor at $\sigma=0.05$,
 $90$--$97\%$ at $\sigma=0.10$, and $97$--$103\%$ at $\sigma=0.13$, all inside the
-relative error term above.
+relative error term above, and $75$--$82\%$, $87$--$93\%$ and $93$--$99\%$ under the
+curved-geometry bound of Corollary~\ref{cor:curved}, which no seed exceeds.
 
 The remaining gap between envelope and measurement decomposes completely. Taking the ring
 at $t=5\times10^{-3}$ and moving one feature at a time from the $p_t$ ensemble to the
@@ -1257,12 +1274,12 @@ half (in log) of the once factor-$2.4$ gap; measuring that degradation under the
 no further correction, and the per-pass map's one remaining measured channel (in-band
 profile sag) accounts for the rest (Section~\ref{sec:floor}), at the level of protocol
 differences. Separately, the \emph{numerical} envelope comparison accounts for $77$--$85\%$
-of the measured floor at $\sigma=0.05$ and $90$--$97\%$ at $\sigma=0.10$ but fails in three
-of six seeds at
-$\sigma=0.13$ by at most $3.4\%$, inside the relative error term $O(\sigsq/
-ho^2)=4.2\%$
-that Theorem~
-ef{thm:floor} carries at that width; no validity range is restricted. Every
+of the measured floor at $\sigma=0.05$ and $90$--$97\%$ at $\sigma=0.10$, and exceeds it in
+three of six seeds at $\sigma=0.13$ by at most $3.4\%$. That is inside the relative error term
+$O(\sigsq/\rho^2)=4.2\%$ that Theorem~\ref{thm:floor} carries at that width, and it also
+disappears under the curved-geometry bound these ring networks actually obey
+(Corollary~\ref{cor:curved}), which no seed at any width exceeds; no validity range is
+restricted. Every
 step of this accounting is a measurement; none of the constants ($\kb$, its
 degradation law --- an empirical fit replicated across four synthetic geometries and
 real MNIST $8\times8$ pixel data --- or the saturation profile) is derived.
