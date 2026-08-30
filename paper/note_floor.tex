@@ -153,8 +153,19 @@ annealing or truncation schedule evades it. Whether a given architecture supplie
 slope budget is a separate question, not settled here.
 
 \emph{Assumed} (where a sceptic should push): (1) the flat-tube idealization, one normal
-coordinate with Gaussian fiber decoupled from tangential position, curvature entering at
-$O(s^2/\tau)$ and not carried in the constants; (2) $\hat\kappa$ is the regression slope under
+coordinate with Gaussian fiber decoupled from tangential position. The \emph{variance-flow}
+half of this is no longer assumed. Writing $h$ for the signed distance to the manifold
+($|\nabla h|=1$), It\^o gives \eqref{eq:varode} plus exactly one extra term,
+$\mathrm{Cov}(h,\Delta h)$, which vanishes identically for a flat normal coordinate and
+equals $(D-1)(1-\E[r]\E[1/r])\le0$ on a sphere. If $\Delta h$ is $L$-Lipschitz in $h$ then
+$|\mathrm{Cov}(h,\Delta h)|\le LV$ and Theorem~\ref{thm:U} holds with the coefficient shifted
+by $-L$; since $2\kb/s$ diverges as $s\to0$ while $L$ is constant, this costs $2$--$3\%$ of
+the floor on our geometries and leaves the $\sigma\to0$ law unchanged. It is verified against
+a closed form (Brownian motion from the origin, where the difference reduces to
+$z\Gamma(z)=\Gamma(z+1)$) and on trained networks, most sharply through the companion mean
+equation, which on $S^2$ holds to $0.7\%$ at every noise level tested while the flat form is
+wrong by factors. What remains assumed is the Gaussian-fiber half, where curvature still
+enters at $O(s^2/\tau)$ and is not carried in the constants; (2) $\hat\kappa$ is the regression slope under
 the sampler's own ensemble, so a probe that measures it under $p_t$ instead estimates a
 different quantity whenever $\hat\varepsilon$ is nonlinear; (3) the $o(1)$ in
 \eqref{eq:floor} is the $\sigma\to0$ limit, relative correction $O(\sigsq/\rho^2)$, so the

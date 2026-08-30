@@ -1421,6 +1421,17 @@ $h=x_D$ and $\langle n,x\rangle=x_D=h$; for a sphere about the origin, $h=r-\alp
 $\langle n,x\rangle=r=h+\alpha R$. In both cases $\Cov(h,\langle n,x\rangle)=V$ and the
 bracket vanishes. For the plane $\Delta h=0$ as well, recovering \eqref{eq:varode}.
 
+\emph{The mean equation, \eqref{eq:meanode}.} Taking expectations in the same It\^o
+expansion, the martingale part drops and
+$\E[h]'=\E[\langle n,f\rangle]+\tfrac12\E[\Delta h]$ in reverse time. With
+$f=\tfrac12x-\epshat/s$ and $\langle n,x\rangle=h+c$ for a constant $c$ on the two
+geometries above, $\E[\langle n,f\rangle]=\tfrac12\mu+\tfrac12 c-\E[\eps_n]/s$; absorbing
+the constant into the drift of the contracted centre gives \eqref{eq:meanode}. Note the
+contrast with \eqref{eq:curvterm}: the variance correction is $\Cov(r,1/r)$, which vanishes
+as the tube contracts because $r$ concentrates, whereas the mean correction is
+$\tfrac{D-1}2\E[1/r]\to\tfrac{D-1}{2\alpha R}$, which does not. That is why the mean
+equation remains a sharp test at every $t$ while the variance equation stops being one.
+
 For \eqref{eq:curvterm}: $\Cov(r,1/r)=\E[r\cdot\tfrac1r]-\E[r]\E[1/r]=1-\E[r]\E[1/r]$, and
 the two-point form of Remark~\ref{rem:lip} with $g(r)=1/r$ gives
 $\Cov(r,1/r)=\tfrac12\E[(r-r')(\tfrac1r-\tfrac1{r'})]=-\tfrac12\E[(r-r')^2/(rr')]\le0$.
