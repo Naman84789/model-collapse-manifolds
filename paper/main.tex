@@ -168,7 +168,7 @@ anchored/unanchored split with full mode coverage (Figure~\ref{fig:cifar}).
     one further measured channel (in-band profile sag); the margin narrows with tube width,
     and where the flat envelope is exceeded at $\sigma=0.13$ the curved-geometry correction
     of Corollary~\ref{cor:curved} removes the excess outright;
-    and across five training protocols that move the ceiling $3.5\to7.5$, every measured
+    and across five training protocols that move the ceiling $3.2\to5.8$, every measured
     floor stays above its proven bound.
   \item \emph{Two-horned ablation}: separates the floor's existence (sampler noise) from
     its size (slope ceiling).
@@ -858,10 +858,11 @@ own ceiling inside the deficit band, worth $+0.7\,\sigsq$ at the data width. Bey
 the affine recursion driven by the measured ensemble slope reproduces the sampler to
 $-0.4\,\sigsq$: the nonlinear remainder is small. \textbf{Interventional test.} The law survives moving the ceiling: five
 training protocols ($t$-importance-sampling into the band, $4\times$ steps, a
-higher-frequency time embedding, and combinations) move $\kb$ from $3.5$ to $7.5$; the
-measured floor drops from $7.4$--$7.8\,\sigsq$ at the two low-$\kb$ protocols into the
-$2.5$--$4.9\,\sigsq$ range at the three high-$\kb$ ones (a group-level fall with
-protocol-dependent scatter, not a clean $1/\kb^2$ trace), and --- the load-bearing
+higher-frequency time embedding, and combinations) move $\kb$ from $3.2$ to $5.8$ read
+under \eqref{eq:khat} ($3.8$ to $7.6$ under $p_t$); the measured floor drops from
+$6.4$--$7.2\,\sigsq$ at the two low-$\kb$ protocols into the $3.0$--$3.4\,\sigsq$ range at
+the three high-$\kb$ ones (a group-level fall with protocol-dependent scatter, not a clean
+$1/\kb^2$ trace), and --- the load-bearing
 statement --- every one of the five sits strictly above its own proven bound.
 
 That statement is the one most exposed by \eqref{eq:khat}, since a lower sampler-law
@@ -903,10 +904,11 @@ the sampler's own ensemble \eqref{eq:khat}, which is what the theorem constrains
 the tighter, accounting for $81\%$ of the directly measured single-pass floor against
 $58\%$. The measured anatomy of the remainder (in-band profile sag) is in the text,
 as is the tube width at which the comparison expires. Open circles: the
-interventional test --- five training protocols move the measured ceiling from $3.5$
-to $7.5$; the measured floor falls from ${\sim}7.6\,\sigsq$ (low $\kb$) into the
-$2.5$--$4.9\,\sigsq$ range (high $\kb$), with protocol scatter, and every point stays
-strictly above its bound.}
+interventional test, read under \eqref{eq:khat} on the same axis as the star --- five
+training protocols move the measured ceiling from $3.2$ to $5.8$; the measured floor falls
+from $6.4$--$7.2\,\sigsq$ (low $\kb$) into the $3.0$--$3.4\,\sigsq$ range (high $\kb$),
+with protocol scatter, and every point stays strictly above its bound, the tightest at
+$78\%$ of its measured floor.}
 \label{fig:floorlaw}
 \end{figure}
 
@@ -1247,7 +1249,7 @@ Pixel CIFAR-10, $G{=}8$ & unanchored & $22.8\pm1.2$ & 3 \\
  & anchored coverage / diversity & $1.00\times$ / $0.75\times$ & 3 \\
 \midrule
 Floor law & envelope at $\kb$ under $p_t$ / under \eqref{eq:khat} & $3.8$ / $5.5\,\sigsq$ ($58\%$ / $81\%$ of measured) & 6 \\
- & interventional test, $\kb\!:3.5\to7.5$ & floor $7.6\to\{2.5$--$4.9\}$, above bound & 3 \\
+ & interventional test, $\kb\!:3.2\to5.8$ & floor $\{6.4$--$7.2\}\to\{3.0$--$3.4\}$, $0/5$ violated & 3 \\
 \bottomrule
 \end{tabular}
 \end{table}

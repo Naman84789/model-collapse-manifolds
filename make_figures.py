@@ -118,15 +118,17 @@ try:
     kbar = np.array([2, 3, 3.9, 5, 7, 10.0])
     phi = np.array([14.1, 6.28, 3.82, 2.44, 1.43, 1.00])
     kk = np.linspace(1.7, 10.5, 200)
-    # interventional test, ceiling_origin.jsonl: five training protocols,
-    # (measured kbar, measured single-pass floor at t0=1e-4) per arm A..E
-    co = load("ceiling_origin.jsonl")
+    # interventional test, five training protocols, (measured kbar, measured single-pass
+    # floor at t0=1e-4) per arm A..E. Read under eq. (3), the SAMPLER's own ensemble, so
+    # that the circles share an axis with the star; ceiling_origin.jsonl holds the same
+    # arms read under p_t, which would put them on a different x-axis to the star.
+    co = load("ceiling_origin_samplerlaw.jsonl")
     if co:
-        ik = np.array([co[k]["kbar"] for k in sorted(co)])
-        im = np.array([co[k]["floor_meas_sig2"] for k in sorted(co)])
+        ik = np.array([co[k]["kbar_sampler"] for k in sorted(co)])
+        im = np.array([co[k]["floor_meas_s2"] for k in sorted(co)])
     else:  # logged values, for a repo checkout without the jsonl
-        ik = np.array([3.734, 6.678, 3.476, 7.466, 6.431])
-        im = np.array([7.391, 3.719, 7.793, 4.894, 2.456])
+        ik = np.array([3.410, 5.374, 3.219, 5.765, 5.150])
+        im = np.array([6.414, 3.397, 7.189, 3.412, 2.987])
 
     fig, ax = plt.subplots(figsize=(4.9, 3.1))
     C0 = (1 + 3 * np.exp(-4.0)) / 8  # exact sigma->0 constant (1+3e^-4)/8
