@@ -216,3 +216,14 @@ print("ablation band to hit: 10.8-13.2 sigma^2", flush=True)
 log(dict(key="SUMMARY", ws=[round(float(x), 6) for x in ws],
          v_full=[round(float(x), 6) for x in vfull_m], fixed_point_sig2=round(fp, 3)))
 print(f"ALL DONE {el()}", flush=True)
+
+# NOTE (2026-08-31): sag_in_band and the v_prof/v_env channel above are computed from
+# ks_pt, the FORWARD-PROCESS profile, against the forward-process ceiling. That is
+# internally consistent but it is not the probe eq. (3) constrains, and the paper's
+# floor-anatomy paragraph is explicitly written under eq. (3). Recomputed from the stored
+# khat_ens arrays in this file's own jsonl, under the sampler's own ensemble:
+#   sag inside the band  : 0.50-0.56 at sigma=0.05  (against 0.59-0.68 under p_t)
+#   profile-sag channel  : 1.09-1.37 sigma^2        (against 0.54-0.88 under p_t)
+# The channel is worth about twice as much read the consistent way, because the sampler-law
+# ceiling is lower and the envelope correspondingly higher. The paper now quotes the
+# sampler-law figures. No re-run was needed: both profiles were already stored per record.
