@@ -960,8 +960,10 @@ factor in three measured steps, each a directly logged measurement.
 
 \emph{Step 1, capacity degradation.} The single-width probe
 (Appendix~\ref{app:details}) shows the ceiling itself degrades on fatter training pools,
-from $3.7$--$4.3$ at $\sqrt w=0.03$ down to $2.8$--$3.0$ at $\sqrt w=0.13$ (ranges over
-three training seeds), and the degradation replicates under a half-width network, under a
+from $3.2$--$3.6$ at $\sqrt w=0.03$ down to $2.4$--$2.6$ at $\sqrt w=0.13$ read under
+\eqref{eq:khat} ($4.0$--$4.4$ down to $2.8$--$3.1$ under $p_t$; ranges over three training
+seeds, \texttt{poolwidth\_probe\_samplerlaw.jsonl}), and the degradation replicates under a
+half-width network, under a
 different ring radius (slopes $-9.4$ to $-13.0$ across all five measurements), across
 three further synthetic geometries --- a flat segment (the flat-tube idealization made
 exact, so the degradation does not require curvature; $42\%$ drop over the same width
@@ -1221,9 +1223,9 @@ requires.
 \caption{\textbf{CIFAR-10 pixel recursion (\emph{we observe}).} (a) Off-manifold distance
 (mean nearest-neighbor distance to held-out real CIFAR-10) across 8 self-consuming
 generations, 3 seeds (mean $\pm$ s.d.). The two arms stabilize on opposite sides of the
-real-vs-real baseline ($20.1$): unanchored above ($+2.7$, the predicted fattening),
-anchored below ($-3.8$, mild contraction toward the manifold); the sign of the split
-holds in every seed. Because the two deviations are of comparable size, panel (a) alone
+real-vs-real baseline ($20.15$): unanchored above ($+2.4$, the predicted fattening),
+anchored below ($-3.9$, mild contraction toward the manifold); the sign of the split
+holds in every seed. Because both arms deviate from the baseline, panel (a) alone
 establishes stability, not superiority; the ranking evidence is (b): three
 nearest-neighbor metrics relative to a real-vs-real baseline (dotted). The
 anchor keeps \emph{coverage} of the real data at $1.00\times$ (no real modes dropped,
@@ -1238,12 +1240,12 @@ survives at realistic dimension, we ran the same self-consuming recursion in raw
 pixel space ($32\times32\times3=3{,}072$ dimensions) with a small convolutional denoiser
 ($\sim$7M parameters, mixed precision, single consumer GPU), $\lambda=\tfrac12$, $G=8$,
 three seeds (Figure~\ref{fig:cifar}a). Both arms are stable, and they stabilize on
-opposite sides of the real-vs-real baseline ($20.1$): the unanchored recursion settles
-\emph{above} it (off-manifold distance $22.8\pm1.2$, a deviation of $+2.7$, the
+opposite sides of the real-vs-real baseline ($20.15$): the unanchored recursion settles
+\emph{above} it (off-manifold distance $22.5\pm0.5$, a deviation of $+2.4$, the
 fattening the theory predicts, same sign in every seed), while the anchored recursion
-sits \emph{below} it ($16.3\pm0.7$, a deviation of $-3.8$, mild contraction toward the
+sits \emph{below} it ($16.3\pm0.4$, a deviation of $-3.9$, mild contraction toward the
 manifold reflecting the anchor's known diversity cost). We are explicit about what
-panel~(a) can and cannot show: the two deviations are of comparable magnitude, so the
+panel~(a) can and cannot show: both arms deviate from the baseline, so the
 distance metric alone ranks neither arm; it establishes that the anchored dynamics are
 stable and non-compounding, not that its samples are closer to the data distribution.
 The ranking evidence is Figure~\ref{fig:cifar}b: against a real-vs-real baseline, the
@@ -1281,9 +1283,9 @@ Pixel MNIST, $G{=}8$ & unanchored & $3.06$ & 3 \\
  & anchored & $1.66$ & 3 \\
  & true-data baseline & $1.34$ & n/a \\
 \midrule
-Pixel CIFAR-10, $G{=}8$ & unanchored & $22.8\pm1.2$ & 3 \\
- & anchored & $16.3\pm0.7$ & 3 \\
- & true-data baseline & $20.1$ & n/a \\
+Pixel CIFAR-10, $G{=}8$ & unanchored & $22.5\pm0.5$ & 3 \\
+ & anchored & $16.3\pm0.4$ & 3 \\
+ & true-data baseline & $20.15$ & n/a \\
  & anchored coverage / diversity & $1.00\times$ / $0.75\times$ & 3 \\
 \midrule
 Floor law & envelope at $\kb$ under $p_t$ / under \eqref{eq:khat} & $3.8$ / $5.5\,\sigsq$ ($58\%$ / $81\%$ of measured) & 6 \\
