@@ -39,3 +39,34 @@ This file records the sweep and, honestly, the claims that do not.
   out, and the ratio 68/21 = 3.24 is consistent with the stated "~3x", but neither
   plateau value appears in any jsonl or json file here. It appears to come from a run
   that was never logged. Either re-run and log it, or soften the claim.
+
+## Ring floor anatomy and appendix (swept 2026-09-02)
+
+| claim | source | status |
+|---|---|---|
+| four-channel budget 2.6 / 3.0 / 7.2 / 7.3 % | `gap_budget.jsonl` | exact; each recomputes from the stage values |
+| budget product 2.90 vs measured 2.894 | same | exact (3.564 x .974 x .970 x .928 x .927 = 2.897) |
+| seg ensemble width 1.06-1.43x, skew +0.05 to -0.03 | `ensemble_shape.jsonl` | exact |
+| seg predicted probe ratio 0.996 vs 0.995-0.998 | same | exact |
+| ring width 2.05x, skew -0.44 to -1.02, offset 0.03-0.04 | same | exact (skew -0.436 to -1.023) |
+| sigma->0 constant (1+3e^-4)/8 = 0.1319 | closed form | exact; `falsify_floor.py` T2 gives g*rho^2 = 0.527474 vs C_0 = 0.527473 |
+| "1/8 and (1+3e^-4)/8 differ by 5.5%" | arithmetic | exact (0.13187/0.125 = 1.055) |
+| rho=0.39: 3.953/3.812/3.775 vs limit 3.769 | `falsify_floor.py` T5 | exact, reproduced by running it |
+| `falsify_floor.py` adversarial battery | ran it | **14/14 pass** |
+| `e2e_floor_check.py` end-to-end battery | ran it | **7/7 pass** |
+| note_floor: "recovers 1/(2 rho^2) to 1.7%" | `e2e_floor_check.py` test E | exact (+1.70 / +1.65 / +1.73 % at rho = 0.2 / 0.39 / 0.55) |
+
+### Corrected
+
+| claim | was | now | why |
+|---|---|---|---|
+| skew injection endpoint | 3.47 -> 3.30 | 3.47 -> 3.37 | `gap_budget.jsonl` records `three_moment_matched: 3.367`; a move to 3.30 would make the skew channel 4.9%, contradicting the 3.0% the paper uses two sentences later |
+
+### Noted, not an error
+
+`deficit_floor_law.py`'s docstring calls 0.141 the "strongly-singular asymptotic". It is
+not the asymptote; it is the value at finite rho. Since Phi*kbar^2 = (rho^2/4) g(rho) =
+C_0/4 + O(rho^2) = 0.1319 + O(rho^2), and the logged points sit at rho = 2 sigma kbar =
+0.15 to 0.30, the O(rho^2) term accounts for the difference. The paper itself only ever
+states the exact 0.1319 and never claims the numerics equal it, so no paper claim is
+affected; the docstring is merely loose.
