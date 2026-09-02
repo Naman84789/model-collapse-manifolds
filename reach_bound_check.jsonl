@@ -1,0 +1,16 @@
+{"key": "CIRCLE_r2.4", "geom": "circle", "R": 2.5, "r": 2.4, "h": -0.1, "lap": 0.416667, "bound": 0.416667, "ratio": 1.0}
+{"key": "CIRCLE_r2.0", "geom": "circle", "R": 2.5, "r": 2.0, "h": -0.5, "lap": 0.5, "bound": 0.5, "ratio": 1.0}
+{"key": "CIRCLE_r1.5", "geom": "circle", "R": 2.5, "r": 1.5, "h": -1.0, "lap": 0.666667, "bound": 0.666667, "ratio": 1.0}
+{"key": "CIRCLE_r1.0", "geom": "circle", "R": 2.5, "r": 1.0, "h": -1.5, "lap": 1.0, "bound": 1.0, "ratio": 1.0}
+{"key": "CIRCLE_r0.6", "geom": "circle", "R": 2.5, "r": 0.6, "h": -1.9, "lap": 1.666667, "bound": 1.666667, "ratio": 1.0}
+{"key": "ELL_2.0_0.0", "geom": "ellipse", "A": 3.0, "B": 2.0, "tau": 1.333333, "h": -1.0, "lap_analytic": 3.0, "lap_numeric": 3.0, "bound": 3.0, "inside_tube": true, "bound_holds": true}
+{"key": "ELL_1.5_0.0", "geom": "ellipse", "A": 3.0, "B": 2.0, "tau": 1.333333, "h": -1.48324, "lap_analytic": 2.838736, "lap_numeric": 11757.913973, "bound": null, "inside_tube": false, "bound_holds": true}
+{"key": "ELL_1.0_0.0", "geom": "ellipse", "A": 3.0, "B": 2.0, "tau": 1.333333, "h": -1.78885, "lap_analytic": 0.698771, "lap_numeric": 17889.242579, "bound": null, "inside_tube": false, "bound_holds": true}
+{"key": "ELL_0.5_0.0", "geom": "ellipse", "A": 3.0, "B": 2.0, "tau": 1.333333, "h": -1.94936, "lap_analytic": 0.450979, "lap_numeric": 19574.870376, "bound": null, "inside_tube": false, "bound_holds": true}
+{"key": "ELL_0.0_0.0", "geom": "ellipse", "A": 3.0, "B": 2.0, "tau": 1.333333, "h": -2.0, "lap_analytic": 0.4, "lap_numeric": 20000.4, "bound": null, "inside_tube": false, "bound_holds": true}
+{"key": "ELL_0.0_1.5", "geom": "ellipse", "A": 3.0, "B": 2.0, "tau": 1.333333, "h": -0.5, "lap_analytic": 0.25, "lap_numeric": 0.25, "bound": 1.2, "inside_tube": true, "bound_holds": true}
+{"key": "ELL_0.0_1.0", "geom": "ellipse", "A": 3.0, "B": 2.0, "tau": 1.333333, "h": -1.0, "lap_analytic": 0.285714, "lap_numeric": 0.285714, "bound": 3.0, "inside_tube": true, "bound_holds": true}
+{"key": "ELL_0.0_0.5", "geom": "ellipse", "A": 3.0, "B": 2.0, "tau": 1.333333, "h": -1.5, "lap_analytic": 0.333333, "lap_numeric": 0.333333, "bound": null, "inside_tube": false, "bound_holds": true}
+{"key": "ELL_1.0_1.0", "geom": "ellipse", "A": 3.0, "B": 2.0, "tau": 1.333333, "h": -0.85546, "lap_analytic": 0.332285, "lap_numeric": 0.332285, "bound": 2.092621, "inside_tube": true, "bound_holds": true}
+{"key": "ELL_3.4_0.0", "geom": "ellipse", "A": 3.0, "B": 2.0, "tau": 1.333333, "h": 0.4, "lap_analytic": 0.576923, "lap_numeric": 0.576923, "bound": 1.071429, "inside_tube": true, "bound_holds": true}
+{"key": "ELL_0.0_2.4", "geom": "ellipse", "A": 3.0, "B": 2.0, "tau": 1.333333, "h": 0.4, "lap_analytic": 0.204082, "lap_numeric": 0.204082, "bound": 1.071429, "inside_tube": true, "bound_holds": true}

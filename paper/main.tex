@@ -518,9 +518,29 @@ so Theorem~\ref{thm:floor} holds verbatim with the coefficient shifted by $-L$. 
 hypothesis is a statement about the \emph{medial axis}: $\Delta h$ measures the mean
 curvature of the level sets of the distance function, and it is exactly on the medial axis,
 where the nearest-point projection stops being single-valued, that it fails to be bounded.
-For a sphere in $\R^D$ the medial axis is the centre and the reach is $R$, so an ensemble
-staying at distance $\ge a$ from the centre gives $L=(D-1)/a^2$.
+The constant is then supplied by the \emph{reach}. For $M$ of dimension $d$ and codimension
+one with reach $\tau$, the level sets of $h$ have shape operator $S(I-hS)^{-1}$ with
+$\|S\|\le1/\tau$, so
+\begin{equation}
+|\Delta h|\;\le\;\frac{d}{\tau-|h|}\quad\text{on the tube }|h|<\tau,
+\qquad\text{hence}\qquad L\;\le\;\frac{d}{(\tau-h_{\max})^{2}},
+\label{eq:reachbound}
+\end{equation}
+with $h_{\max}$ the furthest the ensemble strays from $M$.
 \end{corollary}
+
+\eqref{eq:reachbound} is an equality for a sphere, where $\tau=R$, $d=D-1$ and $|h|=|r-R|$
+return $\Delta h=(D-1)/r$ exactly, so nothing is lost by stating it this way; for the ring
+($\tau=2.5$, $d=1$, $h_{\max}=1.0$) it gives $L=0.444$, the same constant as before. What is
+gained is that $\tau$ is a property of the manifold rather than of the sampler's ensemble,
+and it is the quantity this literature already assumes. We check
+\eqref{eq:reachbound} on a geometry whose reach is not a radius
+(\texttt{reach\_bound\_check.py}): for an ellipse with semi-axes $3$ and $2$, whose reach is
+$B^2/A=1.33$ and whose medial axis is a segment rather than a point, the bound holds at
+every test point inside the tube with worst ratio $1.000$, attained at the end of the major
+axis where the curvature is maximal. Past the reach a finite-difference Laplacian of $h$
+diverges to ${\sim}2\times10^{4}$, which is the medial axis making itself visible: there $h$
+is not $C^2$ and no bound of this shape is claimed.
 
 The shift is a \emph{constant} while $2\kb/s$ diverges as $s\to0$, so curvature is
 irrelevant exactly where the floor is set: for $D=2$ and $a=1.5$ it is $4.5\%$ of the
