@@ -1,0 +1,41 @@
+# Claim provenance
+
+Every numeric claim in `paper/main.tex` should trace to a logged run in this repo.
+This file records the sweep and, honestly, the claims that do not.
+
+## Swept and verified (2026-09-02)
+
+| claim | source | status |
+|---|---|---|
+| MNIST unanchored 3.06, anchored 1.66, baseline 1.34 | `pixel_mnist_recursion.jsonl` | exact (final-gen means 3.0587 / 1.6583 / 1.3376) |
+| MNIST closes ~81% of the gap | same | exact (1.4004/1.7211 = 81.4%) |
+| MNIST ratios 2.3x and 1.24x | same | exact |
+| head-to-head annealed 9.8 sigma^2 | `head_to_head.jsonl` | exact (9.840, 5 seeds, 20 gens) |
+| head-to-head anchored 1.01 +- 0.02 | same | exact (1.006 +- 0.020) |
+| replay 8.5 +- 1.1 | `replay_baseline.jsonl` | exact (8.519 +- 1.122) |
+| subcritical control 16.5 +- 2.2 | `subcritical_lambda.jsonl` | exact (16.487 +- 2.249) |
+| capacity_domains probe ratios | `capacity_domains_samplerlaw.jsonl` | exact (0.995-0.998, 0.740-0.746, 0.975-0.988) |
+| kbar sampler/pt ratio 0.83-0.87, monotone | `kbar_sampler_law.jsonl` | exact (0.827-0.868, monotone) |
+| poolwidth fits 3.80-10.25 sqrt(w), 4.54-12.17 sqrt(w) | `poolwidth_probe_samplerlaw.jsonl` | exact |
+| geometry drops 42% / 30% / 49% | `capacity_domains.jsonl` | exact; probe-insensitive (sampler law gives 42.2 / 29.2 / 48.0) |
+| truncation remainder ~39 sigma^2 | analytic | exact: (1-e^-0.05)/0.5/sigma^2 = 39.0 |
+
+## Corrected during the sweep
+
+| claim | was | now | why |
+|---|---|---|---|
+| CIFAR off-manifold | 22.8 +- 1.2 / 16.3 +- 0.7, dev +2.7 / -3.8 | 22.5 +- 0.5 / 16.3 +- 0.4, dev +2.4 / -3.9 | neither value appears in `CIFAR_3SEED_RESULTS.txt`; logged run is 22.52 +- 0.49 and 16.25 +- 0.41 against a 20.15 baseline |
+| capacity degradation range | 3.7-4.3 down to 2.8-3.0 | 3.2-3.6 down to 2.4-2.6 under eq. (3), 4.0-4.4 down to 2.8-3.1 under p_t | no jsonl contained the quoted ranges |
+| head-to-head annealed s.d. | +- 1.7 | +- 1.8 | 1.7 is ddof=0; every other error bar in the paper is ddof=1 (1.846) |
+| subcritical s.d. | 69 +- 16 | 69 +- 15 | ddof=1 gives 15.475 |
+| interventional ceilings | 3.5 -> 7.5 (p_t) | 3.2 -> 5.8 (eq. 3) | figure plotted p_t circles beside a sampler-law star |
+| profile-sag channel | sag 0.59-0.68, worth 0.54-0.88 sigma^2 | sag 0.50-0.56, worth 1.09-1.37 sigma^2 | computed from the p_t profile inside a paragraph written under eq. (3) |
+
+## NOT verified: no logged source in this repo
+
+- **"21 vs 68 sigma^2 in raw normal variance"** (jump vs standard unanchored plateau at
+  lambda=1/2, matched truncation t_0 = t_hat = 0.05), in the attribution paragraph of
+  Section 7. The accompanying analytic figure (~39 sigma^2 truncation remainder) checks
+  out, and the ratio 68/21 = 3.24 is consistent with the stated "~3x", but neither
+  plateau value appears in any jsonl or json file here. It appears to come from a run
+  that was never logged. Either re-run and log it, or soften the claim.

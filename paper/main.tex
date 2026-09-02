@@ -1118,7 +1118,7 @@ We test this at the anchor's exact information budget (\emph{we observe}): inser
 anchor's own stale reference ($m=2{,}000$ real points, drawn once at $g=0$, never
 refreshed) \emph{into the pool} every generation of the head-to-head protocol ---
 raising the effective real fraction to $\lambda_{\mathrm{eff}}=2/3$, with synthetic data
-now a $1/3$ \emph{minority} --- moves the 20-generation plateau only from $9.8\pm1.7$ to
+now a $1/3$ \emph{minority} --- moves the 20-generation plateau only from $9.8\pm1.8$ to
 $8.5\pm1.1\,\sigsq$ (5 seeds, same annealed schedule), the small dilution the law
 predicts for a larger $\lambda$; the anchor, using the same $2{,}000$ points as a moment
 reference instead, holds $1.01\pm0.02\,\sigsq$. Replay dilutes the floor; anchoring
@@ -1142,7 +1142,7 @@ and jump samplers converge to the same variance; we report both.
 Ring manifold, $\sigma=0.05$, $\lambda=\tfrac12$, 20 generations, 5 seeds
 (mean $\pm$ s.d.). Red: annealed truncation $t_0\!:0.05\to10^{-4}$, no anchor
 \citep{khelifa2026recursive}; it rises to $47\sigsq$, then thins only to
-$9.8\sigsq\pm1.7$. Blue/green: the same recursion with the anchor (standard and jump
+$9.8\sigsq\pm1.8$. Blue/green: the same recursion with the anchor (standard and jump
 samplers): $1.01\sigsq\pm0.02$, flat for 20 generations.}
 \label{fig:headtohead}
 \end{figure}
@@ -1268,12 +1268,12 @@ except MNIST and CIFAR-10, which report off-manifold distance).}
 \toprule
 Experiment & Arm & Final value & Seeds \\
 \midrule
-Head-to-head, $G{=}20$ & annealed truncation \citep{khelifa2026recursive} & $9.84\pm1.7$ & 5 \\
+Head-to-head, $G{=}20$ & annealed truncation \citep{khelifa2026recursive} & $9.84\pm1.85$ & 5 \\
  & standard sampler $+$ anchor & $1.01\pm0.02$ & 5 \\
  & jump sampler $+$ anchor & $1.01\pm0.02$ & 5 \\
  & annealed $+$ replay ($m{=}2{,}000$ in-pool) & $8.5\pm1.1$ & 5 \\
 \midrule
-Critical fraction, $t_0{=}10^{-4}$ & $\lambda=0.02$ (subcritical) & $69\pm16$ at $g_{24}$, rising & 3 \\
+Critical fraction, $t_0{=}10^{-4}$ & $\lambda=0.02$ (subcritical) & $69\pm15$ at $g_{24}$, rising & 3 \\
  & $\lambda=0.25$ (control) & $16.5\pm2.2$ (plateau) & 3 \\
 \midrule
 Ablation, fixed $t_0{=}10^{-4}$ & stochastic (noise on) & $10.8$ to $13.2$ & 3 \\
