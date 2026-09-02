@@ -514,8 +514,12 @@ $|\Cov(h,\Delta h)|\le L\,V$ and
 \[
 -\frac{dV}{dt}\;\ge\;\Big(1-\frac{2\kb}{s}-L\Big)V+1 ,
 \]
-so Theorem~\ref{thm:floor} holds verbatim with the coefficient shifted by $-L$. For a
-sphere in $\R^D$ whose ensemble stays at radius $\ge a$, $L=(D-1)/a^2$.
+so Theorem~\ref{thm:floor} holds verbatim with the coefficient shifted by $-L$. The
+hypothesis is a statement about the \emph{medial axis}: $\Delta h$ measures the mean
+curvature of the level sets of the distance function, and it is exactly on the medial axis,
+where the nearest-point projection stops being single-valued, that it fails to be bounded.
+For a sphere in $\R^D$ the medial axis is the centre and the reach is $R$, so an ensemble
+staying at distance $\ge a$ from the centre gives $L=(D-1)/a^2$.
 \end{corollary}
 
 The shift is a \emph{constant} while $2\kb/s$ diverges as $s\to0$, so curvature is
@@ -535,7 +539,14 @@ floor) costs $12$--$19\%$, and an ensemble genuinely reaching $a=0.05$ would pus
 below $\sigsq$ and assert nothing at all. The exact term \eqref{eq:curvterm} has no such
 sensitivity --- it is two measured moments, $\E[r]$ and $\E[1/r]$ --- so where a numerical
 floor is wanted on curved data we would integrate with the measured $\E[r]\E[1/r]$ and use
-Corollary~\ref{cor:curved} only for the assumption-light statement.
+Corollary~\ref{cor:curved} only for the assumption-light statement. We note that the same
+geometric quantity carries the assumptions elsewhere in this literature:
+\citet{azangulov2025convergence} obtain ambient-dimension-free rates for DDPMs on a manifold
+whose reach is bounded below, the reach being precisely the distance from the manifold to
+its medial axis. A distance-from-the-medial-axis hypothesis of the shape above is therefore
+the natural one to state, and it is a strictly weaker requirement than curvature bounds,
+since a highly curved manifold can have large reach and a nearly flat one can have small
+reach where two sheets approach.
 
 \begin{remark}[a checkable sufficient condition]\label{rem:lip}
 The hypothesis of Theorem~\ref{thm:floor} constrains $\hat\kappa$, a regression slope. A
