@@ -552,11 +552,23 @@ $\Phi_{\det}(3.9)$ by $2.0$--$2.6\%$ (\texttt{curved\_floor\_envelope.py}, which
 measured ODE residual on the ring with a floor bound the ring nonetheless satisfies: the
 residual lives at moderate $t$ and the floor does not.
 
-We flag the one real weakness of this route rather than leave it to be found. $L$ is set by
-an essential infimum, so it is governed by rare small-radius stragglers and not by the bulk
-of the ensemble. Reading $a$ off the $0.01\%$ quantile instead ($0.36$--$0.46$ near the
-floor) costs $12$--$19\%$, and an ensemble genuinely reaching $a=0.05$ would push the bound
-below $\sigsq$ and assert nothing at all. The exact term \eqref{eq:curvterm} has no such
+We flag the real weakness of this route rather than leave it to be found, and it is sharper
+than a loose constant. $L$ is set by an essential infimum, so it is governed by rare
+small-radius stragglers and not by the bulk: reading $a$ off the $0.01\%$ radial quantile
+instead ($0.36$--$0.46$ near the floor) costs $12$--$19\%$. But the honest statement is
+stronger. The sampler is driven by Gaussian noise, so its ensemble has full support, and on
+full support $\Delta h=(D-1)/r$ is not Lipschitz at all. Corollary~\ref{cor:curved} does not
+merely weaken for the sampler we actually run; its hypothesis fails outright. It applies to
+an ensemble supported away from the medial axis, which is a conditioning, not a description
+of the process.
+
+Nothing of consequence follows for the floor, because the exact term is immune to this. Near
+the medial axis the mass element is $r^{d_\perp-1}dr$ against an integrand $1/r$, so
+$\E[1/r]$ converges for every codimension $d_\perp\ge2$ and $\Cov(r,1/r)=1-\E[r]\E[1/r]$
+stays finite on full support. The two-moment form is therefore the operative one for any
+statement about a real sampler, and Corollary~\ref{cor:curved} should be read as the
+assumption-light companion it is: a bound one can quote without measuring anything, on an
+ensemble one has first arranged to keep away from the medial axis. The exact term \eqref{eq:curvterm} has no such
 sensitivity --- it is two measured moments, $\E[r]$ and $\E[1/r]$ --- so where a numerical
 floor is wanted on curved data we would integrate with the measured $\E[r]\E[1/r]$ and use
 Corollary~\ref{cor:curved} only for the assumption-light statement. We note that the same
