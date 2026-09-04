@@ -168,3 +168,34 @@ collapse on real CIFAR-10 recursions. Cost (reduced intra-gen diversity) is
 non-compounding and non-catastrophic.
 
 ============================================================================
+
+============================================================================
+CORRECTION NOTE (added 2026-09-02)
+============================================================================
+The SUMMARY figures above do not all agree with the per-generation values listed
+directly above them. Recomputing each seed mean from its own g0-g7 line:
+
+                     stated      recomputed from the listed generations
+  UNFIXED seed 0      22.00      21.9950   ok
+  UNFIXED seed 1      23.07      23.0725   ok
+  UNFIXED seed 2      22.49      22.3688   MISMATCH (-0.121)
+  FIXED   seed 0      16.27      16.2750   ok
+  FIXED   seed 1      15.82      15.8950   MISMATCH (+0.075)
+  FIXED   seed 2      16.66      16.5375   MISMATCH (-0.123)
+
+Consequently the "overall mean" lines are also off: 22.52 stated against 22.4788
+recomputed, and 16.25 against 16.2358.
+
+The cause is not established. Either the summary was produced from a slightly
+different run than the generation lines, or the generation lines were transcribed
+after the summary was computed. Resolving it needs a re-run.
+
+The paper now takes its CIFAR figures from the PER-GENERATION values, which are
+the finest-grained data present, using mean and s.d. over the three seed means as
+the table caption promises:
+
+  unanchored  22.4788 +- 0.5471   ->  22.5 +- 0.5   (deviation +2.3 from 20.15)
+  anchored    16.2358 +- 0.3230   ->  16.2 +- 0.3   (deviation -3.9 from 20.15)
+
+provenance_check.py enforces those and reports this inconsistency as a WARNING on
+every run until it is resolved.

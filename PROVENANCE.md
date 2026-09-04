@@ -70,3 +70,39 @@ C_0/4 + O(rho^2) = 0.1319 + O(rho^2), and the logged points sit at rho = 2 sigma
 0.15 to 0.30, the O(rho^2) term accounts for the difference. The paper itself only ever
 states the exact 0.1319 and never claims the numerics equal it, so no paper claim is
 affected; the docstring is merely loose.
+
+## Enforced automatically (from 2026-09-02)
+
+`provenance_check.py` now checks 19 load-bearing numbers by pairing a regex that extracts
+the value AS PRINTED IN THE PAPER with a function that recomputes it FROM THE LOGGED DATA.
+Re-run any experiment and the dependent checks fail until the text is updated. Run it
+before any commit that touches numbers:
+
+    python provenance_check.py        # exit 0 = pass, 1 = at least one mismatch
+    python provenance_check.py -v     # show passing rows too
+
+Tolerance is set by the printed precision, not relatively: a paper printing "1.1" asserts
+the source rounds to 1.1, so the check is |source - 1.1| <= 0.05. That is the correct
+semantics for a rounded display and it is what caught the remaining CIFAR error.
+
+### Found by the checker on its first run
+
+**`CIFAR_3SEED_RESULTS.txt` disagrees with itself.** Three of its stated per-seed means do
+not match the mean of the per-generation values listed directly above them:
+
+| | stated | recomputed from its own listed generations |
+|---|---|---|
+| UNFIXED seed 2 | 22.49 | 22.3688 |
+| FIXED seed 1 | 15.82 | 15.8950 |
+| FIXED seed 2 | 16.66 | 16.5375 |
+
+The overall means inherit it: 22.52 stated against 22.4788, and 16.25 against 16.2358.
+The paper had taken its figures from the summary half. It now takes them from the
+per-generation values, which are the finest-grained data present, using mean and s.d. over
+the three seed means as the table caption promises: unanchored 22.5 +- 0.5 (deviation
++2.3), anchored 16.2 +- 0.3 (deviation -3.9). The earlier hand correction had reached
+22.5 +- 0.5 correctly but left the anchored arm at 16.3 +- 0.4.
+
+The cause is not established and resolving it needs a re-run, so the checker reports it as
+a standing WARNING rather than a failure: no paper claim depends on the inconsistent half,
+and a permanently red check is one people learn to ignore.
