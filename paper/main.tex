@@ -568,6 +568,17 @@ the natural one to state, and it is a strictly weaker requirement than curvature
 since a highly curved manifold can have large reach and a nearly flat one can have small
 reach where two sheets approach.
 
+We should be precise about how far that parallel goes, because the two uses of the reach are
+not the same. Azangulov (personal communication) points out that their score-regularity
+result is in fact reach-agnostic: what the proof uses is that the support decomposes into
+charts $f_i(B_d(0,1))$ with each $f_i$ Lipschitz, and a lower bound on the reach enters only
+as a convenient way to guarantee such a decomposition exists. Our use is not substitutable in
+that way. \eqref{eq:reachbound} bounds the shape operator of the level sets of $h$, and it is
+the reach itself, not a chart decomposition, that supplies $\|S\|\le1/\tau$. So the reach is
+sufficient in both settings and necessary in neither obvious sense, but it is load-bearing
+here in a way it is not there, and we would expect our constant to survive a weakening of the
+hypothesis only if the weaker condition still controls $\Delta h$.
+
 \begin{remark}[a checkable sufficient condition]\label{rem:lip}
 The hypothesis of Theorem~\ref{thm:floor} constrains $\hat\kappa$, a regression slope. A
 pointwise bound implies it: if $\epshat(\cdot,t)$ is $\kb$-Lipschitz in the normal
